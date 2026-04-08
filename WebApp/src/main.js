@@ -136,6 +136,15 @@
         }
     }
 
+    /** versionName з meta totus-web-build (агульна з totus-app-version.properties). */
+    function totusWebDisplayedVersion() {
+        const v =
+            window.TOTUS_WEB_APP_BUILD != null && String(window.TOTUS_WEB_APP_BUILD) !== ''
+                ? String(window.TOTUS_WEB_APP_BUILD)
+                : '';
+        return v || '0';
+    }
+
     const BE_MONTH_GEN = [
         '',
         'студзеня',
@@ -1613,6 +1622,7 @@
         <div class="rounded-md border border-app-stroke bg-app-elevated p-[18px]">
             <p class="text-[15px] text-app-textSec leading-relaxed">Націсніце на дату, каб адкрыць лекцыянарый. Мясцовыя святы дыяцэзій Беларусі можна ўключыць праз шасцярэнку ў правым верхнім куце.</p>
             <p class="mt-3 text-[15px] text-app-textSec leading-relaxed">Пераклад здзейснены Секцыяй па перакладзе літургічных тэкстаў і афіцыйных дакументаў Касцёла пры ККББ.</p>
+            <p class="mt-3 text-[15px] text-app-textSec leading-relaxed">* - гэта значыць, што ёсць успамін ці іншае.</p>
         </div>`;
     }
 
@@ -1885,12 +1895,12 @@
         return 1;
     }
 
-    /** Значок «несколькі загалоўкаў»: Uicons fi-rr-book-alt (Flaticon). */
-    function calendarMultiLectionaryBadgeHtml(dayFg, sizePx = 10.8) {
+    /** Значок «несколькі загалоўкаў»: зорачка ў правым верхнім куце. */
+    function calendarMultiLectionaryBadgeHtml(dayFg, sizePx = 12) {
         const s = sizePx;
         const insetX = Math.round((4 * s) / 12);
         const insetY = Math.round((3 * s) / 12);
-        return `<span class="pointer-events-none leading-none" style="position:absolute;right:${insetX}px;top:${insetY}px;color:${dayFg}" aria-hidden="true"><i class="fi fi-rr-book-alt" style="font-size:${s}px;line-height:1"></i></span>`;
+        return `<span class="pointer-events-none leading-none font-bold" style="position:absolute;right:${insetX}px;top:${insetY}px;color:${dayFg};font-size:${s}px;line-height:1" aria-hidden="true">*</span>`;
     }
 
     function renderCalendarCell(day) {
@@ -1923,8 +1933,8 @@
         let strokeW;
         if (isToday) {
             bg = light ? '#E8DBC5' : '#2F354F';
-            stroke = light ? '#8B6D4A' : '#E2D5B8';
-            strokeW = 2;
+            stroke = light ? '#5C3D1E' : '#F8F1E0';
+            strokeW = 3;
         } else if (inMonth) {
             bg = light ? '#F6EFE2' : '#171A2A';
             stroke = light ? '#C6B39A' : '#39415E';
@@ -1937,7 +1947,9 @@
         const fg = inMonth ? (light ? '#3F3121' : '#FFFFFF') : light ? '#7C6650' : '#7A8499';
         const opacity = inMonth ? '' : 'opacity-[0.72]';
         const tintedPalette = inMonth
-            ? uniqueHexes.map((hex) => lightenColor(blendHex(bg, hex, isToday ? 0.48 : 0.36), isToday ? 0.18 : 0.15))
+            ? uniqueHexes.map((hex) =>
+                  lightenColor(blendHex(bg, hex, isToday ? 0.62 : 0.54), isToday ? 0.07 : 0.05),
+              )
             : [bg];
         let bgStyle = `background-color:${tintedPalette[0]};`;
         if (tintedPalette.length === 2) {
@@ -1955,10 +1967,16 @@
         }
         const showOmega = getLectionaryCountForCalendarDay(day) > 1;
 
+        const todayGlow =
+            isToday && inMonth
+                ? light
+                    ? 'box-shadow:0 0 0 1px rgba(92,61,30,0.25);'
+                    : 'box-shadow:0 0 0 1px rgba(248,241,224,0.22),0 0 12px rgba(248,241,224,0.12);'
+                : '';
         return `
             <button type="button" data-date="${escapeHtml(day.date)}"
                 class="calendar-cell-app relative flex flex-col items-center justify-center gap-[5px] rounded-[10px] border border-solid p-0 box-border cursor-pointer ${opacity}"
-                style="aspect-ratio:1/1;${bgStyle}border-color:${stroke};border-width:${strokeW}px">
+                style="aspect-ratio:1/1;${bgStyle}border-color:${stroke};border-width:${strokeW}px;${todayGlow}">
                 ${showOmega ? calendarMultiLectionaryBadgeHtml(dayFg) : ''}
                 <span class="text-base font-bold leading-none" style="color:${dayFg}">${day.day}</span>
             </button>`;
@@ -4364,10 +4382,11 @@
     function aboutShellHtml() {
         return `
     <div class="max-w-[480px] mx-auto px-2 pb-8 pt-2">
-      <section class="totus-about-card rounded-md border border-app-stroke bg-app-elevated p-[18px] flex flex-col text-sm leading-relaxed">
+      <section class="totus-about-card rounded-md border border-app-stroke bg-app-elevated p-[18px] flex flex-col text-sm leading-snug">
         <p class="text-app-textSec m-0">Totus Tuus - гэта прыкладанне для каталікоў на беларускай мове. Дадатак аб'ядноўвае ў адным месцы малітоўнік, спеўнік, Святое Пісанне і літургічны каляндар, каб патрэбныя тэксты заўсёды былі пад рукой.</p>
-        <p class="text-app-textSec m-0">Просьба пра памылкі, багі і ідэі пісаць на электронную пошту:<br><a href="mailto:dzmitrypanou@gmail.com" class="text-app-text underline-offset-2 hover:underline">dzmitrypanou@gmail.com</a></p>
+        <p class="text-app-textSec m-0">Просьба пра памылкі ці ідэі пісаць на Email:<br><a href="mailto:dzmitrypanou@gmail.com" class="text-app-text underline-offset-2 hover:underline">dzmitrypanou@gmail.com</a></p>
         <p class="text-app-textSec m-0">Вэб-дадатак:<br><a href="https://app.kasciolhomiel.by/" target="_blank" rel="noopener noreferrer" class="text-app-text underline-offset-2 hover:underline">app.kasciolhomiel.by</a></p>
+        <p class="text-app-textSec m-0">Версія: v${escapeHtml(totusWebDisplayedVersion())}</p>
       </section>
     </div>`;
     }

@@ -22,18 +22,34 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp">
 
             <TextView
                 android:id="@+id/info_screen_message_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autoLink="web|email"
+                android:lineSpacingExtra="1dp"
+                android:lineSpacingMultiplier="1.05"
                 android:linksClickable="true"
                 android:text="@string/info_screen_message"
                 android:textAppearance="?attr/textAppearanceBody1"
                 android:textColor="?attr/totusColorTextSecondary"
                 android:textColorLink="?attr/totusColorTextPrimary" />
+
+            <TextView
+                android:id="@+id/text_app_version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:lineSpacingExtra="0dp"
+                android:lineSpacingMultiplier="1.05"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textColor="?attr/totusColorTextSecondary"
+                tools:text="Версія: v1.1.0" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

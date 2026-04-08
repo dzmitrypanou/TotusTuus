@@ -10,6 +10,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import by.dzmitrypanou.catholicapp.BuildConfig
+import by.dzmitrypanou.catholicapp.R
 import by.dzmitrypanou.catholicapp.databinding.FragmentSlideshowBinding
 
 class SlideshowFragment : Fragment() {
@@ -31,6 +33,7 @@ class SlideshowFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.textAppVersion.text = getString(R.string.app_version_line, BuildConfig.VERSION_NAME)
         binding.infoScreenMessageText.post {
             stripUnderlinesFromLinks(binding.infoScreenMessageText)
         }

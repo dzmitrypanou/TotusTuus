@@ -1,7 +1,6 @@
 package by.dzmitrypanou.catholicapp.ui.liturgy
 
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.graphics.Canvas
 import android.graphics.Path
 import android.view.MotionEvent
@@ -34,6 +33,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 class LiturgyCalendarFragment : Fragment() {
@@ -91,6 +91,7 @@ class LiturgyCalendarFragment : Fragment() {
         PrayerBookUiTypography.applyUiSp(binding.textLiturgyMonthTitle, R.dimen.text_list_row_title, ctx)
         PrayerBookUiTypography.applyUiSp(binding.textLiturgyCalendarNote, R.dimen.text_list_row_subtitle, ctx)
         PrayerBookUiTypography.applyUiSp(binding.textLiturgyCalendarNoteTranslation, R.dimen.text_list_row_subtitle, ctx)
+        PrayerBookUiTypography.applyUiSp(binding.textLiturgyCalendarNoteStarMeaning, R.dimen.text_list_row_subtitle, ctx)
         PrayerBookUiTypography.applyUiSp(binding.textLiturgyPrevMonth, 20f, ctx)
         PrayerBookUiTypography.applyUiSp(binding.textLiturgyNextMonth, 20f, ctx)
         // Масштабуем заголовкі дзён тыдня (Нд, Пн, …)
@@ -245,7 +246,8 @@ class LiturgyCalendarFragment : Fragment() {
                             }
                         }.distinctBy { it.lowercase(Locale.ROOT) }.take(3)
                     },
-                    isToday = apiDay?.isToday == true,
+                    // Як normalizeCalendarToday у вэбе: «сёння» па лакальнай дате прылады, не па полі API (часавы пояс сервера інакш дае два вылучаныя дні).
+                    isToday = date == todayDate,
                     isImportant = apiDay?.isImportant == true,
                     hasContent = apiDay?.hasContent == true,
                     lectionaryCount = resolveLectionaryCount(apiDay)
@@ -348,29 +350,33 @@ class LiturgyCalendarFragment : Fragment() {
                 val tertiary = liturgicalColors.getOrNull(2)
 
                 val selected = item.date == selectedDate
+                val density = ctx.resources.displayMetrics.density
+                fun strokeWidthDp(dpVal: Float) = (dpVal * density).roundToInt().coerceAtLeast(1)
                 val baseCardBg = when {
                     selected -> ctx.themeColor(R.attr.totusColorScriptureHighlightFill)
+                    item.inCurrentMonth && item.isToday -> ctx.themeColor(R.attr.totusColorScriptureHighlightFill)
                     item.inCurrentMonth -> ctx.themeColor(R.attr.totusColorBgSecondary)
                     else -> ctx.themeColor(R.attr.totusColorBgPrimary)
                 }
                 val cardBg = if (item.inCurrentMonth) {
-                    // Keep liturgical color visible directly in the day cell background.
-                    val tinted = ColorUtils.blendARGB(baseCardBg, primaryColor, if (selected) 0.42f else 0.30f)
-                    ColorUtils.blendARGB(tinted, Color.WHITE, if (selected) 0.16f else 0.13f)
+                    // Keep liturgical color visible; blend closer to legend swatches (vivid), less gray wash.
+                    val tinted = ColorUtils.blendARGB(baseCardBg, primaryColor, if (selected) 0.58f else 0.52f)
+                    ColorUtils.blendARGB(tinted, Color.WHITE, if (selected) 0.08f else 0.05f)
                 } else {
                     baseCardBg
                 }
                 val tintedLiturgical = liturgicalColors.map { src ->
-                    val tinted = ColorUtils.blendARGB(baseCardBg, src, if (selected) 0.48f else 0.36f)
-                    ColorUtils.blendARGB(tinted, Color.WHITE, if (selected) 0.18f else 0.15f)
+                    val tinted = ColorUtils.blendARGB(baseCardBg, src, if (selected) 0.62f else 0.54f)
+                    ColorUtils.blendARGB(tinted, Color.WHITE, if (selected) 0.07f else 0.05f)
                 }
                 val primaryTint = tintedLiturgical.first()
                 val secondaryTint = tintedLiturgical.getOrNull(1)
                 applyDayBackground(tintedLiturgical)
-                val stroke = if (selected) {
-                    ctx.themeColor(R.attr.totusColorScriptureHighlightStroke)
-                } else {
-                    ctx.themeColor(R.attr.totusColorSurfaceStroke)
+                val highlightStroke = ctx.themeColor(R.attr.totusColorScriptureHighlightStroke)
+                val stroke = when {
+                    selected -> highlightStroke
+                    item.isToday && item.inCurrentMonth -> highlightStroke
+                    else -> ctx.themeColor(R.attr.totusColorSurfaceStroke)
                 }
                 val readableTextColor = if (tintedLiturgical.size > 1) {
                     bestReadableTextColorForBackgrounds(tintedLiturgical)
@@ -391,12 +397,16 @@ class LiturgyCalendarFragment : Fragment() {
                         if (item.inCurrentMonth) readableTextColor else ColorUtils.setAlphaComponent(readableTextColor, 190)
                     }
                 )
-                val moreIconColor = binding.textLiturgyDayNumber.currentTextColor
-                binding.imageLiturgyDayMore.setColorFilter(moreIconColor, PorterDuff.Mode.SRC_IN)
-                binding.imageLiturgyDayMore.visibility = if (item.lectionaryCount > 1) View.VISIBLE else View.GONE
+                val starColor = binding.textLiturgyDayNumber.currentTextColor
+                binding.textLiturgyDayMoreStar.setTextColor(starColor)
+                binding.textLiturgyDayMoreStar.visibility = if (item.lectionaryCount > 1) View.VISIBLE else View.GONE
                 binding.root.setCardBackgroundColor(cardBg)
                 binding.root.strokeColor = stroke
-                binding.root.strokeWidth = if (selected) 2 else 1
+                binding.root.strokeWidth = when {
+                    item.isToday && item.inCurrentMonth -> strokeWidthDp(3f)
+                    selected -> strokeWidthDp(2f)
+                    else -> strokeWidthDp(1f)
+                }
 
                 binding.root.alpha = if (item.inCurrentMonth) 1f else 0.72f
                 binding.root.contentDescription = "${item.dayNumber}"

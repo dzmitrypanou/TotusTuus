@@ -11,6 +11,7 @@
     <string name="toolbar_brand_title">Totus Tuus</string>
     <string name="toolbar_cross_content_description">Каталіцкі латынскі крыж</string>
     <string name="menu_slideshow">Інфармацыя</string>
+    <string name="app_version_line">Версія: v%1$s</string>
     <string name="menu_settings">Налады</string>
     <string name="home_item_prayerbook">Малітоўнік</string>
     <string name="home_item_scripture">Святое Пісанне</string>
@@ -33,7 +34,7 @@
     <string name="no_prayers_in_subcategory">У гэтай падкатэгорыі пакуль няма малітваў.</string>
     <string name="prayer_bucket_no_category">Без катэгорыі</string>
     <string name="no_prayers_uncategorized">Пакуль няма малітваў без катэгорыі.</string>
-    <string name="info_screen_message">Totus Tuus - гэта прыкладанне для каталікоў на беларускай мове. Дадатак аб\'ядноўвае ў адным месцы малітоўнік, спеўнік, Святое Пісанне і літургічны каляндар, каб патрэбныя тэксты заўсёды былі пад рукой.\n\nПросьба пра памылкі, багі і ідэі пісаць на электронную пошту:\ndzmitrypanou@gmail.com\n\nВэб-дадатак:\napp.kasciolhomiel.by</string>
+    <string name="info_screen_message">Totus Tuus - гэта прыкладанне для каталікоў на беларускай мове. Дадатак аб\'ядноўвае ў адным месцы малітоўнік, спеўнік, Святое Пісанне і літургічны каляндар, каб патрэбныя тэксты заўсёды былі пад рукой.\nПросьба пра памылкі ці ідэі пісаць на Email:\ndzmitrypanou@gmail.com\nВэб-дадатак:\napp.kasciolhomiel.by</string>
     <string name="settings_title">Налады</string>
     <string name="settings_overview_title">Агульны выгляд налад</string>
     <string name="settings_text_and_fonts_section_title">Тэкст і шрыфты</string>
@@ -180,6 +181,7 @@
     <string name="liturgy_day_screen_title">Лекцыянарый дня</string>
     <string name="liturgy_calendar_note_open_day">Націсніце на дату, каб адкрыць лекцыянарый. Мясцовыя святы дыяцэзій Беларусі можна ўключыць праз шасцярэнку ў правым верхнім куце.</string>
     <string name="liturgy_calendar_note_translation">Пераклад здзейснены Секцыяй па перакладзе літургічных тэкстаў і афіцыйных дакументаў Касцёла пры ККББ.</string>
+    <string name="liturgy_calendar_note_star_meaning">* - гэта значыць, што ёсць успамін ці іншае.</string>
     <string name="liturgy_calendar_settings_note">Змены захаваны адразу. Без сувязі з сеткай даты ў календары могуць заставацца шэрымі.</string>
     <string name="liturgy_calendar_settings_content_description">Налады літургічнага календара</string>
     <string name="liturgy_diocese_settings_title">Налады календара</string>

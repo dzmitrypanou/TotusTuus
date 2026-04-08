@@ -192,6 +192,16 @@
                         android:text="@string/liturgy_calendar_note_translation"
                         android:textColor="?attr/totusColorTextSecondary"
                         android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/text_liturgy_calendar_note_star_meaning"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:lineSpacingExtra="4dp"
+                        android:text="@string/liturgy_calendar_note_star_meaning"
+                        android:textColor="?attr/totusColorTextSecondary"
+                        android:textSize="14sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

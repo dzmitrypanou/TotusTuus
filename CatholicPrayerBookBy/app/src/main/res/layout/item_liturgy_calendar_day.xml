@@ -33,17 +33,18 @@
 
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/image_liturgy_day_more"
-            android:layout_width="9dp"
-            android:layout_height="9dp"
+        <TextView
+            android:id="@+id/text_liturgy_day_more_star"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="top|end"
-            android:layout_marginTop="3dp"
-            android:layout_marginEnd="4dp"
+            android:layout_marginTop="1dp"
+            android:layout_marginEnd="3dp"
             android:contentDescription=""
             android:importantForAccessibility="no"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_menu_book_24"
+            android:text="*"
+            android:textSize="12sp"
+            android:textStyle="bold"
             android:visibility="gone" />
 
     </FrameLayout>
