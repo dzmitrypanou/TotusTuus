@@ -1,0 +1,404 @@
+/* Страница дашборда (dashboard.php) */
+
+/* Заголовки секций: не дублируем громкий жёлтый h2 из admin.css */
+.dashboard-page h2.profile-section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #e8eef2;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #2a3138;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dashboard-page .profile-panel > h2.profile-section-title {
+    margin: 0;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #2a3138;
+    background: rgba(26, 31, 36, 0.55);
+    border-radius: 10px 10px 0 0;
+}
+
+.dashboard-page h2.profile-section-title i {
+    color: #c9a227;
+    font-size: 1.05em;
+}
+
+/* Две колонки пополам: учётные данные | сводка */
+.dashboard-page .profile-layout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+    align-items: start;
+    margin: 0;
+}
+
+@media (max-width: 900px) {
+    .dashboard-page .profile-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.dashboard-page .profile-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.dashboard-page .profile-layout__aside {
+    min-width: 0;
+}
+
+.dashboard-page .profile-aside-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+.dashboard-page .profile-aside-alert {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.45;
+}
+
+/* Панель-сводка */
+.dashboard-page .profile-panel {
+    background: linear-gradient(165deg, #12161a 0%, #0e1114 100%);
+    border: 1px solid #2a3138;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.dashboard-page .profile-panel__body {
+    padding: 20px 20px 8px;
+}
+
+.dashboard-page .profile-panel--mini {
+    margin-bottom: 0;
+}
+
+.dashboard-page .profile-panel__body--mini {
+    padding: 14px 14px 10px;
+}
+
+.dashboard-page .profile-panel--mini .profile-subsection-block {
+    margin-bottom: 16px;
+}
+
+.dashboard-page .profile-panel--mini .profile-subsection-block:last-child {
+    margin-bottom: 0;
+}
+
+.dashboard-page .profile-subsection-title--mini {
+    font-size: 0.8125rem;
+    margin-bottom: 10px;
+}
+
+.dashboard-page .profile-subsection-title--mini i.fa-tools {
+    color: #c9a227;
+}
+
+.dashboard-page .profile-subsection-title--mini i.fa-map {
+    color: #ffd966;
+}
+
+.dashboard-page .profile-module-link i.fa-map {
+    color: #ffd966;
+}
+
+.dashboard-page .profile-subsection-caption--mini {
+    margin: 6px 0 8px;
+    font-size: 0.75rem;
+}
+
+.dashboard-page .profile-subsection-block--last {
+    margin-bottom: 0 !important;
+}
+
+/* Мини-сетки справа */
+.dashboard-page .profile-stat-grid--mini-main {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 0;
+}
+
+.dashboard-page .profile-stat-grid--mini-maps {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 0;
+}
+
+.dashboard-page .profile-stat-card--mini {
+    padding: 10px 10px;
+}
+
+.dashboard-page .profile-stat-card--mini .label {
+    font-size: 0.7rem;
+    line-height: 1.25;
+}
+
+.dashboard-page .profile-stat-card--mini .value {
+    font-size: 1.35rem;
+    margin-top: 4px;
+}
+
+/* Ссылки на разделы админки (как в меню «Разделы») */
+.dashboard-page .profile-module-links {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: -4px 0;
+}
+
+.dashboard-page .profile-module-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    margin: 0 -8px;
+    border-radius: 8px;
+    color: #e8eef2;
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    border: 1px solid transparent;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.dashboard-page .profile-module-link:hover {
+    background: rgba(255, 217, 102, 0.07);
+    border-color: rgba(255, 217, 102, 0.28);
+    color: #ffd966;
+}
+
+.dashboard-page .profile-module-link i {
+    width: 1.25rem;
+    text-align: center;
+    color: #c9a227;
+    font-size: 0.95rem;
+}
+
+.dashboard-page .profile-module-link:hover i {
+    color: #ffd966;
+}
+
+.dashboard-page .profile-subsection-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: -0.01em;
+    color: #a8b4bf;
+    margin: 0 0 14px;
+}
+
+.dashboard-page .profile-subsection-title i {
+    color: #9aa7b2;
+    font-size: 0.95rem;
+}
+
+.dashboard-page .profile-subsection-title:first-child {
+    margin-top: 0;
+}
+
+.dashboard-page .profile-subsection-caption {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: normal;
+    color: #7d8b99;
+    margin: 8px 0 12px;
+}
+
+.dashboard-page .profile-subsection-block {
+    margin-bottom: 22px;
+}
+
+.dashboard-page .profile-subsection-block:last-child {
+    margin-bottom: 0;
+}
+
+/* Сетки метрик */
+.dashboard-page .profile-stat-grid {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.dashboard-page .profile-stat-grid--main {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 158px), 1fr));
+}
+
+.dashboard-page .profile-stat-grid--types {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 112px), 1fr));
+}
+
+.dashboard-page .profile-stat-grid--maps {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
+}
+
+.dashboard-page .profile-stat-grid--wgsrt {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+}
+
+.dashboard-page .profile-stat-card {
+    background: rgba(26, 31, 36, 0.85);
+    border: 1px solid #2f3840;
+    border-radius: 8px;
+    padding: 14px 16px;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.dashboard-page .profile-stat-card:hover {
+    border-color: rgba(255, 217, 102, 0.35);
+    background: #1a1f24;
+}
+
+.dashboard-page .profile-stat-card .label {
+    color: #9aa7b2;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.dashboard-page .profile-stat-card .label i {
+    margin-right: 4px;
+    opacity: 0.9;
+}
+
+.dashboard-page .profile-stat-card .value {
+    color: #f0d875;
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-top: 8px;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.dashboard-page .profile-stat-grid--types .profile-stat-card .value {
+    font-size: 1.45rem;
+}
+
+.dashboard-page .profile-card {
+    width: 100%;
+    background: linear-gradient(165deg, #12161a 0%, #0e1114 100%);
+    border: 1px solid #2a3138;
+    border-radius: 10px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-page .profile-card__head {
+    padding: 14px 20px;
+    border-bottom: 1px solid #2a3138;
+    background: rgba(26, 31, 36, 0.5);
+}
+
+.dashboard-page .profile-card__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #e8eef2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dashboard-page .profile-card__title i {
+    color: #c9a227;
+    font-size: 1rem;
+}
+
+.dashboard-page .profile-card__body {
+    padding: 20px;
+    flex: 1;
+}
+
+.dashboard-page .profile-identity {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.dashboard-page .profile-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #2a3138, #1a1f24);
+    border: 1px solid #3d4750;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffd966;
+    flex-shrink: 0;
+}
+
+.dashboard-page .profile-meta {
+    color: #9aa7b2;
+    font-size: 14px;
+    line-height: 1.65;
+    margin: 0;
+}
+
+.dashboard-page .profile-meta dt {
+    color: #7d8b99;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: normal;
+    margin-top: 12px;
+}
+
+.dashboard-page .profile-meta dt:first-child {
+    margin-top: 0;
+}
+
+.dashboard-page .profile-meta dd {
+    margin: 4px 0 0;
+    color: #e8eef2;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* Форма пароля */
+.dashboard-page .profile-password-form .form-group {
+    margin-bottom: 16px;
+}
+
+.dashboard-page .profile-password-form .form-group label {
+    color: #c5d0d8;
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.dashboard-page .profile-password-form input[type="password"] {
+    border-radius: 6px;
+}
+
+.dashboard-page .profile-password-form .btn-primary {
+    margin-top: 8px;
+    width: 100%;
+    justify-content: center;
+    padding: 12px 20px;
+    border-radius: 6px;
+}

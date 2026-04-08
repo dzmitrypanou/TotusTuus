@@ -1,0 +1,24 @@
+Options -Indexes
+
+# Запрет доступа ко всем файлам по умолчанию
+Order allow,deny
+Deny from all
+
+# Разрешаем только PHP скриптам читать файлы (через сервер)
+# Прямой доступ через HTTP запрещен
+<FilesMatch "\.(mtreplay|wotreplay)$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Полный запрет на выполнение любых скриптов
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|php8|pl|py|jsp|asp|shtml|sh|cgi|htaccess)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Запрет на скачивание любых файлов
+<Files *>
+    Order allow,deny
+    Deny from all
+</Files>

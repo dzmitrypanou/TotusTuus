@@ -1,0 +1,42 @@
+Options -Indexes
+AddDefaultCharset UTF-8
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+RewriteEngine On
+RewriteBase /admin/
+
+# Вход в /admin/ ведёт на дашборд
+RewriteRule ^$ dashboard [L]
+
+# Переезд редактора танков: /admin/index -> /admin/tanks
+# Если сервер внутренне подменяет запрос /admin на index (без явного /admin/index),
+# то канонизируем на dashboard, чтобы главная не становилась /tanks.
+RewriteCond %{THE_REQUEST} \s+/admin(?:\s|\?|$) [NC]
+RewriteCond %{THE_REQUEST} !\s+/admin/index(?:\s|\?|$) [NC]
+RewriteRule ^index/?$ dashboard [L,NC]
+
+RewriteRule ^index/?$ tanks [R=301,L,NC]
+
+# Канонизация: /admin/*.php -> /admin/* (301)
+RewriteCond %{THE_REQUEST} \s/+admin/([a-z0-9\-]+)\.php(?:[\s?]|$) [NC]
+RewriteRule ^([a-z0-9\-]+)\.php$ $1 [R=301,L]
+
+# Если файл или папка существуют (css, js, ajax и т.д.) — отдаём как есть
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# ЧПУ для админ-страниц: /admin/login -> /admin/login.php
+RewriteRule ^([a-z0-9\-]+)/?$ $1.php [L,QSA,NC]

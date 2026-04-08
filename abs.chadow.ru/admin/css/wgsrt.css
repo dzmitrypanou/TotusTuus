@@ -1,0 +1,588 @@
+.wgsrt-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0;
+}
+.number-input {
+    background: #1a1f24;
+    border: 1px solid #2a3138;
+    color: #ffd966;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    text-align: center;
+    transition: all 0.2s;
+    width: 100%;
+    font-family: 'Inter', monospace;
+}
+.number-input:focus {
+    outline: none;
+    border-color: #ffd966;
+}
+.number-input::-webkit-inner-spin-button,
+.number-input::-webkit-outer-spin-button {
+    display: none;
+    -webkit-appearance: none;
+    margin: 0;
+}
+.number-input {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+.number-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+.number-wrapper .number-input {
+    width: 100%;
+    padding-right: 28px;
+}
+.number-controls {
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    bottom: 2px;
+    display: flex;
+    flex-direction: column;
+    width: 24px;
+    background: #1a1f24;
+    border-left: 1px solid #2a3138;
+}
+.number-controls button {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #ffd966;
+    cursor: pointer;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    padding: 0;
+    line-height: 1;
+}
+.number-controls button:hover {
+    background: rgba(255, 217, 102, 0.15);
+    color: #ffd44d;
+}
+.number-controls button:active {
+    transform: scale(0.95);
+}
+.coefficients-table {
+    width: 100%;
+    background: #14181c;
+    border: 1px solid #2a3138;
+    margin: 0;
+    border-collapse: collapse;
+}
+.coefficients-table th {
+    background: #1a1f24;
+    color: #ffd966;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 14px 12px;
+    text-align: center;
+    border-bottom: 1px solid #2a3138;
+}
+.coefficients-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #2a3138;
+    vertical-align: middle;
+}
+.coefficients-table tr:hover td {
+    background: #1f262c;
+}
+.coefficient-name {
+    font-weight: 600;
+    color: #ffd966;
+    text-align: left;
+    padding-left: 16px;
+}
+/* Единая высота полей с числами (как в градации) */
+.coefficients-table .number-wrapper {
+    display: block;
+    width: 100%;
+}
+.coefficients-table .number-wrapper .number-input {
+    min-height: 38px;
+    box-sizing: border-box;
+    line-height: 1.25;
+    padding: 8px 28px 8px 10px;
+}
+.coefficients-table .number-controls {
+    top: 1px;
+    bottom: 1px;
+    right: 1px;
+}
+.grades-table {
+    width: 100%;
+    background: #14181c;
+    border: 1px solid #2a3138;
+    margin: 0;
+    border-collapse: collapse;
+    overflow-x: auto;
+    display: block;
+}
+.grades-table th {
+    background: #1a1f24;
+    color: #ffd966;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 12px 8px;
+    text-align: center;
+    border-bottom: 1px solid #2a3138;
+    white-space: nowrap;
+}
+.grades-table td {
+    padding: 8px 6px;
+    border-bottom: 1px solid #2a3138;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+/* Единая высота полей в градации (текст и числа со стрелками) */
+.grades-table .grade-input,
+.grades-table .number-wrapper .number-input {
+    min-height: 38px;
+    box-sizing: border-box;
+    line-height: 1.25;
+}
+.grades-table .grade-input {
+    padding: 8px 10px;
+}
+.grades-table .number-wrapper .number-input {
+    padding: 8px 28px 8px 10px;
+}
+.grades-table .number-wrapper {
+    display: block;
+    width: 100%;
+}
+.grades-table .number-controls {
+    top: 1px;
+    bottom: 1px;
+    right: 1px;
+}
+.grades-table tr:hover td {
+    background: #1f262c;
+}
+.grade-color-cell {
+    width: 50px;
+    text-align: center;
+}
+.grade-color {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 2px solid #2a3138;
+    transition: all 0.2s;
+    display: inline-block;
+}
+.grade-color:hover {
+    transform: scale(1.05);
+    border-color: #ffd966;
+}
+.grade-input {
+    width: 100%;
+    padding: 6px 8px;
+    background: #1a1f24;
+    border: 1px solid #2a3138;
+    color: #e8eef2;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+.grade-input:focus {
+    outline: none;
+    border-color: #ffd966;
+}
+.number-input-small {
+    width: 70px;
+    text-align: center;
+}
+.grade-actions {
+    white-space: nowrap;
+    text-align: center;
+    width: 52px;
+    vertical-align: middle;
+}
+/* Квадрат по высоте с полями строки (min-height 38px) */
+.grades-table .grade-actions .btn.btn-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    padding: 0;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    gap: 0;
+    line-height: 1;
+}
+.grades-table .grade-actions .btn.btn-icon i {
+    font-size: 14px;
+    margin: 0;
+    line-height: 1;
+}
+.tabs {
+    display: flex;
+    gap: 0;
+    margin: 0;
+    border-bottom: 1px solid #2a3138;
+}
+.tab {
+    padding: 12px 24px;
+    background: transparent;
+    border: none;
+    color: #9aa7b2;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.tab i {
+    font-size: 1rem;
+    width: 20px;
+}
+.tab.active {
+    color: #ffd966;
+    border-bottom-color: #ffd966;
+    background: rgba(255, 217, 102, 0.05);
+}
+.tab:hover:not(.active) {
+    color: #ffd966;
+}
+.tab-content {
+    display: none;
+    flex-direction: column;
+    gap: var(--layout-gap, 24px);
+    min-width: 0;
+}
+.tab-content.active {
+    display: flex;
+}
+.tab-content > form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--layout-gap, 24px);
+    margin: 0;
+    min-width: 0;
+}
+.tab-content > form > * {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.action-bar {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin: 0;
+}
+.action-bar-left {
+    flex: 1;
+    display: flex;
+    gap: 15px;
+}
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+}
+.section-header h2 {
+    margin: 0;
+    color: #ffd966;
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.btn {
+    background: transparent;
+    border: 1px solid #2a3138;
+    color: #e8eef2;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+}
+.btn-primary {
+    background: #ffd966;
+    border-color: #ffd966;
+    color: #0a0c0f;
+}
+.btn-primary:hover {
+    background: #ffd44d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 217, 102, 0.3);
+}
+.btn:hover {
+    background: #1a1f24;
+    border-color: #ffd966;
+    color: #ffd966;
+}
+.btn-small {
+    padding: 6px 14px;
+}
+.btn-icon {
+    padding: 4px 8px;
+}
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 18px;
+    background: #14181c;
+    border: 1px solid #2a3138;
+    color: #e8eef2;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 2000;
+    animation: slideIn 0.3s ease;
+    max-width: 350px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+}
+.notification.success {
+    border-left: 4px solid #4caf50;
+}
+.notification.error {
+    border-left: 4px solid #ff8a8a;
+}
+.notification.info {
+    border-left: 4px solid #ffd966;
+}
+.notification i {
+    font-size: 1rem;
+}
+.notification.success i {
+    color: #4caf50;
+}
+.notification.error i {
+    color: #ff8a8a;
+}
+.notification.info i {
+    color: #ffd966;
+}
+.notification.fade-out {
+    animation: fadeOut 0.3s ease forwards;
+}
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+@keyframes fadeOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+.custom-color-picker {
+    position: absolute;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+.custom-color-picker:hover {
+    transform: scale(1.05);
+}
+.custom-color-picker:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #ffd966;
+}
+@media (max-width: 1200px) {
+    .grades-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .coefficients-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .number-input-small {
+        width: 65px;
+    }
+}
+@media (max-width: 992px) {
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    .grade-color-cell {
+        width: 45px;
+    }
+    .grade-color {
+        width: 28px;
+        height: 28px;
+    }
+    .tabs {
+        flex-wrap: wrap;
+    }
+    .grades-table th,
+    .grades-table td {
+        font-size: 0.7rem;
+        padding: 6px 4px;
+    }
+    .grade-input {
+        font-size: 0.7rem;
+        padding: 4px 6px;
+    }
+    .grades-table .grade-input,
+    .grades-table .number-wrapper .number-input {
+        min-height: 34px;
+    }
+    .grades-table .grade-input {
+        padding: 6px 8px;
+    }
+    .grades-table .number-wrapper .number-input {
+        padding: 6px 26px 6px 8px;
+        font-size: 0.7rem;
+    }
+    .grades-table .grade-actions .btn.btn-icon {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+    }
+    .coefficients-table .number-wrapper .number-input {
+        min-height: 34px;
+        padding: 6px 26px 6px 8px;
+        font-size: 0.7rem;
+    }
+    .number-input-small {
+        width: 55px;
+    }
+}
+@media (max-width: 768px) {
+    .tabs {
+        flex-direction: column;
+        border-bottom: none;
+    }
+    .tab {
+        border-bottom: 1px solid #2a3138;
+        text-align: left;
+        padding: 10px 16px;
+        justify-content: flex-start;
+    }
+    .tab.active {
+        border-bottom-color: #ffd966;
+        background: rgba(255, 217, 102, 0.05);
+    }
+    .action-bar {
+        flex-direction: column;
+    }
+    .action-bar-left {
+        order: 2;
+    }
+    .action-bar button {
+        width: 100%;
+        justify-content: center;
+    }
+    .grades-table th,
+    .grades-table td {
+        font-size: 0.65rem;
+        padding: 5px 3px;
+    }
+    .number-input {
+        padding: 4px 6px;
+        font-size: 0.7rem;
+    }
+    .number-input-small {
+        width: 50px;
+    }
+    .grade-input {
+        padding: 4px 6px;
+        font-size: 0.7rem;
+    }
+    .grades-table .grade-input,
+    .grades-table .number-wrapper .number-input {
+        min-height: 32px;
+    }
+    .grades-table .grade-input {
+        padding: 4px 6px;
+    }
+    .grades-table .number-wrapper .number-input {
+        padding: 4px 24px 4px 6px;
+        font-size: 0.7rem;
+    }
+    .coefficients-table .number-wrapper .number-input {
+        min-height: 32px;
+        padding: 4px 24px 4px 6px;
+        font-size: 0.7rem;
+    }
+    .grade-color {
+        width: 24px;
+        height: 24px;
+    }
+    .grade-color-cell {
+        width: 38px;
+    }
+    .grades-table .grade-actions .btn.btn-icon {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+    }
+    .grades-table .grade-actions .btn.btn-icon i {
+        font-size: 12px;
+    }
+    .notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        font-size: 0.8rem;
+    }
+}
+@media (max-width: 480px) {
+    .tab {
+        font-size: 0.85rem;
+        padding: 8px 12px;
+    }
+    .section-header h2 {
+        font-size: 1rem;
+    }
+    .btn-small {
+        padding: 4px 10px;
+    }
+    .grade-color {
+        width: 22px;
+        height: 22px;
+    }
+    .grade-color-cell {
+        width: 34px;
+    }
+    .number-input-small {
+        width: 45px;
+    }
+}
