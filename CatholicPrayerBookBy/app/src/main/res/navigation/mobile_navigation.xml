@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <action
+        android:id="@+id/action_global_nav_prayer_search"
+        app:destination="@id/nav_prayer_search"
+        app:enterAnim="@anim/nav_noop"
+        app:exitAnim="@anim/nav_noop"
+        app:popEnterAnim="@anim/nav_noop"
+        app:popExitAnim="@anim/nav_noop" />
+
+    <action
+        android:id="@+id/action_global_nav_bookmarked_prayers"
+        app:destination="@id/nav_bookmarked_prayers"
+        app:enterAnim="@anim/nav_noop"
+        app:exitAnim="@anim/nav_noop"
+        app:popEnterAnim="@anim/nav_noop"
+        app:popExitAnim="@anim/nav_noop" />
+
+    <action
+        android:id="@+id/action_global_nav_songbook_search"
+        app:destination="@id/nav_songbook_search"
+        app:enterAnim="@anim/nav_noop"
+        app:exitAnim="@anim/nav_noop"
+        app:popEnterAnim="@anim/nav_noop"
+        app:popExitAnim="@anim/nav_noop" />
+
+    <action
+        android:id="@+id/action_global_nav_bookmarked_songs"
+        app:destination="@id/nav_songbook_bookmarked"
+        app:enterAnim="@anim/nav_noop"
+        app:exitAnim="@anim/nav_noop"
+        app:popEnterAnim="@anim/nav_noop"
+        app:popExitAnim="@anim/nav_noop" />
+
+    <action
+        android:id="@+id/action_global_nav_scripture_favorites"
+        app:destination="@id/nav_scripture_favorites"
+        app:enterAnim="@anim/nav_noop"
+        app:exitAnim="@anim/nav_noop"
+        app:popEnterAnim="@anim/nav_noop"
+        app:popExitAnim="@anim/nav_noop" />
+
+    <action
+        android:id="@+id/action_global_nav_scripture_compare"
+        app:destination="@id/nav_scripture_compare"
+        app:enterAnim="@anim/nav_noop"
+        app:exitAnim="@anim/nav_noop"
+        app:popEnterAnim="@anim/nav_noop"
+        app:popExitAnim="@anim/nav_noop" />
+
+    <action
+        android:id="@+id/action_global_nav_liturgy_calendar_settings"
+        app:destination="@id/nav_liturgy_calendar_settings"
+        app:enterAnim="@anim/nav_noop"
+        app:exitAnim="@anim/nav_noop"
+        app:popEnterAnim="@anim/nav_noop"
+        app:popExitAnim="@anim/nav_noop" />
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="by.dzmitrypanou.catholicapp.ui.home.HomeFragment"
+        tools:label="@string/toolbar_brand_title"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_nav_home_to_nav_transform"
+            app:destination="@id/nav_transform" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_settings"
+            app:destination="@id/nav_settings"
+            app:enterAnim="@anim/nav_noop"
+            app:exitAnim="@anim/nav_noop"
+            app:popEnterAnim="@anim/nav_noop"
+            app:popExitAnim="@anim/nav_noop" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_slideshow"
+            app:destination="@id/nav_slideshow"
+            app:enterAnim="@anim/nav_noop"
+            app:exitAnim="@anim/nav_noop"
+            app:popEnterAnim="@anim/nav_noop"
+            app:popExitAnim="@anim/nav_noop" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_scripture"
+            app:destination="@id/nav_scripture" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_songbook"
+            app:destination="@id/nav_songbook" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_liturgy_calendar"
+            app:destination="@id/nav_liturgy_calendar" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_liturgy_calendar"
+        android:name="by.dzmitrypanou.catholicapp.ui.liturgy.LiturgyCalendarFragment"
+        tools:label="@string/home_item_liturgy_calendar"
+        tools:layout="@layout/fragment_liturgy_calendar">
+        <action
+            android:id="@+id/action_nav_liturgy_calendar_to_nav_liturgy_day"
+            app:destination="@id/nav_liturgy_day" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_liturgy_day"
+        android:name="by.dzmitrypanou.catholicapp.ui.liturgy.LiturgyDayFragment"
+        tools:label="@string/liturgy_day_screen_title"
+        tools:layout="@layout/fragment_liturgy_day">
+        <argument
+            android:name="date"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_liturgy_calendar_settings"
+        android:name="by.dzmitrypanou.catholicapp.ui.liturgy.LiturgyCalendarSettingsFragment"
+        tools:label="@string/liturgy_diocese_settings_title"
+        tools:layout="@layout/fragment_liturgy_calendar_settings" />
+
+    <fragment
+        android:id="@+id/nav_songbook"
+        android:name="by.dzmitrypanou.catholicapp.ui.songbook.SongbookListFragment"
+        tools:label="@string/home_item_songbook"
+        tools:layout="@layout/fragment_songbook_list">
+        <action
+            android:id="@+id/action_nav_songbook_to_nav_songbook_detail"
+            app:destination="@id/nav_songbook_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_songbook_detail"
+        android:name="by.dzmitrypanou.catholicapp.ui.songbook.SongbookDetailFragment"
+        tools:label="@string/songbook_detail_title"
+        tools:layout="@layout/fragment_songbook_detail">
+        <argument
+            android:name="entryId"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="displayTitle"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="displayCategory"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_songbook_search"
+        android:name="by.dzmitrypanou.catholicapp.ui.songbook.SongbookSearchFragment"
+        tools:label="@string/songbook_search_title"
+        tools:layout="@layout/fragment_songbook_search">
+        <action
+            android:id="@+id/action_nav_songbook_search_to_nav_songbook_detail"
+            app:destination="@id/nav_songbook_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_songbook_bookmarked"
+        android:name="by.dzmitrypanou.catholicapp.ui.songbook.SongbookBookmarkedFragment"
+        tools:label="@string/songbook_bookmarked_title"
+        tools:layout="@layout/fragment_songbook_bookmarked">
+        <action
+            android:id="@+id/action_nav_songbook_bookmarked_to_nav_songbook_detail"
+            app:destination="@id/nav_songbook_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_transform"
+        android:name="by.dzmitrypanou.catholicapp.ui.transform.TransformFragment"
+        tools:label="@string/menu_transform"
+        tools:layout="@layout/fragment_transform">
+        <action
+            android:id="@+id/action_nav_transform_to_nav_subcategories"
+            app:destination="@id/nav_subcategories" />
+        <action
+            android:id="@+id/action_nav_transform_to_nav_prayer_list"
+            app:destination="@id/nav_prayer_list" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_subcategories"
+        android:name="by.dzmitrypanou.catholicapp.ui.transform.SubcategoriesFragment"
+        tools:label="@string/subcategories_title"
+        tools:layout="@layout/fragment_subcategories">
+        <argument
+            android:name="category"
+            app:argType="string"
+            android:defaultValue="" />
+        <action
+            android:id="@+id/action_nav_subcategories_to_nav_prayer_list"
+            app:destination="@id/nav_prayer_list" />
+        <action
+            android:id="@+id/action_nav_subcategories_to_nav_prayer_detail"
+            app:destination="@id/nav_prayer_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_prayer_list"
+        android:name="by.dzmitrypanou.catholicapp.ui.transform.PrayerListFragment"
+        tools:label="@string/prayers_list_title"
+        tools:layout="@layout/fragment_prayer_list">
+        <argument
+            android:name="category"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="subcategory"
+            app:argType="string"
+            android:defaultValue="" />
+        <action
+            android:id="@+id/action_nav_prayer_list_to_nav_prayer_detail"
+            app:destination="@id/nav_prayer_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_prayer_detail"
+        android:name="by.dzmitrypanou.catholicapp.ui.transform.PrayerDetailFragment"
+        tools:label="@string/prayer_detail_title"
+        tools:layout="@layout/fragment_prayer_detail">
+        <argument
+            android:name="title"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="prayerId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_bookmarked_prayers"
+        android:name="by.dzmitrypanou.catholicapp.ui.transform.BookmarkedPrayersFragment"
+        tools:label="@string/bookmarked_prayers_title"
+        tools:layout="@layout/fragment_bookmarked_prayers">
+        <action
+            android:id="@+id/action_nav_bookmarked_to_nav_prayer_detail"
+            app:destination="@id/nav_prayer_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_prayer_search"
+        android:name="by.dzmitrypanou.catholicapp.ui.transform.PrayerSearchFragment"
+        tools:label="@string/prayer_search_title"
+        tools:layout="@layout/fragment_prayer_search">
+        <action
+            android:id="@+id/action_nav_prayer_search_to_nav_prayer_detail"
+            app:destination="@id/nav_prayer_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_scripture"
+        android:name="by.dzmitrypanou.catholicapp.ui.scripture.ScriptureFragment"
+        tools:label="@string/home_item_scripture"
+        tools:layout="@layout/fragment_scripture">
+        <action
+            android:id="@+id/action_nav_scripture_to_nav_scripture_translations"
+            app:destination="@id/nav_scripture_translations" />
+        <action
+            android:id="@+id/action_nav_scripture_to_nav_scripture_chapters"
+            app:destination="@id/nav_scripture_chapters" />
+        <action
+            android:id="@+id/action_nav_scripture_to_nav_scripture_reading_plans_hub"
+            app:destination="@id/nav_scripture_reading_plans_hub" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_scripture_reading_plans_hub"
+        android:name="by.dzmitrypanou.catholicapp.ui.scripture.ScriptureReadingPlansHubFragment"
+        tools:label="@string/scripture_reading_plans_hub_screen_title"
+        tools:layout="@layout/fragment_scripture_reading_plans_hub">
+        <action
+            android:id="@+id/action_nav_scripture_reading_plans_hub_to_nav_scripture_reading_plan"
+            app:destination="@id/nav_scripture_reading_plan" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_scripture_reading_plan"
+        android:name="by.dzmitrypanou.catholicapp.ui.scripture.ScriptureReadingPlanFragment"
+        tools:label="@string/scripture_reading_plan_detail_screen_title"
+        tools:layout="@layout/fragment_scripture_reading_plan">
+        <argument
+            android:name="planKind"
+            app:argType="string"
+            android:defaultValue="linear" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_scripture_word_search"
+        android:name="by.dzmitrypanou.catholicapp.ui.scripture.ScriptureWordSearchFragment"
+        tools:label="@string/scripture_word_search_title"
+        tools:layout="@layout/fragment_scripture_word_search" />
+
+    <fragment
+        android:id="@+id/nav_scripture_translations"
+        android:name="by.dzmitrypanou.catholicapp.ui.scripture.ScriptureTranslationsFragment"
+        tools:label="@string/scripture_translation_screen_title"
+        tools:layout="@layout/fragment_scripture_translations" />
+
+    <fragment
+        android:id="@+id/nav_scripture_favorites"
+        android:name="by.dzmitrypanou.catholicapp.ui.scripture.ScriptureFavoritesFragment"
+        tools:label="@string/scripture_favorites_title"
+        tools:layout="@layout/fragment_scripture_favorites" />
+
+    <fragment
+        android:id="@+id/nav_scripture_compare"
+        android:name="by.dzmitrypanou.catholicapp.ui.scripture.ScriptureCompareFragment"
+        tools:label="@string/scripture_compare_screen_title"
+        tools:layout="@layout/fragment_scripture_compare" />
+
+    <fragment
+        android:id="@+id/nav_scripture_chapters"
+        android:name="by.dzmitrypanou.catholicapp.ui.scripture.ScriptureChaptersFragment"
+        tools:label="@string/scripture_chapters_title"
+        tools:layout="@layout/fragment_scripture_chapters">
+        <argument
+            android:name="bookId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="bookTitle"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="highlightChapter"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <action
+            android:id="@+id/action_nav_scripture_chapters_to_nav_scripture_chapter_text"
+            app:destination="@id/nav_scripture_chapter_text" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_scripture_chapter_text"
+        android:name="by.dzmitrypanou.catholicapp.ui.scripture.ScriptureChapterTextFragment"
+        tools:label="@string/scripture_chapter_text_title"
+        tools:layout="@layout/fragment_scripture_chapter_text">
+        <argument
+            android:name="bookId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="bookTitle"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="chapter"
+            app:argType="integer"
+            android:defaultValue="1" />
+        <argument
+            android:name="focusVerse"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_slideshow"
+        android:name="by.dzmitrypanou.catholicapp.ui.slideshow.SlideshowFragment"
+        tools:label="@string/menu_slideshow"
+        tools:layout="@layout/fragment_slideshow" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="by.dzmitrypanou.catholicapp.ui.settings.SettingsFragment"
+        tools:label="@string/menu_settings"
+        tools:layout="@layout/fragment_settings" />
+</navigation>

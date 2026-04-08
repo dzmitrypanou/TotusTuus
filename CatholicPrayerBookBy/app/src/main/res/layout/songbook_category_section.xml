@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_songbook_category"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/prayer_book_block_gap"
+    android:stateListAnimator="@null"
+    app:cardBackgroundColor="?attr/totusColorSurfaceElevated"
+    app:cardCornerRadius="@dimen/prayer_card_corner"
+    app:cardElevation="0dp"
+    app:strokeColor="?attr/totusColorSurfaceStroke"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/prayer_card_padding">
+
+        <LinearLayout
+            android:id="@+id/layout_songbook_category_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_songbook_category_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:includeFontPadding="false"
+                android:letterSpacing="0.04"
+                android:lineSpacingExtra="2dp"
+                android:textColor="?attr/totusColorTextPrimary"
+                android:textSize="@dimen/text_songbook_category_header"
+                android:textStyle="bold"
+                tools:text="Адвэнт" />
+
+            <ImageView
+                android:id="@+id/image_songbook_category_expand"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:padding="8dp"
+                android:src="@drawable/ic_expand_less_24"
+                app:tint="?attr/totusColorTextSecondary" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_songbook_category_songs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="12dp" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

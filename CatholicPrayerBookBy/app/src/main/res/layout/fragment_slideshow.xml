@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient_dark"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".ui.slideshow.SlideshowFragment">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="?attr/totusColorSurfaceElevated"
+        app:cardCornerRadius="@dimen/prayer_card_corner"
+        app:strokeColor="?attr/totusColorSurfaceStroke"
+        app:strokeWidth="1dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/info_screen_message_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoLink="web|email"
+                android:linksClickable="true"
+                android:text="@string/info_screen_message"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textColor="?attr/totusColorTextSecondary"
+                android:textColorLink="?attr/totusColorTextPrimary" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

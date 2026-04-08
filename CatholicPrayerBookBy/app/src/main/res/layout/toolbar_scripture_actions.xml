@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/toolbar_actions_strip_height"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    tools:ignore="RtlSymmetry">
+
+    <FrameLayout
+        android:id="@+id/frame_scripture_reading_text_scale"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <include layout="@layout/toolbar_reading_text_scale_actions" />
+    </FrameLayout>
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/button_scripture_favorites"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/scripture_favorites_title"
+        android:padding="6dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_bookmark_border_24"
+        app:tint="?attr/totusColorTextPrimary" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/button_scripture_compare"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="0dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/scripture_compare_screen_title"
+        android:padding="6dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_compare_24"
+        app:tint="?attr/totusColorTextPrimary" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/button_scripture_translations"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="0dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/scripture_translation_screen_title"
+        android:padding="6dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_settings_black_24dp"
+        app:tint="?attr/totusColorTextPrimary" />
+</LinearLayout>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_transform"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient_dark"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/prayer_book_screen_padding_top"
+    android:paddingBottom="@dimen/prayer_book_screen_padding_bottom"
+    tools:context=".ui.transform.TransformFragment">
+
+    <ProgressBar
+        android:id="@+id/progress_transform"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/prayer_book_block_gap"
+        android:indeterminateTint="?attr/totusColorTextSecondary"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/text_status_transform"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/screen_content_horizontal"
+        android:layout_marginTop="@dimen/prayer_book_block_gap"
+        android:layout_marginEnd="@dimen/screen_content_horizontal"
+        android:padding="@dimen/prayer_book_banner_padding"
+        android:background="@drawable/bg_status_banner"
+        android:lineSpacingExtra="2dp"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/totusColorTextError"
+        android:textSize="@dimen/text_banner_message"
+        android:visibility="gone"
+        tools:text="Не удалось загрузить данные"
+        tools:visibility="visible" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_prayer_book_search_entry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/screen_content_horizontal"
+        android:layout_marginTop="@dimen/prayer_book_block_gap"
+        android:layout_marginEnd="@dimen/screen_content_horizontal"
+        android:layout_marginBottom="@dimen/prayer_list_item_gap"
+        android:background="@drawable/bg_scripture_book_row"
+        android:clickable="true"
+        android:contentDescription="@string/prayer_search_title"
+        android:focusable="true"
+        android:minHeight="@dimen/scripture_book_row_min_height"
+        android:paddingStart="@dimen/scripture_book_row_padding_horizontal"
+        android:paddingTop="@dimen/scripture_book_row_padding_vertical"
+        android:paddingEnd="@dimen/scripture_book_row_padding_horizontal"
+        android:paddingBottom="@dimen/scripture_book_row_padding_vertical">
+
+        <ImageView
+            android:id="@+id/image_prayer_book_search_entry"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_search_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="?attr/totusColorTextSecondary" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_prayer_book_search_entry_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="6dp"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="@string/prayer_search_title"
+            android:textColor="?attr/totusColorTextPrimary"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/image_prayer_book_search_entry_chevron"
+            app:layout_constraintStart_toEndOf="@id/image_prayer_book_search_entry"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/image_prayer_book_search_entry_chevron"
+            android:layout_width="@dimen/scripture_book_row_chevron_size"
+            android:layout_height="@dimen/scripture_book_row_chevron_size"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_chevron_right_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="?attr/totusColorTextTertiary" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerview_transform"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:scrollbars="none"
+            android:paddingStart="@dimen/screen_content_horizontal"
+            android:paddingTop="0dp"
+            android:paddingEnd="@dimen/screen_content_horizontal"
+            android:paddingBottom="@dimen/prayer_book_recycler_padding_bottom"
+            app:layoutManager="LinearLayoutManager" />
+
+        <TextView
+            android:id="@+id/text_transform_empty_center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:padding="@dimen/prayer_card_padding"
+            android:textAlignment="gravity"
+            android:textColor="?attr/totusColorTextSecondary"
+            android:visibility="gone"
+            tools:text="@string/transform_no_prayers_need_network"
+            tools:visibility="visible" />
+    </FrameLayout>
+</LinearLayout>

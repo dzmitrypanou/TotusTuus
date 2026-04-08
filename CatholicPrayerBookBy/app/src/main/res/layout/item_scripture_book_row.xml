@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_scripture_book_row"
+    android:stateListAnimator="@null"
+    android:clickable="true"
+    android:focusable="true"
+    android:minHeight="@dimen/scripture_book_row_min_height"
+    android:paddingStart="@dimen/scripture_book_row_padding_horizontal"
+    android:paddingTop="@dimen/scripture_book_row_padding_vertical"
+    android:paddingEnd="@dimen/scripture_book_row_padding_horizontal"
+    android:paddingBottom="@dimen/scripture_book_row_padding_vertical">
+
+    <!-- Адна гарызантальная лінія: назва злева, «N глаў» і стрэлка справа, па вертыкалі па цэнтры -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/text_book_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="6dp"
+        android:ellipsize="end"
+        android:includeFontPadding="false"
+        android:maxLines="1"
+        android:textColor="?attr/totusColorTextPrimary"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/layout_book_end"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Евангелле паводле Матфея" />
+
+    <LinearLayout
+        android:id="@+id/layout_book_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_book_chapters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:includeFontPadding="false"
+            android:textColor="?attr/totusColorTextTertiary"
+            android:textSize="13sp"
+            tools:text="28 глаў" />
+
+        <ImageView
+            android:id="@+id/image_chevron"
+            android:layout_width="@dimen/scripture_book_row_chevron_size"
+            android:layout_height="@dimen/scripture_book_row_chevron_size"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_chevron_right_24"
+            app:tint="?attr/totusColorTextTertiary" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

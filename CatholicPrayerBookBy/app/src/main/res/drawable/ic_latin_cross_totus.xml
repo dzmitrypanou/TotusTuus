@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <!-- Каталіцкі (латынскі) крыж: доўгі ніжні канец, папярочная перакладзіна вышэй цэнтра -->
+    <path
+        android:pathData="M47,14h6v24h24v6h-24v42h-6v-42h-24v-6h24v-24z"
+        android:strokeWidth="0.9"
+        android:strokeColor="@color/brand_totus_mist"
+        android:strokeLineJoin="miter"
+        android:strokeLineCap="square">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="100"
+                android:endX="100"
+                android:endY="0"
+                android:startColor="@color/brand_totus_mist"
+                android:centerColor="@color/brand_totus_gold"
+                android:endColor="@color/brand_totus_lavender" />
+        </aapt:attr>
+    </path>
+</vector>

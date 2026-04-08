@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient_dark"
+    android:fitsSystemWindows="false"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar_chapter_picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:minHeight="?attr/actionBarSize"
+        app:navigationContentDescription="@string/scripture_chapter_picker_close_a11y"
+        app:navigationIcon="@drawable/ic_close_24"
+        app:navigationIconTint="?attr/totusColorTextPrimary"
+        app:titleTextColor="?attr/totusColorTextPrimary"
+        tools:title="Кніга" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/text_chapter_picker_empty"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:padding="@dimen/prayer_card_padding"
+        android:text="@string/scripture_chapter_picker_empty"
+        android:textColor="?attr/totusColorTextSecondary"
+        android:textSize="16sp"
+        android:visibility="gone"
+        tools:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_chapter_grid"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="@dimen/screen_content_horizontal"
+        android:paddingTop="8dp"
+        android:paddingEnd="@dimen/screen_content_horizontal"
+        android:paddingBottom="16dp"
+        android:scrollbars="none"
+        tools:listitem="@layout/item_scripture_chapter_grid_cell" />
+</LinearLayout>

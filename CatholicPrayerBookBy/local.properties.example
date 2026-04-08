@@ -1,0 +1,4 @@
+# Скапіюйце ў local.properties (файл не ў git).
+# Той жа ключ павінен быць у WebPanel/api/api_secrets.php (гл. api_secrets.example.php)
+# або ў зменнай асяроддзя сервера TOTUS_PUBLIC_API_KEY.
+totus.publicApiKey=

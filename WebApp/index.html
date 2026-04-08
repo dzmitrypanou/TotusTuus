@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="be" data-app-font="sans" data-app-theme="current">
+<head>
+    <!-- Версія зборкі: як versionName у sibling-файле ../totus-app-version.properties (meta і ?v= ніжэй). -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1F2440">
+    <meta name="totus-web-build" content="1.0.19">
+    <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="favicon.png">
+    <title>Totus Tuus</title>
+    <meta name="description" content="Totus Tuus — малітоўнік, спеўнік, Святое Пісанне ў беларускіх перакладах і літургічны каляндар. Працуе ў браўзеры без усталёўкі.">
+    <!-- LCP: выява «Святое Пісанне» ў першапачатковым HTML (абноўліце ?v= разам з meta totus-web-build). -->
+    <link rel="preload" as="image" fetchpriority="high" href="assets/home/scripture_header_bible-928.webp?v=1.0.19" imagesrcset="assets/home/scripture_header_bible-640.webp?v=1.0.19 640w, assets/home/scripture_header_bible-928.webp?v=1.0.19 928w" imagesizes="(max-width: 480px) calc(100vw - 1rem), min(464px, calc(100vw - 1rem))">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Inter:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    </noscript>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/regular.min.css" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons@3.3.1/css/regular/rounded.css" crossorigin>
+    <link rel="stylesheet" href="assets/totus-tailwind.css?v=1.0.19">
+    <style>
+        /* Адна вобласць пракруткі ўнутры дадатка — без пракруткі ўсяго акна (мабільныя браўзеры менш «схоўваюць» палі URL). */
+        html {
+            height: 100%;
+            height: 100dvh;
+        }
+        body {
+            height: 100%;
+            max-height: 100dvh;
+            overflow: hidden;
+        }
+        #app {
+            height: 100%;
+            max-height: 100%;
+            min-height: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Без адлюстравання скролбараў (колца/свайп працуе як раней) */
+        * {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        *::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+        /* Фон як bg_gradient_dark.xml (315°) */
+        .bg-app-gradient {
+            background: linear-gradient(315deg, #0E1020 0%, #171A2A 100%);
+            min-height: 0;
+            height: 100%;
+            max-height: 100dvh;
+        }
+        .app-main-scroll {
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+        }
+        .bg-drawer-header {
+            background: linear-gradient(135deg, #0E1020 0%, #171A2A 50%, #13172C 100%);
+        }
+        /* Шрыфт усяго дадатка (як AppFontFamilyStore у Android) */
+        html[data-app-font='sans'] body {
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        html[data-app-font='serif'] body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+        html[data-app-font='mono'] body {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+        }
+        .calendar-cell-app {
+            transition: opacity 0.12s ease;
+        }
+        .readings-content h1, .readings-content h2, .readings-content h3 {
+            font-weight: 600;
+            margin-top: 0.75rem;
+            margin-bottom: 0.35rem;
+            color: rgba(255,255,255,0.95);
+        }
+        .readings-content > h1:first-child,
+        .readings-content > h2:first-child,
+        .readings-content > h3:first-child {
+            margin-top: 0;
+        }
+        .readings-content p {
+            margin-bottom: 0.65rem;
+            color: rgba(255,255,255,0.9);
+        }
+        /* Адступ тэксту чытанняў ад загалоўка <details>/<summary> */
+        .readings-content details > div {
+            margin-top: 0.5rem;
+        }
+        .readings-content details + details {
+            margin-top: 0.65rem;
+        }
+        /* Фіксаваны памер як на тэлефоне — без vw, каб на ПК не раздзімаўся да max clamp. */
+        .home-toolbar-brand-title {
+            font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            font-size: 2.205rem;
+            line-height: 1.15;
+            background: linear-gradient(120deg, #f1f5f9 0%, #e2d5b8 45%, #c7d2fe 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: #f1f5f9;
+        }
+        @supports (background-clip: text) or (-webkit-background-clip: text) {
+            .home-toolbar-brand-title {
+                color: transparent;
+            }
+        }
+        /* Загаловак шапкі: стартавы памер да JS; рэальны — пасля fitToolbarTitleH1 (не больш за вышыню шапкі). */
+        .totus-toolbar-title-autosize {
+            font-size: 14px;
+        }
+        /* Тэкст запісу спеўніка ў WebView (SongbookDetailFragment.buildHtmlDocument) */
+        .songbook-detail-plain,
+        .songbook-detail-html,
+        .prayer-detail-html {
+            line-height: 1.2;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            -webkit-text-size-adjust: 100%;
+        }
+        /* Межстрочный интервал чтения: как в песеннике. */
+        .totus-reading-detail {
+            line-height: 1.2;
+        }
+        .songbook-detail-plain .song-plain {
+            white-space: normal;
+        }
+        /* Спеўнік: перацягванне выявы — без сіняга вылучэння тэксту / вобласці (Windows, WebKit) */
+        .songbook-image-zoom-host,
+        .songbook-image-zoom-host * {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-user-drag: none;
+            user-drag: none;
+            -webkit-touch-callout: none;
+        }
+        .songbook-image-zoom-host:focus,
+        .songbook-image-zoom-host:focus-visible {
+            outline: none;
+        }
+        .songbook-image-zoom-host.songbook-image-zoom--scaled {
+            touch-action: none;
+        }
+        .songbook-detail-html p,
+        .songbook-detail-plain p,
+        .prayer-detail-html p {
+            margin: 0.5em 0;
+        }
+        .songbook-detail-html img,
+        .prayer-detail-html img {
+            max-width: 100%;
+            height: auto;
+        }
+        .songbook-detail-html a,
+        .prayer-detail-html a {
+            color: #99f6e4;
+        }
+        .songbook-detail-html blockquote,
+        .prayer-detail-html blockquote {
+            margin: 0.6em 0;
+            padding-left: 12px;
+            border-left: 3px solid #39415e;
+            color: #b8c0d9;
+        }
+        /* Кастомны выпадны спіс перакладу Пісання */
+        .scripture-tr-open .scripture-tr-chevron-wrap i {
+            transform: rotate(180deg);
+        }
+        .scripture-tr-chevron-wrap i {
+            transition: transform 0.2s ease;
+        }
+        /* Кнопкі верша (выбранае / параўнанне) — слупком, як у Android ScriptureChapterTextFragment. */
+        .totus-scripture-verse-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            gap: 0;
+            width: 2.75rem;
+        }
+        /*
+         * Памер чытання: --totus-read-scale як AppGlobalTextScaleStore (0.925 × (1 + крок×0.25)).
+         * !important — каб Tailwind text-* не перабіваў font-size на тым жа элеменце.
+         */
+        .totus-read-15 {
+            font-size: calc(15px * var(--totus-read-scale, 0.925)) !important;
+        }
+        .totus-read-16 {
+            font-size: calc(16px * var(--totus-read-scale, 0.925)) !important;
+        }
+        .totus-read-17 {
+            font-size: calc(17px * var(--totus-read-scale, 0.925)) !important;
+        }
+        .totus-read-18 {
+            font-size: calc(18px * var(--totus-read-scale, 0.925)) !important;
+        }
+        /* Інфармацыя: gap у main.js не праз Tailwind arbitrary (не трапляе ў totus-tailwind.css) */
+        .totus-about-card {
+            gap: 1.625em;
+        }
+        /* Цветовые схемы приложения (current | white | dark | beige). */
+        html[data-app-theme='white'] .bg-app-gradient {
+            background: linear-gradient(315deg, #eef2f7 0%, #f8fafc 100%) !important;
+        }
+        html[data-app-theme='white'] .bg-app-toolbar {
+            background-color: #f1f5f9 !important;
+        }
+        html[data-app-theme='white'] .bg-app-bg2 {
+            background-color: #e2e8f0 !important;
+        }
+        html[data-app-theme='white'] .bg-app-bg2\/40 {
+            background-color: rgba(226, 232, 240, 0.4) !important;
+        }
+        html[data-app-theme='white'] .bg-app-bg2\/80 {
+            background-color: rgba(226, 232, 240, 0.8) !important;
+        }
+        html[data-app-theme='white'] .bg-app-surface {
+            background-color: #dbe3ee !important;
+        }
+        html[data-app-theme='white'] .bg-app-elevated {
+            background-color: #ffffff !important;
+        }
+        html[data-app-theme='white'] .text-app-text {
+            color: #0f172a !important;
+        }
+        html[data-app-theme='white'] .text-app-textSec {
+            color: #334155 !important;
+        }
+        html[data-app-theme='white'] .text-app-textTer {
+            color: #64748b !important;
+        }
+        html[data-app-theme='white'] .text-app-error {
+            color: #b91c1c !important;
+        }
+        html[data-app-theme='white'] .border-app-stroke {
+            border-color: #94a3b8 !important;
+        }
+        html[data-app-theme='white'] .border-app-stroke\/40 {
+            border-color: rgba(148, 163, 184, 0.4) !important;
+        }
+        html[data-app-theme='white'] .border-app-stroke\/60 {
+            border-color: rgba(148, 163, 184, 0.6) !important;
+        }
+        html[data-app-theme='white'] .border-app-stroke\/80 {
+            border-color: rgba(148, 163, 184, 0.8) !important;
+        }
+        html[data-app-theme='white'] .divide-app-stroke\/40 > :not([hidden]) ~ :not([hidden]) {
+            border-color: rgba(148, 163, 184, 0.4) !important;
+        }
+        html[data-app-theme='white'] .divide-app-stroke\/50 > :not([hidden]) ~ :not([hidden]) {
+            border-color: rgba(148, 163, 184, 0.5) !important;
+        }
+        html[data-app-theme='dark'] .bg-app-gradient {
+            background: linear-gradient(315deg, #070a14 0%, #101522 100%) !important;
+        }
+        html[data-app-theme='dark'] .bg-app-toolbar {
+            background-color: #12182a !important;
+        }
+        html[data-app-theme='dark'] .bg-app-bg2 {
+            background-color: #101626 !important;
+        }
+        html[data-app-theme='dark'] .bg-app-surface {
+            background-color: #151c2f !important;
+        }
+        html[data-app-theme='dark'] .bg-app-elevated {
+            background-color: #1a2338 !important;
+        }
+        html[data-app-theme='dark'] .border-app-stroke {
+            border-color: #2a3652 !important;
+        }
+        html[data-app-theme='beige'] .bg-app-gradient {
+            background: linear-gradient(315deg, #efe7da 0%, #f8f2e8 100%) !important;
+        }
+        html[data-app-theme='beige'] .bg-app-toolbar {
+            background-color: #e5d9c6 !important;
+        }
+        html[data-app-theme='beige'] .bg-app-bg2 {
+            background-color: #eadfce !important;
+        }
+        html[data-app-theme='beige'] .bg-app-bg2\/40 {
+            background-color: rgba(234, 223, 206, 0.4) !important;
+        }
+        html[data-app-theme='beige'] .bg-app-bg2\/80 {
+            background-color: rgba(234, 223, 206, 0.8) !important;
+        }
+        html[data-app-theme='beige'] .bg-app-surface {
+            background-color: #e6d8c2 !important;
+        }
+        html[data-app-theme='beige'] .bg-app-elevated {
+            background-color: #f6efe2 !important;
+        }
+        html[data-app-theme='beige'] .text-app-text {
+            color: #3f3121 !important;
+        }
+        html[data-app-theme='beige'] .text-app-textSec {
+            color: #5e4a34 !important;
+        }
+        html[data-app-theme='beige'] .text-app-textTer {
+            color: #7c6650 !important;
+        }
+        html[data-app-theme='beige'] .text-app-error {
+            color: #a83425 !important;
+        }
+        html[data-app-theme='beige'] .border-app-stroke {
+            border-color: #c6b39a !important;
+        }
+        html[data-app-theme='beige'] .border-app-stroke\/40 {
+            border-color: rgba(198, 179, 154, 0.4) !important;
+        }
+        html[data-app-theme='beige'] .border-app-stroke\/60 {
+            border-color: rgba(198, 179, 154, 0.6) !important;
+        }
+        html[data-app-theme='beige'] .border-app-stroke\/80 {
+            border-color: rgba(198, 179, 154, 0.8) !important;
+        }
+        html[data-app-theme='beige'] .divide-app-stroke\/40 > :not([hidden]) ~ :not([hidden]) {
+            border-color: rgba(198, 179, 154, 0.4) !important;
+        }
+        html[data-app-theme='beige'] .divide-app-stroke\/50 > :not([hidden]) ~ :not([hidden]) {
+            border-color: rgba(198, 179, 154, 0.5) !important;
+        }
+        html[data-app-theme='beige'] .home-toolbar-brand-title {
+            background: none !important;
+            -webkit-background-clip: border-box !important;
+            background-clip: border-box !important;
+            color: #2b2117 !important;
+            -webkit-text-fill-color: #2b2117 !important;
+        }
+    </style>
+    <script>
+        (function () {
+            try {
+                var k = 'totus_web_text_step';
+                var n = parseInt(localStorage.getItem(k), 10);
+                if (!Number.isFinite(n)) n = 0;
+                n = Math.max(0, Math.min(4, n));
+                var base = 0.925;
+                var scale = base * (1 + n * 0.25);
+                document.documentElement.style.setProperty('--totus-read-scale', String(scale));
+                document.documentElement.style.fontSize = '16px';
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
+</head>
+<body class="bg-app-gradient text-app-text antialiased m-0">
+    <div id="app"></div>
+    <!-- Пасля Font Awesome (solid+regular): swap замест block у базавым CSS. -->
+    <style>
+        @font-face {
+            font-family: "Font Awesome 6 Free";
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/webfonts/fa-regular-400.woff2") format("woff2");
+        }
+        @font-face {
+            font-family: "Font Awesome 6 Free";
+            font-style: normal;
+            font-weight: 900;
+            font-display: swap;
+            src: url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/webfonts/fa-solid-900.woff2") format("woff2");
+        }
+    </style>
+
+    <!-- totus-web-build → window.TOTUS_WEB_APP_BUILD (?v= для лакальных рэсурсаў у main.js). -->
+    <script>
+        (function () {
+            var m = document.querySelector('meta[name="totus-web-build"]');
+            window.TOTUS_WEB_APP_BUILD = (m && m.getAttribute('content')) || '0';
+        })();
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <script defer src="totus-boot.js"></script>
+</body>
+</html>

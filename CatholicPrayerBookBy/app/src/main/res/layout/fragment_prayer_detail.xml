@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Поўны экран: без карткі — толькі WebView на фоне; адступы тэксту ў CSS у PrayerDetailFragment -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient_dark">
+
+    <WebView
+        android:id="@+id/web_prayer_body"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:overScrollMode="ifContentScrolls"
+        android:scrollbars="none" />
+</FrameLayout>

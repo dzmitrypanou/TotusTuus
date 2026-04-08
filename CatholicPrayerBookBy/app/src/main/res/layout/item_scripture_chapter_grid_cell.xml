@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="?attr/totusColorBgSecondary"
+    app:cardCornerRadius="@dimen/scripture_chapter_grid_cell_radius"
+    app:cardElevation="0dp"
+    app:rippleColor="?attr/totusColorRipple"
+    app:strokeColor="?attr/totusColorSurfaceStroke"
+    app:strokeWidth="1dp">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/text_chapter_cell_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:minHeight="@dimen/scripture_chapter_grid_cell_min_height"
+        android:padding="10dp"
+        android:textColor="?attr/totusColorTextPrimary"
+        android:textSize="17sp"
+        tools:text="12" />
+</com.google.android.material.card.MaterialCardView>

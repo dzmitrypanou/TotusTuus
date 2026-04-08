@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_liturgy_calendar_settings"
+        android:title="@string/liturgy_diocese_settings_title"
+        app:actionLayout="@layout/toolbar_liturgy_calendar_settings"
+        app:showAsAction="always" />
+</menu>

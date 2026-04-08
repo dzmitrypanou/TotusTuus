@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient_dark"
+    android:clipToPadding="false"
+    android:paddingStart="@dimen/screen_content_horizontal"
+    android:paddingTop="@dimen/prayer_book_offset_below_app_bar"
+    android:paddingEnd="@dimen/screen_content_horizontal"
+    android:paddingBottom="@dimen/prayer_book_screen_padding_bottom"
+    android:scrollbars="none"
+    tools:context=".ui.scripture.ScriptureReadingPlansHubFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_reading_plans_hub_intro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/prayer_book_block_gap"
+            android:includeFontPadding="false"
+            android:lineSpacingMultiplier="1.12"
+            android:textColor="?attr/totusColorTextSecondary"
+            android:textSize="15sp"
+            tools:text="Апісанне" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_hub_plan_linear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/scripture_book_row_spacing"
+            android:background="@drawable/bg_scripture_book_row"
+            android:clickable="true"
+            android:focusable="true"
+            android:minHeight="@dimen/scripture_book_row_min_height"
+            android:paddingStart="@dimen/scripture_book_row_padding_horizontal"
+            android:paddingTop="@dimen/scripture_book_row_padding_vertical"
+            android:paddingEnd="@dimen/scripture_book_row_padding_horizontal"
+            android:paddingBottom="@dimen/scripture_book_row_padding_vertical">
+
+            <ImageView
+                android:id="@+id/image_hub_plan_linear"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_calendar_today_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="?attr/totusColorTextSecondary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="6dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/image_hub_plan_linear_chevron"
+                app:layout_constraintStart_toEndOf="@id/image_hub_plan_linear"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_hub_plan_linear_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="@string/scripture_reading_plan_title"
+                    android:textColor="?attr/totusColorTextPrimary"
+                    android:textSize="17sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_hub_plan_linear_subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:includeFontPadding="false"
+                    android:text="@string/scripture_reading_plan_entry_hint"
+                    android:textColor="?attr/totusColorTextSecondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/image_hub_plan_linear_chevron"
+                android:layout_width="@dimen/scripture_book_row_chevron_size"
+                android:layout_height="@dimen/scripture_book_row_chevron_size"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_chevron_right_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="?attr/totusColorTextTertiary" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_hub_plan_chrono"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/scripture_book_row_spacing"
+            android:background="@drawable/bg_scripture_book_row"
+            android:clickable="true"
+            android:focusable="true"
+            android:minHeight="@dimen/scripture_book_row_min_height"
+            android:paddingStart="@dimen/scripture_book_row_padding_horizontal"
+            android:paddingTop="@dimen/scripture_book_row_padding_vertical"
+            android:paddingEnd="@dimen/scripture_book_row_padding_horizontal"
+            android:paddingBottom="@dimen/scripture_book_row_padding_vertical">
+
+            <ImageView
+                android:id="@+id/image_hub_plan_chrono"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_calendar_today_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="?attr/totusColorTextSecondary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="6dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/image_hub_plan_chrono_chevron"
+                app:layout_constraintStart_toEndOf="@id/image_hub_plan_chrono"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_hub_plan_chrono_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="@string/scripture_reading_plan_chronological_title"
+                    android:textColor="?attr/totusColorTextPrimary"
+                    android:textSize="17sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_hub_plan_chrono_subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:includeFontPadding="false"
+                    android:text="@string/scripture_reading_plan_chronological_hint"
+                    android:textColor="?attr/totusColorTextSecondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/image_hub_plan_chrono_chevron"
+                android:layout_width="@dimen/scripture_book_row_chevron_size"
+                android:layout_height="@dimen/scripture_book_row_chevron_size"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_chevron_right_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="?attr/totusColorTextTertiary" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_hub_plan_mixed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_scripture_book_row"
+            android:clickable="true"
+            android:focusable="true"
+            android:minHeight="@dimen/scripture_book_row_min_height"
+            android:paddingStart="@dimen/scripture_book_row_padding_horizontal"
+            android:paddingTop="@dimen/scripture_book_row_padding_vertical"
+            android:paddingEnd="@dimen/scripture_book_row_padding_horizontal"
+            android:paddingBottom="@dimen/scripture_book_row_padding_vertical">
+
+            <ImageView
+                android:id="@+id/image_hub_plan_mixed"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_calendar_today_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="?attr/totusColorTextSecondary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="6dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/image_hub_plan_mixed_chevron"
+                app:layout_constraintStart_toEndOf="@id/image_hub_plan_mixed"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_hub_plan_mixed_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="@string/scripture_reading_plan_mixed_title"
+                    android:textColor="?attr/totusColorTextPrimary"
+                    android:textSize="17sp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_hub_plan_mixed_subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:includeFontPadding="false"
+                    android:text="@string/scripture_reading_plan_mixed_hint"
+                    android:textColor="?attr/totusColorTextSecondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/image_hub_plan_mixed_chevron"
+                android:layout_width="@dimen/scripture_book_row_chevron_size"
+                android:layout_height="@dimen/scripture_book_row_chevron_size"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_chevron_right_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="?attr/totusColorTextTertiary" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,9 @@
+{
+    "name": "totus-tuus/webpanel",
+    "require": {
+        "php": ">=8.0"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

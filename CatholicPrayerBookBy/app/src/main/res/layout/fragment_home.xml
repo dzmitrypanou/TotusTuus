@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient_dark"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/prayer_book_screen_padding_top"
+    android:paddingBottom="@dimen/prayer_book_screen_padding_bottom"
+    tools:context=".ui.home.HomeFragment">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview_home"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:scrollbars="none"
+        android:paddingStart="@dimen/prayer_book_block_gap"
+        android:paddingTop="@dimen/prayer_book_recycler_padding_top"
+        android:paddingEnd="@dimen/prayer_book_block_gap"
+        android:paddingBottom="@dimen/prayer_book_recycler_padding_bottom" />
+</LinearLayout>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_transform"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/screen_content_horizontal"
+    android:paddingTop="@dimen/prayer_book_screen_padding_top"
+    android:paddingEnd="@dimen/screen_content_horizontal"
+    android:paddingBottom="@dimen/prayer_book_screen_padding_bottom"
+    tools:context=".ui.transform.TransformFragment">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_bookmarked_prayers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/prayer_book_block_gap"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/surface_elevated"
+        app:cardCornerRadius="@dimen/prayer_card_corner"
+        app:cardElevation="0dp"
+        app:rippleColor="@color/ripple_card"
+        app:strokeColor="@color/surface_stroke"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:minHeight="@dimen/list_menu_row_min_height"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/prayer_card_padding"
+            android:paddingTop="14dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="14dp">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_bookmark_filled_24"
+                app:tint="@color/text_secondary_light" />
+
+            <TextView
+                android:id="@+id/text_transform_bookmark_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:lineSpacingExtra="2dp"
+                android:text="@string/bookmarked_prayers_title"
+                android:textColor="@color/text_primary_light" />
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="@null"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_chevron_right_24"
+                app:tint="@color/text_secondary_light" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <ProgressBar
+        android:id="@+id/progress_transform"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/prayer_book_block_gap"
+        android:indeterminateTint="@color/text_secondary_light"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/text_status_transform"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/prayer_book_block_gap"
+        android:background="@drawable/bg_status_banner"
+        android:lineSpacingExtra="2dp"
+        android:padding="@dimen/prayer_book_banner_padding"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="@color/text_error_light"
+        android:textSize="@dimen/text_banner_message"
+        android:visibility="gone"
+        tools:text="Не удалось загрузить данные"
+        tools:visibility="visible" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/prayer_book_block_gap"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerview_transform"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:scrollbars="none"
+            android:paddingTop="@dimen/prayer_book_recycler_padding_top"
+            android:paddingBottom="@dimen/prayer_book_recycler_padding_bottom"
+            app:layoutManager="LinearLayoutManager" />
+
+        <TextView
+            android:id="@+id/text_transform_empty_center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:padding="@dimen/prayer_card_padding"
+            android:textAlignment="gravity"
+            android:textColor="@color/text_secondary_light"
+            android:visibility="gone"
+            tools:text="@string/transform_no_prayers_need_network"
+            tools:visibility="visible" />
+    </FrameLayout>
+</LinearLayout>

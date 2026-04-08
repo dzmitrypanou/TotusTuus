@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/prayer_list_item_gap"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="?attr/totusColorSurfaceElevated"
+    app:cardCornerRadius="@dimen/prayer_card_corner"
+    app:cardElevation="0dp"
+    app:rippleColor="?attr/totusColorRipple"
+    app:strokeColor="?attr/totusColorSurfaceStroke"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/list_menu_row_min_height"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/prayer_card_padding"
+        android:paddingTop="14dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="14dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_tree_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="2dp"
+                android:textColor="?attr/totusColorTextPrimary"
+                tools:text="Ежедневные молитвы" />
+
+            <TextView
+                android:id="@+id/text_tree_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:lineSpacingExtra="2dp"
+                android:textColor="?attr/totusColorTextSecondary"
+                android:visibility="gone"
+                tools:text="Подзаголовок"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/image_tree_notes_indicator"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginEnd="4dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_music_note_24"
+            android:visibility="gone"
+            app:tint="?attr/totusColorTextSecondary"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/image_tree_chevron"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_chevron_right_24"
+            app:tint="?attr/totusColorTextSecondary" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="totusColorBgPrimary" format="color" />
+    <attr name="totusColorBgSecondary" format="color" />
+    <attr name="totusColorSurface" format="color" />
+    <attr name="totusColorSurfaceElevated" format="color" />
+    <attr name="totusColorSurfaceStroke" format="color" />
+    <attr name="totusColorTextPrimary" format="color" />
+    <attr name="totusColorTextSecondary" format="color" />
+    <attr name="totusColorTextTertiary" format="color" />
+    <attr name="totusColorTextError" format="color" />
+    <attr name="totusColorRipple" format="color" />
+    <attr name="totusColorToolbar" format="color" />
+    <attr name="totusColorToolbarVariant" format="color" />
+    <attr name="totusColorScriptureHighlightFill" format="color" />
+    <attr name="totusColorScriptureHighlightStroke" format="color" />
+</resources>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient_dark"
+    android:scrollbars="none"
+    android:paddingStart="@dimen/screen_content_horizontal"
+    android:paddingTop="@dimen/prayer_book_screen_padding_top"
+    android:paddingEnd="@dimen/screen_content_horizontal"
+    android:paddingBottom="@dimen/prayer_book_screen_padding_bottom"
+    tools:context=".ui.scripture.ScriptureFavoritesFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_scripture_favorites_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="@dimen/prayer_card_padding"
+            android:text="@string/scripture_favorites_empty"
+            android:textColor="?attr/totusColorTextSecondary"
+            android:textSize="@dimen/text_banner_message"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/layout_scripture_favorites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </LinearLayout>
+</ScrollView>

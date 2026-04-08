@@ -1,0 +1,86 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="fragment_horizontal_margin">16dp</dimen>
+    <dimen name="reflow_text_block_max_percent">1</dimen>
+    <dimen name="reflow_text_block_horizontal_gap">8dp</dimen>
+    <dimen name="reflow_text_title_size">22sp</dimen>
+    <dimen name="reflow_text_description_size">13sp</dimen>
+    <dimen name="screen_content_horizontal">12dp</dimen>
+    <!-- Малітоўнік: адныя адступы ад шапкі, паміж блокамі і спісам -->
+    <dimen name="prayer_book_screen_padding_top">8dp</dimen>
+    <dimen name="prayer_book_screen_padding_bottom">8dp</dimen>
+    <dimen name="prayer_book_block_gap">8dp</dimen>
+    <!-- Ад шапкі да першага кантэнту, як у малітоўніку да «Выбранае»: screen_padding_top + block_gap -->
+    <dimen name="prayer_book_offset_below_app_bar">16dp</dimen>
+    <dimen name="prayer_book_recycler_padding_top">8dp</dimen>
+    <dimen name="prayer_book_recycler_padding_bottom">16dp</dimen>
+    <dimen name="prayer_book_scroll_top">@dimen/prayer_book_offset_below_app_bar</dimen>
+    <dimen name="prayer_book_scroll_bottom">16dp</dimen>
+    <dimen name="prayer_book_banner_padding">12dp</dimen>
+    <dimen name="prayer_list_item_gap">8dp</dimen>
+    <!-- Аднолькавая мінімальная вышыня радкоў-«меню»: Выбранае, катэгорыі, спісы малітоў -->
+    <dimen name="list_menu_row_min_height">64dp</dimen>
+    <dimen name="prayer_card_corner">6dp</dimen>
+    <dimen name="reading_plan_hero_corner">14dp</dimen>
+    <dimen name="reading_plan_chapter_corner">10dp</dimen>
+    <dimen name="prayer_card_padding">18dp</dimen>
+    <!-- Читаемые размеры текста (sp) -->
+    <dimen name="text_home_card_title">18sp</dimen>
+    <dimen name="text_home_card_caption">15sp</dimen>
+    <dimen name="text_list_row_title">17sp</dimen>
+    <dimen name="text_list_row_subtitle">15sp</dimen>
+    <!-- Спеўнік: назва катэгорыі — крупней за радок песні (17sp), кампактней за шапку -->
+    <dimen name="text_songbook_category_header">20sp</dimen>
+    <dimen name="text_prayer_title">24sp</dimen>
+    <dimen name="text_prayer_meta">16sp</dimen>
+    <dimen name="text_prayer_body">18sp</dimen>
+    <dimen name="text_banner_message">15sp</dimen>
+    <!-- Загаловак раздзела ў шапцы (без autosize — стабільная вышыня, без «прыжкаў»). ~×1.5 да базы ~16sp -->
+    <dimen name="text_toolbar_section_title">24sp</dimen>
+    <!-- «Totus Tuus» у шапцы галоўнага: фіксаваны памер — autosize ў слоты ActionBar зламаў measure (абрэзка зверху). -->
+    <dimen name="text_toolbar_brand_title">31.2sp</dimen>
+    <!-- Святое Пісанне ў шапцы: на 10% менш за text_toolbar_section_title (24 × 0.9). -->
+    <dimen name="text_toolbar_scripture_title">21.6sp</dimen>
+    <!-- Загалоўкі блокаў у змесце экрана (не шапка). -->
+    <dimen name="text_section_header_title">20sp</dimen>
+    <dimen name="text_settings_caption">12sp</dimen>
+    <!-- Налады: блок прыкладу тэксту (фіксаваная вышыня, пракрутка ўнутры TextView) -->
+    <dimen name="settings_text_preview_height">99dp</dimen>
+    <!-- Шапка: крыху вышэй за бэйз 72dp — надтад для буйнага autosize загалоўка без абрэзкі -->
+    <dimen name="toolbar_min_height_extended">80dp</dimen>
+    <!-- Спеўнік, шапка дэталі: радок катэгорыі пад загалоўкам -->
+    <dimen name="songbook_toolbar_category_margin_top">2dp</dimen>
+    <!-- Злева: зазор пасля кнопкі меню да загалоўка -->
+    <dimen name="toolbar_content_inset_horizontal">2dp</dimen>
+    <dimen name="toolbar_title_gap_after_nav">@dimen/toolbar_content_inset_horizontal</dimen>
+    <dimen name="toolbar_home_content_inset_start">@dimen/toolbar_content_inset_horizontal</dimen>
+    <!-- Справа ад краю экрана да дзеянняў у шапцы (сіметрычна стандартнаму адступу злева да кантэнту) -->
+    <dimen name="toolbar_end_inset_actions">16dp</dimen>
+    <!-- −25% ад 48dp; іконкі ў радках шапкі 36dp — збігаецца па вышыні -->
+    <dimen name="toolbar_actions_strip_height">36dp</dimen>
+    <!-- Цягне блок A−/A+ бліжэй да наступнай іконкі ў адным actionLayout. -->
+    <dimen name="toolbar_reading_text_scale_margin_end">-6dp</dimen>
+    <!-- Крыж у шапцы: −25% ад 44dp, у прапарцыі да ніжайшай шапкі -->
+    <dimen name="toolbar_home_logo_size">33dp</dimen>
+    <dimen name="toolbar_home_logo_margin_end">2dp</dimen>
+    <!-- Спіс кніг (Святое Пісанне): ~−30% вышыні радка адносна базавых 64dp / 10dp padding -->
+    <dimen name="scripture_book_row_min_height">45dp</dimen>
+    <dimen name="scripture_book_row_padding_vertical">7dp</dimen>
+    <dimen name="scripture_book_row_padding_horizontal">8dp</dimen>
+    <dimen name="scripture_book_row_chevron_size">16dp</dimen>
+    <dimen name="scripture_book_row_spacing">4dp</dimen>
+    <dimen name="scripture_book_row_corner_radius">7dp</dimen>
+    <dimen name="scripture_focus_verse_stroke_width">2dp</dimen>
+    <dimen name="scripture_chapter_nav_card_radius">12dp</dimen>
+    <dimen name="scripture_chapter_nav_button_radius">12dp</dimen>
+    <dimen name="scripture_chapter_nav_button_size">52dp</dimen>
+    <dimen name="scripture_chapter_grid_cell_radius">10dp</dimen>
+    <dimen name="scripture_chapter_grid_cell_min_height">48dp</dimen>
+    <dimen name="scripture_chapter_grid_cell_stroke_default">1dp</dimen>
+    <dimen name="liturgy_calendar_day_margin">3dp</dimen>
+    <dimen name="liturgy_calendar_day_min_height">58dp</dimen>
+    <dimen name="liturgy_calendar_day_padding_top">7dp</dimen>
+    <dimen name="liturgy_calendar_day_padding_bottom">6dp</dimen>
+    <dimen name="liturgy_calendar_day_dot_size">10dp</dimen>
+    <dimen name="liturgy_calendar_day_dot_margin_top">6dp</dimen>
+</resources>

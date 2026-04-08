@@ -1,0 +1,8 @@
+<resources>
+    <dimen name="liturgy_calendar_day_margin">2dp</dimen>
+    <dimen name="liturgy_calendar_day_min_height">46dp</dimen>
+    <dimen name="liturgy_calendar_day_padding_top">4dp</dimen>
+    <dimen name="liturgy_calendar_day_padding_bottom">4dp</dimen>
+    <dimen name="liturgy_calendar_day_dot_size">8dp</dimen>
+    <dimen name="liturgy_calendar_day_dot_margin_top">4dp</dimen>
+</resources>

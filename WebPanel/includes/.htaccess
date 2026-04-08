@@ -1,0 +1,4 @@
+# Запрет прямого доступа к PHP-библиотекам панели
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>

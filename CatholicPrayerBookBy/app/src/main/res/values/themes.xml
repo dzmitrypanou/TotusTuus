@@ -1,0 +1,142 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.CatholicPrayerBookBy" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="android:scrollbars">none</item>
+        <item name="recyclerViewStyle">@style/Widget.CatholicPrayerBookBy.RecyclerView</item>
+        <item name="android:listPreferredItemHeight">@dimen/list_menu_row_min_height</item>
+        <item name="android:listPreferredItemHeightSmall">@dimen/list_menu_row_min_height</item>
+        <item name="navigationViewStyle">@style/Widget.CatholicPrayerBookBy.NavigationView</item>
+        <item name="totusColorBgPrimary">#0E1020</item>
+        <item name="totusColorBgSecondary">#171A2A</item>
+        <item name="totusColorSurface">#1D2236</item>
+        <item name="totusColorSurfaceElevated">#252B42</item>
+        <item name="totusColorSurfaceStroke">#39415E</item>
+        <item name="totusColorTextPrimary">#FFFFFFFF</item>
+        <item name="totusColorTextSecondary">#B8C0D9</item>
+        <item name="totusColorTextTertiary">#7A8499</item>
+        <item name="totusColorTextError">#FF8A8A</item>
+        <item name="totusColorRipple">#33FFFFFF</item>
+        <item name="totusColorToolbar">#1F2440</item>
+        <item name="totusColorToolbarVariant">#13172C</item>
+        <item name="totusColorScriptureHighlightFill">#2F354F</item>
+        <item name="totusColorScriptureHighlightStroke">#E2D5B8</item>
+        <item name="colorPrimary">?attr/totusColorToolbar</item>
+        <item name="colorPrimaryVariant">?attr/totusColorToolbarVariant</item>
+        <item name="colorOnPrimary">?attr/totusColorTextPrimary</item>
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorOnSecondary">?attr/totusColorTextPrimary</item>
+        <item name="colorSurface">?attr/totusColorSurface</item>
+        <item name="colorOnSurface">?attr/totusColorTextPrimary</item>
+        <item name="android:textColorPrimary">?attr/totusColorTextPrimary</item>
+        <item name="android:textColorSecondary">?attr/totusColorTextSecondary</item>
+        <!-- Без жоўтага падсвятлення пры націску / вылучэнні тэксту (стандарт тэмы) -->
+        <item name="android:textColorHighlight">?attr/totusColorRipple</item>
+        <item name="android:colorControlHighlight">?attr/totusColorRipple</item>
+        <item name="colorControlHighlight">?attr/totusColorRipple</item>
+        <item name="android:windowBackground">@drawable/bg_gradient_dark</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <!-- Edge-to-edge: ніжняя панель праозрачная, адступы праз WindowInsets у актывітэтах -->
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="Theme.CatholicPrayerBookBy.NoActionBar" parent="Theme.CatholicPrayerBookBy">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.CatholicPrayerBookBy.NoActionBar.White" parent="Theme.CatholicPrayerBookBy.NoActionBar">
+        <item name="totusColorBgPrimary">#EAF0F7</item>
+        <item name="totusColorBgSecondary">#F8FAFC</item>
+        <item name="totusColorSurface">#E3EAF3</item>
+        <item name="totusColorSurfaceElevated">#FFFFFFFF</item>
+        <item name="totusColorSurfaceStroke">#94A3B8</item>
+        <item name="totusColorTextPrimary">#0F172A</item>
+        <item name="totusColorTextSecondary">#334155</item>
+        <item name="totusColorTextTertiary">#64748B</item>
+        <item name="totusColorTextError">#B91C1C</item>
+        <item name="totusColorRipple">#1F0F172A</item>
+        <item name="totusColorToolbar">#F1F5F9</item>
+        <item name="totusColorToolbarVariant">#E2E8F0</item>
+        <item name="totusColorScriptureHighlightFill">#E2E8F0</item>
+        <item name="totusColorScriptureHighlightStroke">#64748B</item>
+    </style>
+
+    <style name="Theme.CatholicPrayerBookBy.NoActionBar.Dark" parent="Theme.CatholicPrayerBookBy.NoActionBar">
+        <item name="totusColorBgPrimary">#070A14</item>
+        <item name="totusColorBgSecondary">#101522</item>
+        <item name="totusColorSurface">#131A2A</item>
+        <item name="totusColorSurfaceElevated">#1A2338</item>
+        <item name="totusColorSurfaceStroke">#2A3652</item>
+        <item name="totusColorTextPrimary">#EEF4FF</item>
+        <item name="totusColorTextSecondary">#AEBBD4</item>
+        <item name="totusColorTextTertiary">#7D8FAE</item>
+        <item name="totusColorTextError">#FF8A8A</item>
+        <item name="totusColorRipple">#33EEF4FF</item>
+        <item name="totusColorToolbar">#12182A</item>
+        <item name="totusColorToolbarVariant">#0E1423</item>
+        <item name="totusColorScriptureHighlightFill">#1F2A42</item>
+        <item name="totusColorScriptureHighlightStroke">#7D8FAE</item>
+    </style>
+
+    <style name="Theme.CatholicPrayerBookBy.NoActionBar.Beige" parent="Theme.CatholicPrayerBookBy.NoActionBar">
+        <item name="totusColorBgPrimary">#EFE7DA</item>
+        <item name="totusColorBgSecondary">#F8F2E8</item>
+        <item name="totusColorSurface">#EADFCE</item>
+        <item name="totusColorSurfaceElevated">#F6EFE2</item>
+        <item name="totusColorSurfaceStroke">#C6B39A</item>
+        <item name="totusColorTextPrimary">#3F3121</item>
+        <item name="totusColorTextSecondary">#5E4A34</item>
+        <item name="totusColorTextTertiary">#7C6650</item>
+        <item name="totusColorTextError">#A83425</item>
+        <item name="totusColorRipple">#265E4A34</item>
+        <item name="totusColorToolbar">#E5D9C6</item>
+        <item name="totusColorToolbarVariant">#D9C8AE</item>
+        <item name="totusColorScriptureHighlightFill">#E8DBC5</item>
+        <item name="totusColorScriptureHighlightStroke">#8B6D4A</item>
+    </style>
+
+    <style name="Theme.CatholicPrayerBookBy.Startup" parent="Theme.SplashScreen">
+        <item name="totusColorBgPrimary">#0E1020</item>
+        <item name="totusColorBgSecondary">#171A2A</item>
+        <item name="totusColorSurface">#1D2236</item>
+        <item name="totusColorSurfaceElevated">#252B42</item>
+        <item name="totusColorSurfaceStroke">#39415E</item>
+        <item name="totusColorTextPrimary">#FFFFFFFF</item>
+        <item name="totusColorTextSecondary">#B8C0D9</item>
+        <item name="totusColorTextTertiary">#7A8499</item>
+        <item name="totusColorTextError">#FF8A8A</item>
+        <item name="totusColorRipple">#33FFFFFF</item>
+        <item name="totusColorToolbar">#1F2440</item>
+        <item name="totusColorToolbarVariant">#13172C</item>
+        <item name="totusColorScriptureHighlightFill">#2F354F</item>
+        <item name="totusColorScriptureHighlightStroke">#E2D5B8</item>
+        <item name="windowSplashScreenBackground">#0E1020</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon_transparent</item>
+        <item name="postSplashScreenTheme">@style/Theme.CatholicPrayerBookBy.NoActionBar</item>
+    </style>
+
+    <style name="Theme.CatholicPrayerBookBy.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
+        <item name="actionButtonStyle">@style/Widget.CatholicPrayerBookBy.Toolbar.ActionButton</item>
+    </style>
+
+    <style name="Theme.CatholicPrayerBookBy.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Dark" />
+
+    <style name="Widget.CatholicPrayerBookBy.NavigationView" parent="Widget.MaterialComponents.NavigationView">
+        <item name="android:scrollbars">none</item>
+        <item name="itemVerticalPadding">14dp</item>
+        <item name="itemIconPadding">12dp</item>
+    </style>
+
+    <style name="Widget.CatholicPrayerBookBy.RecyclerView" parent="android:Widget">
+        <item name="android:scrollbars">none</item>
+        <item name="android:fadeScrollbars">true</item>
+    </style>
+
+    <style name="Theme.CatholicPrayerBookBy.FullScreenDialog" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Меншыя адступы паміж пунктамі меню справа ў Toolbar (Пісанне, іконкі «заўсёды»). -->
+    <style name="Widget.CatholicPrayerBookBy.Toolbar.ActionButton" parent="Widget.AppCompat.ActionButton">
+        <item name="android:minWidth">28dp</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+    </style>
+</resources>

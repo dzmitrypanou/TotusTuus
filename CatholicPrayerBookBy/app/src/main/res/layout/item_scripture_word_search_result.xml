@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/prayer_book_block_gap"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="?attr/totusColorSurfaceElevated"
+    app:cardCornerRadius="@dimen/prayer_card_corner"
+    app:cardElevation="0dp"
+    app:strokeColor="?attr/totusColorSurfaceStroke"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="14dp">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_scripture_search_ref"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/totusColorTextSecondary"
+            android:textSize="@dimen/text_banner_message"
+            tools:text="Выхад %3:1" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_scripture_search_verse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:lineSpacingExtra="2dp"
+            android:textColor="?attr/totusColorTextPrimary"
+            android:textSize="@dimen/text_list_row_title"
+            tools:text="1 І сказаў Гасподзь Майсею…" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

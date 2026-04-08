@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" role="img" aria-label="Totus Tuus">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="108" x2="108" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#13172c"/>
+      <stop offset="1" stop-color="#1f2440"/>
+    </linearGradient>
+    <linearGradient id="cross" x1="0" y1="100" x2="100" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f1f5f9"/>
+      <stop offset="0.5" stop-color="#e2d5b8"/>
+      <stop offset="1" stop-color="#c7d2fe"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" rx="24" fill="url(#bg)"/>
+  <g transform="translate(4 4) scale(1)">
+    <path fill="url(#cross)" stroke="#c7d2fe" stroke-width="0.9" stroke-linejoin="miter"
+          d="M46,8h8v26h32v8h-32v50h-8v-50h-32v-8h32v-26z"/>
+  </g>
+</svg>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/toolbar_actions_strip_height"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="0dp"
+    android:paddingEnd="0dp"
+    tools:ignore="RtlSymmetry">
+
+    <FrameLayout
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="0dp">
+
+        <ProgressBar
+            android:id="@+id/progress_songbook_sync"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:indeterminate="true"
+            android:indeterminateTint="?attr/totusColorTextPrimary"
+            android:padding="8dp"
+            android:visibility="invisible" />
+    </FrameLayout>
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/button_songbook_refresh"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="0dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/refresh_songbook"
+        android:padding="6dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_refresh_24"
+        app:tint="?attr/totusColorTextPrimary" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/button_songbook_bookmarked"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="0dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/songbook_bookmarked_title"
+        android:padding="6dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_bookmark_border_24"
+        app:tint="?attr/totusColorTextPrimary" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/button_songbook_search"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="0dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/songbook_search_title"
+        android:padding="6dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_search_24"
+        app:tint="?attr/totusColorTextPrimary" />
+</LinearLayout>

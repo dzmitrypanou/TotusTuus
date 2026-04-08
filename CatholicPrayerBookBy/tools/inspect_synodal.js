@@ -1,0 +1,10 @@
+const fs = require("fs");
+const path = require("path");
+const p = path.join(process.env.TEMP || "/tmp", "ru_synodal_sample.json");
+const j = JSON.parse(fs.readFileSync(p, "utf8"));
+const books = Array.isArray(j) ? j : j.books;
+console.log("books length", books.length);
+console.log("keys book0", Object.keys(books[0]));
+const ch0 = books[0].chapters[0];
+console.log("chapter0 keys", Object.keys(ch0));
+console.log("verse sample", ch0.verses?.[0] || ch0[0]);
