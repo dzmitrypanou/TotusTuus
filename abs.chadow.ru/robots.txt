@@ -1,9 +1,0 @@
-# robots.txt
-User-agent: *
-Disallow: /admin/
-Disallow: /config/
-Disallow: /install/
-Disallow: /api/
-Allow: /
-
-Sitemap: /sitemap.xml
