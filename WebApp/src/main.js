@@ -241,7 +241,6 @@
         return `
     <div id="calendar-settings-root" class="max-w-[480px] mx-auto px-2 pb-8 pt-2">
         <section class="rounded-md border border-app-stroke bg-app-elevated p-[18px] space-y-3">
-            <h2 class="text-base font-bold text-app-text">Налады календара</h2>
             <p class="text-[13px] text-app-textSec leading-relaxed">Калі не паставіць галачкі, то паказваецца агульны Рымскі каляндар. Абярыце дыяцэзіі, каб бачыць іх мясцовыя святы.</p>
             <div class="rounded-lg border border-app-stroke/80 bg-app-bg2/40 px-3 divide-y divide-app-stroke/50">
                 ${row('pinskaya', 'Паказваць святы: Пінская дыяцэзія')}
@@ -1176,9 +1175,6 @@
             }
             return `<h1 class="${TOOLBAR_H1_CLASS}">${escapeHtml(t)}</h1>`;
         }
-        if (currentView === 'calendar-settings') {
-            return '';
-        }
         if (currentView === 'songbook') {
             if (songbookDetailId != null) {
                 const e = (songbookCache || []).find((x) => Number(x.id) === Number(songbookDetailId));
@@ -1668,7 +1664,7 @@
         <div class="rounded-md border border-app-stroke bg-app-elevated p-[18px]">
             <div class="flex items-center justify-between gap-2">
                 <button type="button" data-action="prev-month" class="w-10 h-10 shrink-0 flex items-center justify-center text-app-text text-xl font-bold hover:bg-white/5 rounded-lg border-0 bg-transparent cursor-pointer">←</button>
-                <h2 class="text-center text-app-text font-bold text-[17px] flex-1 leading-tight">${escapeHtml(monthTitle)}</h2>
+                <h2 data-calendar-month-title class="text-center text-app-text font-bold text-[17px] flex-1 leading-tight">${escapeHtml(monthTitle)}</h2>
                 <button type="button" data-action="next-month" class="w-10 h-10 shrink-0 flex items-center justify-center text-app-text text-xl font-bold hover:bg-white/5 rounded-lg border-0 bg-transparent cursor-pointer">→</button>
             </div>
             <div class="flex mt-2.5 text-[12px] text-app-textTer font-medium">
@@ -1706,11 +1702,23 @@
                 const dx = t.clientX - startX;
                 const dy = t.clientY - startY;
                 if (Math.abs(dx) < 42 || Math.abs(dx) <= Math.abs(dy) * 1.2) return;
-                currentDate = dx < 0 ? currentDate.plus({ months: 1 }) : currentDate.minus({ months: 1 });
-                renderApp();
+                shiftCalendarMonth(dx < 0 ? 1 : -1);
             },
             { passive: true }
         );
+    }
+
+    function syncCalendarMonthTitle() {
+        const el = document.querySelector('[data-calendar-month-title]');
+        if (!el) return;
+        el.textContent = formatCalendarMonthYearBe(currentDate);
+    }
+
+    function shiftCalendarMonth(deltaMonths) {
+        if (!Number.isFinite(deltaMonths) || deltaMonths === 0) return;
+        currentDate = currentDate.plus({ months: deltaMonths });
+        syncCalendarMonthTitle();
+        hydrateCalendar();
     }
 
     function mapOptionalMemorialColor(name) {
@@ -3376,13 +3384,11 @@
                     return;
                 }
                 if (a === 'prev-month') {
-                    currentDate = currentDate.minus({ months: 1 });
-                    renderApp();
+                    shiftCalendarMonth(-1);
                     return;
                 }
                 if (a === 'next-month') {
-                    currentDate = currentDate.plus({ months: 1 });
-                    renderApp();
+                    shiftCalendarMonth(1);
                     return;
                 }
                 if (a === 'font-text-smaller') {

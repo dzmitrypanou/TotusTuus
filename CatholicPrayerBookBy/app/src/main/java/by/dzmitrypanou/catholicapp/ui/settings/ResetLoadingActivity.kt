@@ -30,7 +30,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ResetLoadingActivity : AppCompatActivity() {
-
     private lateinit var root: View
     private lateinit var imageLogo: ImageView
     private lateinit var progressBar: ProgressBar
@@ -104,7 +103,6 @@ class ResetLoadingActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val startedAt = SystemClock.elapsedRealtime()
             updateProgress(0, R.string.reset_loading_status_prepare)
-
             withContext(Dispatchers.IO) {
                 val prayerRepo = PrayerRepository(applicationContext)
                 runCatching {
@@ -156,9 +154,9 @@ class ResetLoadingActivity : AppCompatActivity() {
             updateProgress(100, R.string.reset_loading_status_done)
 
             val elapsed = SystemClock.elapsedRealtime() - startedAt
-            val minDurationMs = 3000L
-            if (elapsed < minDurationMs) {
-                delay(minDurationMs - elapsed)
+            val targetDurationMs = 1000L
+            if (elapsed < targetDurationMs) {
+                delay(targetDurationMs - elapsed)
             }
             openMain()
         }
