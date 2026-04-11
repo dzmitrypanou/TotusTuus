@@ -437,6 +437,9 @@
         </div>`;
     }
 
+    /** Аднолькавыя GET у поле — адзін сеткавы запыт (паралельныя выклікі чакаюць той самы Promise). */
+    const apiFetchInflight = new Map();
+
     async function apiFetch(scriptName, params) {
         const { apiBaseUrl, apiKey, useServerProxy } = getApiConfig();
         const search = new URLSearchParams(params || {});
@@ -450,34 +453,48 @@
             url = q ? `${apiBaseUrl}/${scriptName}?${q}` : `${apiBaseUrl}/${scriptName}`;
             if (apiKey) headers['X-Totus-Api-Key'] = apiKey;
         }
-        try {
-            const res = await fetch(url, {
-                method: 'GET',
-                headers,
-            });
-            const text = await res.text();
-            let data;
+
+        const inflight = apiFetchInflight.get(url);
+        if (inflight) return inflight;
+
+        const promise = (async () => {
             try {
-                data = JSON.parse(text);
-            } catch {
-                data = { error: 'invalid_json', message: text.slice(0, 400) };
+                const res = await fetch(url, {
+                    method: 'GET',
+                    headers,
+                });
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch {
+                    data = { error: 'invalid_json', message: text.slice(0, 400) };
+                }
+                return { ok: res.ok, status: res.status, data };
+            } catch (e) {
+                const msg = e instanceof Error ? e.message : String(e);
+                return {
+                    ok: false,
+                    status: 0,
+                    data: { error: 'network_error', message: msg },
+                };
+            } finally {
+                apiFetchInflight.delete(url);
             }
-            return { ok: res.ok, status: res.status, data };
-        } catch (e) {
-            const msg = e instanceof Error ? e.message : String(e);
-            return {
-                ok: false,
-                status: 0,
-                data: { error: 'network_error', message: msg },
-            };
-        }
+        })();
+
+        apiFetchInflight.set(url, promise);
+        return promise;
     }
 
     function escapeHtml(s) {
         if (s === null || s === undefined) return '';
-        const d = document.createElement('div');
-        d.textContent = s;
-        return d.innerHTML;
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     /** Як looksLikeHtml у PrayerDetailFragment.kt / SongbookDetailFragment.kt. */
@@ -1123,9 +1140,15 @@
         fitSongbookDetailToolbarTitles();
     }
 
+    let toolbarTitleFitRafPending = false;
     function scheduleToolbarTitleFit() {
+        if (toolbarTitleFitRafPending) return;
+        toolbarTitleFitRafPending = true;
         requestAnimationFrame(() => {
-            requestAnimationFrame(() => fitAllToolbarTitles());
+            requestAnimationFrame(() => {
+                toolbarTitleFitRafPending = false;
+                fitAllToolbarTitles();
+            });
         });
     }
 
@@ -2482,6 +2505,14 @@
 
     let prayerSearchDraft = '';
 
+    function attachPrayerSearchIndex(prayers) {
+        for (const p of prayers || []) {
+            p._totusSearchBlob = [p.title, p.text, p.category, p.subcategory, p.additional_categories]
+                .join(' ')
+                .toLowerCase();
+        }
+    }
+
     async function ensurePrayersLoaded() {
         if (prayersCache !== null) return;
         prayersLoadError = null;
@@ -2505,6 +2536,7 @@
             prayersCache = [];
         } else {
             prayersCache = Array.isArray(prRes.data) ? prRes.data : [];
+            attachPrayerSearchIndex(prayersCache);
         }
         if (!catRes.ok || catRes.data.error) {
             categoriesCache = [];
@@ -2648,10 +2680,12 @@
         const nq = trimmed.toLowerCase();
         const rows = all
             .filter((p) => {
-                const blob = [p.title, p.text, p.category, p.subcategory, p.additional_categories]
+                const blob = p._totusSearchBlob;
+                if (blob) return blob.includes(nq);
+                return [p.title, p.text, p.category, p.subcategory, p.additional_categories]
                     .join(' ')
-                    .toLowerCase();
-                return blob.includes(nq);
+                    .toLowerCase()
+                    .includes(nq);
             })
             .sort((a, b) => {
                 const s = Number(a.sort_order) - Number(b.sort_order);
@@ -3796,6 +3830,14 @@
 
     function songbookEntryMatchesQuery(e, nq) {
         if (!nq) return false;
+        if (e._totusSearchBody != null) {
+            const cat = e._totusSearchCat;
+            if (cat && cat.includes(nq)) return true;
+            if (e._totusSearchTitle.includes(nq)) return true;
+            if (e._totusSearchLabel.includes(nq)) return true;
+            if (e._totusSearchNum.includes(nq)) return true;
+            return e._totusSearchBody.includes(nq);
+        }
         const cat = songbookCategoryKey(e).toLowerCase();
         if (cat && cat.includes(nq)) return true;
         const title = String(e.title || '').toLowerCase();
@@ -3804,6 +3846,16 @@
         if (songbookNumberPrefix(e).toLowerCase().includes(nq)) return true;
         const body = stripHtmlForSongbookSearch(e.text || '');
         return body.includes(nq);
+    }
+
+    function attachSongbookSearchIndex(entries) {
+        for (const e of entries || []) {
+            e._totusSearchCat = songbookCategoryKey(e).toLowerCase();
+            e._totusSearchTitle = String(e.title || '').toLowerCase();
+            e._totusSearchLabel = songbookListLabel(e).toLowerCase();
+            e._totusSearchNum = songbookNumberPrefix(e).toLowerCase();
+            e._totusSearchBody = stripHtmlForSongbookSearch(e.text || '');
+        }
     }
 
     function songbookFilterSearchResults(entries, query) {
@@ -4004,6 +4056,7 @@
             songbookCache = [];
         } else {
             songbookCache = Array.isArray(res.data) ? res.data : [];
+            attachSongbookSearchIndex(songbookCache);
         }
     }
 
@@ -5068,29 +5121,41 @@
         return { text: String(vs.text).trim(), kind: 'ok' };
     }
 
+    const scriptureJsonInflight = new Map();
+
     async function loadBundledScriptureJson(translationId) {
         const id = String(translationId);
         if (scriptureJsonCache.has(id)) {
             return scriptureJsonCache.get(id);
         }
-        try {
-            const url = totusAssetUrl(`${SCRIPTURE_BUNDLE_BASE}/${id}.json`);
-            const r = await fetch(url);
-            if (!r.ok) {
+        let inflight = scriptureJsonInflight.get(id);
+        if (inflight) return inflight;
+
+        inflight = (async () => {
+            try {
+                const url = totusAssetUrl(`${SCRIPTURE_BUNDLE_BASE}/${id}.json`);
+                const r = await fetch(url);
+                if (!r.ok) {
+                    scriptureJsonCache.set(id, null);
+                    return null;
+                }
+                const data = await r.json();
+                if (!data || !Array.isArray(data.books)) {
+                    scriptureJsonCache.set(id, null);
+                    return null;
+                }
+                scriptureJsonCache.set(id, data);
+                return data;
+            } catch {
                 scriptureJsonCache.set(id, null);
                 return null;
+            } finally {
+                scriptureJsonInflight.delete(id);
             }
-            const data = await r.json();
-            if (!data || !Array.isArray(data.books)) {
-                scriptureJsonCache.set(id, null);
-                return null;
-            }
-            scriptureJsonCache.set(id, data);
-            return data;
-        } catch {
-            scriptureJsonCache.set(id, null);
-            return null;
-        }
+        })();
+
+        scriptureJsonInflight.set(id, inflight);
+        return inflight;
     }
 
     async function loadScriptureBundledIdsOnce() {
