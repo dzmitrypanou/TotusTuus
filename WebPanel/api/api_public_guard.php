@@ -3,31 +3,19 @@ declare(strict_types=1);
 
 /**
  * Адзіны ключ для публічных GET API (прыкладанне).
- * Крыніцы (першая непустая):
- * 1) зменная асяроддзя TOTUS_PUBLIC_API_KEY
- * 2) файл api_secrets.php (шаблон: api_secrets.example.php)
+ * Крыніцы: глядзі totus_effective_public_api_key() у totus_repo_public_key.php
+ * (env → .properties у некалькіх месцах → убудаваны рэзерв для дэплою без караня рэпа).
  *
  * Загаловак запыту: X-Totus-Api-Key
  */
 
 const TOTUS_API_KEY_HEADER = 'HTTP_X_TOTUS_API_KEY';
 
+require_once __DIR__ . '/totus_repo_public_key.php';
+
 function totus_public_api_key(): string
 {
-    $env = getenv('TOTUS_PUBLIC_API_KEY');
-    if (is_string($env) && $env !== '') {
-        return $env;
-    }
-    $local = __DIR__ . '/api_secrets.php';
-    if (is_file($local)) {
-        /** @var mixed $cfg */
-        $cfg = require $local;
-        if (is_array($cfg) && isset($cfg['public_api_key']) && is_string($cfg['public_api_key'])) {
-            return $cfg['public_api_key'];
-        }
-    }
-
-    return '';
+    return totus_effective_public_api_key();
 }
 
 /** Агульныя загалоўкі бяспекі для JSON API (OWASP / baseline). */
@@ -82,7 +70,7 @@ function api_public_guard_enforce(): void
         api_public_guard_json_error(
             503,
             'api_key_not_configured',
-            'На серверы не зададзены публічны ключ API (TOTUS_PUBLIC_API_KEY або api/api_secrets.php).'
+            'На серверы не зададзены публічны ключ API (TOTUS_PUBLIC_API_KEY або publicApiKey у totus-app-version.properties).'
         );
     }
 

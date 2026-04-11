@@ -1,4 +1,4 @@
 # Скапіюйце ў local.properties (файл не ў git).
-# Той жа ключ павінен быць у WebPanel/api/api_secrets.php (гл. api_secrets.example.php)
-# або ў зменнай асяроддзя сервера TOTUS_PUBLIC_API_KEY.
+# Калі totus.publicApiKey пусты — Gradle бярэ publicApiKey з ../totus-app-version.properties (адзін крыніца з вэб-панэллю).
+# Перавызначэнне для лакальнай зборкі: totus.publicApiKey=...
 totus.publicApiKey=

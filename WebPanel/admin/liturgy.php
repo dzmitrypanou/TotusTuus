@@ -20,9 +20,6 @@ if (!panel_is_logged_in()) {
 ensureSchemaAndSeed();
 panel_require_section_get('liturgy');
 
-$message = null;
-$error = null;
-$view = 'liturgy';
 $colorLabels = [
     'green' => 'зялёны',
     'red' => 'чырвоны',
@@ -42,55 +39,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['logout']))
     session_destroy();
     header('Location: /', true, 302);
     exit;
-}
-
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    if (!panel_csrf_token_valid()) {
-        $error = 'Сесія пратэрмінаваная або токен несапраўдны. Абнавіце старонку.';
-    } else {
-        $date = trim((string)($_POST['liturgy_date'] ?? ''));
-        $isDelete = isset($_POST['delete_liturgy_day']);
-        $parsed = DateTimeImmutable::createFromFormat('Y-m-d', $date, new DateTimeZone('UTC'));
-        if ($parsed === false || $parsed->format('Y-m-d') !== $date) {
-            $error = 'Пакажыце карэктную дату ў фармаце YYYY-MM-DD.';
-        }
-        if ($error === null) {
-            try {
-                if ($isDelete) {
-                    $del = db()->prepare('DELETE FROM liturgy_calendar_entries WHERE liturgy_date = :d');
-                    $del->execute([':d' => $date]);
-                    $message = 'Запіс дня выдалены.';
-                } else {
-                    $title = trim((string)($_POST['title_override'] ?? ''));
-                    $color = trim((string)($_POST['color_override'] ?? ''));
-                    $readingsFull = trim((string)($_POST['readings_full'] ?? ''));
-                    if ($color !== '' && !in_array($color, ['green', 'red', 'purple', 'white', 'rose', 'black'], true)) {
-                        $error = 'Недапушчальны колер літургічнага дня.';
-                    } else {
-                        $upsert = db()->prepare(
-                            'INSERT INTO liturgy_calendar_entries
-                                (liturgy_date, title_override, color_override, readings_full)
-                             VALUES
-                                (:d, :t, :c, :readings_full)
-                             ON DUPLICATE KEY UPDATE
-                                title_override = VALUES(title_override),
-                                color_override = VALUES(color_override),
-                                readings_full = VALUES(readings_full)'
-                        );
-                        $upsert->execute([
-                            ':d' => $date,
-                            ':t' => $title !== '' ? $title : null,
-                            ':c' => $color !== '' ? $color : null,
-                            ':readings_full' => $readingsFull !== '' ? $readingsFull : null,
-                        ]);
-                        $message = 'Літургічны дзень захаваны.';
-                    }
-                }
-            } catch (Throwable $e) {
-                $error = 'Памылка захавання: ' . $e->getMessage();
-            }
-        }
-    }
 }
 
 $selectedDate = trim((string)($_GET['date'] ?? date('Y-m-d')));
@@ -150,8 +98,6 @@ if ($hasExplicitMonthYear && !isset($_GET['date'])) {
     $selectedDateObj = $monthStart;
     $selectedDate = $selectedDateObj->format('Y-m-d');
 }
-
-$liturgyPostAction = '/admin/liturgy.php?' . http_build_query(array_merge($calNavQuery, ['date' => $selectedDate]));
 
 $entries = liturgy_fetch_entries_in_range($monthStart->format('Y-m-d'), $monthEnd->format('Y-m-d'));
 
@@ -243,51 +189,6 @@ foreach ($monthDayMeta as $k => $meta) {
         $daysWithoutReadingsCount++;
     }
 }
-
-$entry = liturgy_fetch_entry_for_date($selectedDate);
-$auto = liturgy_auto_day_info($selectedDateObj, $dioceseOpts);
-$readingsFullValue = is_array($entry) ? (string)($entry['readings_full'] ?? '') : '';
-$lectionaryKeyValue = is_array($entry) ? (string)($entry['lectionary_key'] ?? '') : '';
-$lectionarySourceValue = is_array($entry) ? (string)($entry['lectionary_source'] ?? '') : '';
-$autoColorKey = (string)$auto['color'];
-$autoColorLabel = (string)($colorLabels[$autoColorKey] ?? $autoColorKey);
-
-$effectiveSel = liturgy_effective_title_for_date($selectedDateObj, $entry, $auto);
-$optionalMemSel = (string)($auto['optional_memorial_title'] ?? '');
-$dateLookupSel = liturgy_christmas_period_date_lookup_title($selectedDateObj, (bool)$auto['is_important']);
-$optionalLookupsSel = array_values(array_filter(array_map(
-    static fn($t): string => trim((string)$t),
-    (array)($auto['optional_memorial_lookup_titles'] ?? [])
-), static fn(string $t): bool => $t !== ''));
-$titlesSel = [$effectiveSel];
-if ($optionalMemSel !== '') {
-    $titlesSel[] = $optionalMemSel;
-}
-foreach ($optionalLookupsSel as $tlt) {
-    $titlesSel[] = $tlt;
-}
-if ($dateLookupSel !== '') {
-    $titlesSel[] = $dateLookupSel;
-}
-$legacyEasterSel = liturgy_easter_octave_weekday_legacy_lookup_title($selectedDateObj);
-if ($legacyEasterSel !== '') {
-    $titlesSel[] = $legacyEasterSel;
-}
-$lectionaryMapSelected = liturgy_fetch_lectionary_map_by_titles($titlesSel);
-$optionalPrefixSel = array_values(array_map(
-    static fn($x): bool => (bool)$x,
-    (array)($auto['optional_memorial_prefix_auto'] ?? [])
-));
-$selectedReadingSlots = liturgy_admin_reading_slots(
-    is_array($entry) ? $entry : null,
-    $effectiveSel,
-    $optionalMemSel,
-    $dateLookupSel,
-    $optionalLookupsSel,
-    $lectionaryMapSelected,
-    $selectedDateObj,
-    $optionalPrefixSel
-);
 
 ?>
 <!doctype html>
@@ -586,9 +487,6 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
         ?>
   </div>
 
-    <?php if ($message !== null): ?><p class="msg ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
-    <?php if ($error !== null): ?><p class="msg err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
-
     <div class="grid">
       <div class="card">
         <h2 style="margin:0 0 8px; font-size:1rem;">Дні <?= htmlspecialchars($monthStart->format('m.Y'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
@@ -725,7 +623,7 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
               <td>
                 <div class="day-actions">
                   <div class="day-actions-row">
-                    <a class="btn" href="<?= htmlspecialchars('/admin/liturgy.php?' . http_build_query(array_merge($calNavQuery, ['date' => $k])), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Адкрыць</a>
+                    <a class="btn" href="<?= htmlspecialchars('/admin/liturgy_day_edit.php?' . http_build_query(array_merge($calNavQuery, ['date' => $k])), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Рэдагаваць</a>
                     <a class="btn" href="/admin/lectionary.php?prefill_title=<?= urlencode($lectionaryPrefillTitle) ?>">Лекцыянарый (дзень)</a>
                   </div>
                 </div>
@@ -738,82 +636,6 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
           </tbody>
         </table>
         </div>
-      </div>
-
-      <div class="card">
-        <h2 style="margin:0 0 8px; font-size:1rem;">Рэдагаванне дня</h2>
-        <p class="muted" style="margin-top:0;display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;">
-          <span class="dot" style="background:<?= htmlspecialchars(liturgy_color_hex($autoColorKey), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>;flex-shrink:0;margin-top:3px;"></span>
-          <span>Аўта: <strong><?= htmlspecialchars((string)$auto['title'] !== '' ? (string)$auto['title'] : 'Звычайны дзень', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></strong>,
-          колер <strong><?= htmlspecialchars($autoColorLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></strong>
-          (<?= htmlspecialchars(liturgy_weekday_name($selectedDateObj), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>, <?= htmlspecialchars($selectedDateObj->format('d.m.Y'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>).
-          <?php if ($lectionaryKeyValue !== ''): ?>
-            <br>Лекцыянар: <code><?= htmlspecialchars($lectionaryKeyValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></code>
-            <?php if ($lectionarySourceValue !== ''): ?>(<code><?= htmlspecialchars($lectionarySourceValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></code>)<?php endif; ?>.
-          <?php endif; ?>
-          </span>
-        </p>
-        <?php
-        $editKindShort = [
-            'manual' => 'Запіс',
-            'main' => 'Асноўн.',
-            'date' => 'Па датце',
-            'optional' => 'Успамін',
-            'special' => 'Імша',
-        ];
-        ?>
-        <?php if (count($selectedReadingSlots) > 0): ?>
-        <div class="readings-slots" style="margin-bottom:14px;">
-          <div class="readings-slots-h">Усе чытанні за дзень (лекцыянарый)</div>
-          <?php foreach ($selectedReadingSlots as $eslot): ?>
-            <?php if (!is_array($eslot)) { continue; } ?>
-            <?php
-            $esk = (string)($eslot['kind'] ?? '');
-            $eslab = (string)($editKindShort[$esk] ?? $esk);
-            $eslabel = (string)($eslot['label'] ?? '');
-            $elk = (string)($eslot['lookup_title'] ?? '');
-            $ehas = !empty($eslot['has_text']);
-            ?>
-            <div class="reading-slot">
-              <span class="reading-slot-kind"><?= htmlspecialchars($eslab, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
-              <div class="reading-slot-label"><?= htmlspecialchars($eslabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></div>
-              <div class="reading-slot-meta">
-                <span class="<?= $ehas ? 'reading-slot-ok' : 'reading-slot-miss' ?>"><?= $ehas ? 'ёсць' : 'няма' ?></span>
-                <?php if ($elk !== ''): ?>
-                  <a class="reading-slot-link" href="/admin/lectionary.php?prefill_title=<?= urlencode($elk) ?>">лекцыянарый</a>
-                <?php endif; ?>
-              </div>
-            </div>
-          <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
-        <form method="post" action="<?= htmlspecialchars($liturgyPostAction, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-          <?= panel_csrf_field() ?>
-          <label for="liturgy_date">Дата</label>
-          <input id="liturgy_date" type="date" name="liturgy_date" value="<?= htmlspecialchars($selectedDate, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" required>
-
-          <label for="title_override">Назва (неабавязкова, калі трэба пераазначыць аўта)</label>
-          <input id="title_override" type="text" name="title_override" value="<?= htmlspecialchars((string)($entry['title_override'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-
-          <label for="color_override">Колер літургічнага дня (неабавязкова)</label>
-          <select id="color_override" name="color_override">
-            <?php
-            $currColor = (string)($entry['color_override'] ?? '');
-            ?>
-            <option value="" <?= $currColor === '' ? 'selected' : '' ?>>Аўта</option>
-            <?php foreach (['green', 'red', 'purple', 'white', 'rose', 'black'] as $c): ?>
-              <option value="<?= $c ?>" <?= $currColor === $c ? 'selected' : '' ?>><?= htmlspecialchars((string)($colorLabels[$c] ?? $c), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
-            <?php endforeach; ?>
-          </select>
-
-          <label for="readings_full">Поўны тэкст дня (цалкам, для API)</label>
-          <textarea id="readings_full" name="readings_full" style="height:460px;"><?= htmlspecialchars($readingsFullValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea>
-
-          <div class="actions">
-            <button type="submit" name="save_liturgy_day" value="1">Захаваць</button>
-            <button type="submit" class="danger" name="delete_liturgy_day" value="1" onclick="return confirm('Выдаліць запіс гэтага дня?')">Выдаліць запіс</button>
-          </div>
-        </form>
       </div>
     </div>
 </body>

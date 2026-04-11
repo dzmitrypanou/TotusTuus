@@ -1,11 +1,11 @@
 <?php
 /**
  * Скапіюйце ў proxy-secrets.php (не камітуйце ў git).
- * Альнатыва: зменныя асяроддзя TOTUS_PUBLIC_API_KEY і пры неабходнасці TOTUS_UPSTREAM_API_BASE.
+ * Альнатыва: зменныя асяроддзя TOTUS_PUBLIC_API_KEY; па змаўчанні ключ бярэцца з publicApiKey у totus-app-version.properties (карань рэпа).
  */
 return [
-    /** Той самы ключ, што public_api_key у WebPanel/api/api_secrets.php */
-    'public_api_key' => 'УСТАЎЦЕ_СВАЙ_КЛЮЧ',
+    /** Перавызначэнне; калі пуста — як у totus-app-version.properties */
+    'public_api_key' => '',
     /**
      * Поўны URL каталога API без слеша ў канцы.
      * Калі WebPanel на api.kasciolhomiel.by, а WebApp на іншым хосце/шляху — усталюйце, напрыклад:

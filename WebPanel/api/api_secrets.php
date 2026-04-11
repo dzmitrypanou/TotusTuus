@@ -1,6 +1,13 @@
 <?php
 declare(strict_types=1);
 
+/**
+ * Legacy: той жа ключ, што totus_effective_public_api_key().
+ *
+ * @return array{public_api_key: string}
+ */
+require_once __DIR__ . '/totus_repo_public_key.php';
+
 return [
-    'public_api_key' => '1dfd6eaa86797feb6ac4989b9cd705432e81766f27a19730f67240c8360961fa',
+    'public_api_key' => totus_effective_public_api_key(),
 ];

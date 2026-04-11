@@ -7,8 +7,16 @@ declare(strict_types=1);
  * Канфігурацыя (першая непустая):
  * 1) TOTUS_PUBLIC_API_KEY, TOTUS_UPSTREAM_API_BASE (URL …/api без слеша ў канцы)
  * 2) proxy-secrets.php (шаблон: proxy-secrets.example.php)
- * 3) аўта: SCRIPT_NAME змяшчае /WebApp/api/index.php → upstream http(s)://host/…/WebPanel/api
+ * 3) totus-app-version.properties (publicApiKey) у карані рэпа — адзін крыніца з Android і WebPanel
+ * 4) аўта: SCRIPT_NAME → WebPanel/api на тым жа хосце
+ * 5) рэзерв: убудаваны ключ і upstream (калі WebApp без sibling WebPanel у файлавай сістэме)
  */
+
+/** Сінхранізаваць з WebPanel/api/totus_repo_public_key.php (TOTUS_BUILTIN_PUBLIC_API_KEY) і publicApiKey у totus-app-version.properties. */
+const TOTUS_PROXY_BUILTIN_PUBLIC_KEY = '1dfd6eaa86797feb6ac4989b9cd705432e81766f27a19730f67240c8360961fa';
+
+/** Калі не вызначыўся шлях да WebPanel на гэтым хосце — прадукцыйны API (як у Android PrayerApiClient). */
+const TOTUS_PROXY_FALLBACK_UPSTREAM_BASE = 'https://api.kasciolhomiel.by/api';
 
 const TOTUS_PROXY_ALLOWED = [
     'prayers.php',
@@ -45,21 +53,49 @@ if (is_file($secretsPath)) {
 }
 
 $key = getenv('TOTUS_PUBLIC_API_KEY');
-$key = is_string($key) && $key !== '' ? $key : '';
+$key = is_string($key) && trim($key) !== '' ? trim($key) : '';
 if ($key === '' && $secrets !== null && isset($secrets['public_api_key']) && is_string($secrets['public_api_key'])) {
-    $key = $secrets['public_api_key'];
+    $fromSecrets = trim($secrets['public_api_key']);
+    if ($fromSecrets !== '') {
+        $key = $fromSecrets;
+    }
 }
-
 if ($key === '') {
-    http_response_code(503);
-    echo json_encode(
-        [
-            'error' => 'proxy_not_configured',
-            'message' => 'Задайце TOTUS_PUBLIC_API_KEY або WebApp/api/proxy-secrets.php (public_api_key).',
-        ],
-        JSON_UNESCAPED_UNICODE
-    );
-    exit;
+    $loaderCandidates = [
+        dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'WebPanel' . DIRECTORY_SEPARATOR . 'api' . DIRECTORY_SEPARATOR . 'totus_repo_public_key.php',
+        dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'WebPanel' . DIRECTORY_SEPARATOR . 'api' . DIRECTORY_SEPARATOR . 'totus_repo_public_key.php',
+    ];
+    foreach ($loaderCandidates as $totusKeyLoader) {
+        if (!is_file($totusKeyLoader)) {
+            continue;
+        }
+        require_once $totusKeyLoader;
+        if (function_exists('totus_effective_public_api_key')) {
+            $key = totus_effective_public_api_key();
+        }
+        if ($key !== '') {
+            break;
+        }
+    }
+}
+if ($key === '') {
+    $props = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'totus-app-version.properties';
+    if (is_readable($props)) {
+        foreach (@file($props, FILE_IGNORE_NEW_LINES) ?: [] as $line) {
+            $line = trim((string)$line);
+            if ($line === '' || $line[0] === '#' || strpos($line, '=') === false) {
+                continue;
+            }
+            [$pk, $pv] = explode('=', $line, 2);
+            if (trim($pk) === 'publicApiKey' && trim($pv) !== '') {
+                $key = trim($pv);
+                break;
+            }
+        }
+    }
+}
+if ($key === '') {
+    $key = TOTUS_PROXY_BUILTIN_PUBLIC_KEY;
 }
 
 $upstream = getenv('TOTUS_UPSTREAM_API_BASE');
@@ -76,18 +112,11 @@ if ($upstream === '') {
     if (preg_match('#^(.*)/WebApp/api/index\.php$#', $script, $m)) {
         $upstream = $scheme . '://' . $host . $m[1] . '/WebPanel/api';
     }
+    /** Плоскі дэплой (/api/index.php без /WebApp/): не здагадвацца пра WebPanel на гэтым жа хосце — ніжэй рэзерв api.kasciolhomiel.by. */
 }
 
 if ($upstream === '') {
-    http_response_code(503);
-    echo json_encode(
-        [
-            'error' => 'upstream_not_configured',
-            'message' => 'Задайце TOTUS_UPSTREAM_API_BASE або upstream_api_base у proxy-secrets.php, або размясцуйце WebApp і WebPanel як у праекце (/WebApp/api → /WebPanel/api).',
-        ],
-        JSON_UNESCAPED_UNICODE
-    );
-    exit;
+    $upstream = rtrim(TOTUS_PROXY_FALLBACK_UPSTREAM_BASE, '/');
 }
 
 $params = $_GET;

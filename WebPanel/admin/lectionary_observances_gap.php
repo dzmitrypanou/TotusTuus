@@ -577,10 +577,10 @@ if ($exportKind === 'txt' || $exportKind === 'txt_md') {
                 $dmin = (string)$om['date_min'];
                 $dmax = (string)$om['date_max'];
                 if ($dmin === $dmax) {
-                    echo htmlspecialchars($dmin . ' · ' . obs_gap_format_ymd_be($dmin), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                    echo htmlspecialchars(obs_gap_format_ymd_be($dmin), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                 } else {
                     echo htmlspecialchars(
-                        $dmin . ' – ' . $dmax . ' · ' . obs_gap_format_ymd_be($dmin) . ' – ' . obs_gap_format_ymd_be($dmax),
+                        obs_gap_format_ymd_be($dmin) . ' – ' . obs_gap_format_ymd_be($dmax),
                         ENT_QUOTES | ENT_SUBSTITUTE,
                         'UTF-8'
                     );

@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/panel_security.php';
 require_once __DIR__ . '/../api/db.php';
 require_once __DIR__ . '/../api/schema.php';
 require_once __DIR__ . '/../includes/panel_auth.php';
+require_once __DIR__ . '/../includes/panel_app_version.php';
 
 panel_configure_session_before_start();
 session_start();
@@ -2753,6 +2754,7 @@ if ($authReady && $isLoggedIn) {
           <div class="auth-alert auth-alert--system"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></div>
         <?php endif; ?>
         <p class="auth-hint">Файл наладаў: <code>api/db.php</code>. Патрэбныя правы SELECT, INSERT, UPDATE, CREATE.</p>
+        <p class="auth-hint">Версія <?= htmlspecialchars(panel_totus_app_version_name(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
       </div>
     </main>
   <?php elseif ($isSetupRequired): ?>
@@ -2776,6 +2778,7 @@ if ($authReady && $isLoggedIn) {
 
           <button type="submit">Захаваць і працягнуць</button>
         </form>
+        <p class="auth-hint">Версія <?= htmlspecialchars(panel_totus_app_version_name(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
       </div>
     </main>
   <?php elseif (!$isLoggedIn): ?>
@@ -2799,6 +2802,7 @@ if ($authReady && $isLoggedIn) {
 
           <button type="submit">Увайсці</button>
         </form>
+        <p class="auth-hint">Версія <?= htmlspecialchars(panel_totus_app_version_name(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
       </div>
     </main>
   <?php else: ?>
