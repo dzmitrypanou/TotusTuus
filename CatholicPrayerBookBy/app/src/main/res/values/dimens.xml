@@ -21,6 +21,8 @@
     <!-- Аднолькавая мінімальная вышыня радкоў-«меню»: Выбранае, катэгорыі, спісы малітоў -->
     <dimen name="list_menu_row_min_height">64dp</dimen>
     <dimen name="prayer_card_corner">6dp</dimen>
+    <!-- Экран «Інфармацыя»: адступ паміж блокамі (апісанне / кантакты / версія) -->
+    <dimen name="info_screen_block_spacing">14dp</dimen>
     <dimen name="reading_plan_hero_corner">14dp</dimen>
     <dimen name="reading_plan_chapter_corner">10dp</dimen>
     <dimen name="prayer_card_padding">18dp</dimen>

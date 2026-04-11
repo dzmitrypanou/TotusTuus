@@ -34,7 +34,9 @@
     <string name="no_prayers_in_subcategory">У гэтай падкатэгорыі пакуль няма малітваў.</string>
     <string name="prayer_bucket_no_category">Без катэгорыі</string>
     <string name="no_prayers_uncategorized">Пакуль няма малітваў без катэгорыі.</string>
-    <string name="info_screen_message">Totus Tuus - гэта прыкладанне для каталікоў на беларускай мове. Дадатак аб\'ядноўвае ў адным месцы малітоўнік, спеўнік, Святое Пісанне і літургічны каляндар, каб патрэбныя тэксты заўсёды былі пад рукой.\nПросьба пра памылкі ці ідэі пісаць на Email:\ndzmitrypanou@gmail.com\nВэб-дадатак:\napp.kasciolhomiel.by</string>
+    <string name="info_screen_intro">Totus Tuus - гэта прыкладанне для каталікоў на беларускай мове. Дадатак аб\'ядноўвае ў адным месцы малітоўнік, спеўнік, Святое Пісанне і літургічны каляндар, каб патрэбныя тэксты заўсёды былі пад рукой.</string>
+    <string name="info_screen_contact">Просьба пра памылкі ці ідэі пісаць на Email:\ndzmitrypanou@gmail.com</string>
+    <string name="info_screen_web">Вэб-дадатак:\nhttps://app.kasciolhomiel.by</string>
     <string name="settings_title">Налады</string>
     <string name="settings_overview_title">Агульны выгляд налад</string>
     <string name="settings_text_and_fonts_section_title">Тэкст і шрыфты</string>

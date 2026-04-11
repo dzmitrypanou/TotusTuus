@@ -34,8 +34,9 @@ class SlideshowFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.textAppVersion.text = getString(R.string.app_version_line, BuildConfig.VERSION_NAME)
-        binding.infoScreenMessageText.post {
-            stripUnderlinesFromLinks(binding.infoScreenMessageText)
+        binding.root.post {
+            stripUnderlinesFromLinks(binding.infoScreenContactText)
+            stripUnderlinesFromLinks(binding.infoScreenWebText)
         }
     }
 
