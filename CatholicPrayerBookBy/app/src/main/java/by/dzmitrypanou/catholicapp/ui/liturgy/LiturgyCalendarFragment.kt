@@ -263,9 +263,7 @@ class LiturgyCalendarFragment : Fragment() {
         fun collectTitles(raw: String?) {
             val src = raw?.trim().orEmpty()
             if (src.isBlank()) return
-            src.split(Regex("\\s+(?:альбо|або)\\s+|[/;\\n]+", RegexOption.IGNORE_CASE))
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
+            LiturgyOptionalMemorialSplit.split(src)
                 .forEach { titleParts.add(it.lowercase(Locale.ROOT)) }
         }
         collectTitles(apiDay.title)

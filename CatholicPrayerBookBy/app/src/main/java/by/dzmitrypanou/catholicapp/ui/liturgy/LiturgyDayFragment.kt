@@ -159,10 +159,22 @@ class LiturgyDayFragment : Fragment() {
             return
         }
         if (sections.size == 1) {
+            val outsideHtml = htmlOutsideDetailsBlocks(normalized).trim()
+            val outsideRendered =
+                if (outsideHtml.isNotBlank()) renderReadingsContent(outsideHtml) else null
             val plain = renderSingleReadingSectionPlain(sections.first(), mainDisplayTitle)
             binding.layoutLiturgyDayReadingsSections.isVisible = false
             binding.textLiturgyDayReadings.isVisible = true
-            binding.textLiturgyDayReadings.text = plain ?: renderReadingsContent(normalized)
+            binding.textLiturgyDayReadings.text = when {
+                plain != null && outsideRendered != null ->
+                    SpannableStringBuilder().apply {
+                        append(outsideRendered)
+                        append("\n\n")
+                        append(plain)
+                    }
+                plain != null -> plain
+                else -> renderReadingsContent(normalized)
+            }
             return
         }
         val hasRenderedSections = populateExpandableReadingsSections(sections)
@@ -172,8 +184,32 @@ class LiturgyDayFragment : Fragment() {
             binding.textLiturgyDayReadings.text = renderReadingsContent(normalized)
             return
         }
+        val outsideHtml = htmlOutsideDetailsBlocks(normalized).trim()
+        if (outsideHtml.isNotBlank()) {
+            prependReadingsIntroHtml(binding.layoutLiturgyDayReadingsSections, outsideHtml)
+        }
         binding.layoutLiturgyDayReadingsSections.isVisible = true
         binding.textLiturgyDayReadings.isVisible = false
+    }
+
+    /** HTML па-за ўсімі &lt;details&gt;…&lt;/details&gt; (часта — аб'яўленні перад варыянтамі чытанняў). */
+    private fun htmlOutsideDetailsBlocks(html: String): String =
+        Regex("(?is)<details\\b[^>]*>.*?</details>").replace(html) { "" }.trim()
+
+    private fun prependReadingsIntroHtml(container: LinearLayout, outsideHtml: String) {
+        val ctx = requireContext()
+        val introView = TextView(ctx).apply {
+            text = renderReadingsContent(outsideHtml)
+            setTextColor(ctx.themeColor(R.attr.totusColorTextPrimary))
+            setLineSpacing(0f, 1.12f)
+            setPadding(0, 0, 0, dpToPx(10))
+            PrayerBookUiTypography.applyContentSp(this, R.dimen.text_list_row_subtitle, ctx)
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+        container.addView(introView, 0)
     }
 
     /** Выдаляе з HTML блокі <details> з успамінам (другая імша) у дні пн–сб актавы Пасхі. */
@@ -444,17 +480,9 @@ class LiturgyDayFragment : Fragment() {
         }
     }
 
-    /**
-     * API можа злучаць некалькі даброўных успамінаў праз «альбо», «або», касую рысу, «;» або перанос —
-     * як у [LiturgyCalendarFragment] пры падліку варыянтаў, раскладваем у асобныя радкі з паўторным «альбо».
-     */
-    private fun splitOptionalMemorialTitles(combined: String): List<String> {
-        val raw = combined.trim()
-        if (raw.isEmpty()) return emptyList()
-        return raw.split(Regex("\\s+(?:альбо|або)\\s+|[/;\\n]+", RegexOption.IGNORE_CASE))
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-    }
+    /** API злучае некалькі даброўных успамінаў — [LiturgyOptionalMemorialSplit] (як у календары). */
+    private fun splitOptionalMemorialTitles(combined: String): List<String> =
+        LiturgyOptionalMemorialSplit.split(combined)
 
     private fun createLiturgyOptionRow(ctx: Context, title: String, colorInt: Int): LinearLayout {
         val row = LinearLayout(ctx).apply {
