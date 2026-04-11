@@ -1907,6 +1907,66 @@ function liturgy_sanitize_readings_html(string $html): string
 }
 
 /**
+ * Нармалізаваныя lookup_key у парадку прыярытэту для адной назвы (як у падборы чытанняў у API).
+ *
+ * @return list<string>
+ */
+function liturgy_lectionary_lookup_keys_for_title_string(string $title): array
+{
+    $ordered = [];
+    $seen = [];
+    $add = static function (string $key) use (&$ordered, &$seen): void {
+        if ($key === '' || isset($seen[$key])) {
+            return;
+        }
+        $seen[$key] = true;
+        $ordered[] = $key;
+    };
+
+    $rawTitle = trim($title);
+    $add(liturgy_normalize_lectionary_key($rawTitle));
+    $withoutCycle = liturgy_strip_cycle_suffix($rawTitle);
+    if ($withoutCycle !== '' && $withoutCycle !== $rawTitle) {
+        $add(liturgy_normalize_lectionary_key($withoutCycle));
+    }
+    $octaveDateLabel = liturgy_christmas_octave_date_label_from_title($rawTitle);
+    if ($octaveDateLabel !== '') {
+        $add(liturgy_normalize_lectionary_key($octaveDateLabel));
+    }
+    foreach (liturgy_special_lectionary_titles_for_day($rawTitle) as $specialTitle) {
+        $specialLookup = (string)($specialTitle['lookup'] ?? '');
+        $add(liturgy_normalize_lectionary_key($specialLookup));
+    }
+
+    return $ordered;
+}
+
+/**
+ * id запісу лекцыянарыя для спасылкі ?prefill_title=… калі такі запіс ужо ёсць у БД.
+ */
+function liturgy_resolve_lectionary_edit_id_for_prefill(string $prefillTitle): int
+{
+    $pre = trim($prefillTitle);
+    if ($pre === '') {
+        return 0;
+    }
+    $map = liturgy_fetch_lectionary_map_by_titles([$pre]);
+    if ($map === []) {
+        return 0;
+    }
+    foreach (liturgy_lectionary_lookup_keys_for_title_string($pre) as $cand) {
+        if (isset($map[$cand])) {
+            $id = (int)($map[$cand]['id'] ?? 0);
+            if ($id > 0) {
+                return $id;
+            }
+        }
+    }
+
+    return 0;
+}
+
+/**
  * @param array<int,string> $titles
  * @return array<string, array<string,mixed>>
  */
@@ -1914,31 +1974,8 @@ function liturgy_fetch_lectionary_map_by_titles(array $titles): array
 {
     $keys = [];
     foreach ($titles as $title) {
-        $rawTitle = (string)$title;
-        $k = liturgy_normalize_lectionary_key($rawTitle);
-        if ($k !== '') {
+        foreach (liturgy_lectionary_lookup_keys_for_title_string((string)$title) as $k) {
             $keys[$k] = true;
-        }
-        $withoutCycle = liturgy_strip_cycle_suffix($rawTitle);
-        if ($withoutCycle !== '' && $withoutCycle !== $rawTitle) {
-            $fallbackKey = liturgy_normalize_lectionary_key($withoutCycle);
-            if ($fallbackKey !== '') {
-                $keys[$fallbackKey] = true;
-            }
-        }
-        $octaveDateLabel = liturgy_christmas_octave_date_label_from_title($rawTitle);
-        if ($octaveDateLabel !== '') {
-            $octaveDateKey = liturgy_normalize_lectionary_key($octaveDateLabel);
-            if ($octaveDateKey !== '') {
-                $keys[$octaveDateKey] = true;
-            }
-        }
-        foreach (liturgy_special_lectionary_titles_for_day($rawTitle) as $specialTitle) {
-            $specialLookup = (string)($specialTitle['lookup'] ?? '');
-            $specialKey = liturgy_normalize_lectionary_key($specialLookup);
-            if ($specialKey !== '') {
-                $keys[$specialKey] = true;
-            }
         }
     }
     $lookupKeys = array_keys($keys);

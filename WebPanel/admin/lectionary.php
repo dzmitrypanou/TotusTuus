@@ -400,6 +400,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 $search = trim((string)($_GET['q'] ?? ''));
 $editId = (int)($_GET['edit_id'] ?? ($_POST['lectionary_id'] ?? 0));
 $prefillTitle = trim((string)($_GET['prefill_title'] ?? ''));
+if ($editId <= 0 && $prefillTitle !== '') {
+    $resolvedPrefillId = liturgy_resolve_lectionary_edit_id_for_prefill($prefillTitle);
+    if ($resolvedPrefillId > 0) {
+        $editId = $resolvedPrefillId;
+    }
+}
 
 if ($search !== '') {
     $stmtList = db()->prepare(
