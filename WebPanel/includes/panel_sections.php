@@ -16,7 +16,7 @@ function panel_section_labels_be(): array
         'scripture' => 'Біблія (пераклады)',
         'liturgy' => 'Літургія (каляндар, святы, пустыя дні)',
         'lectionary' => 'Лекцыянарый',
-        'announcements' => 'Аб’явы (бюлетэнь)',
+        'announcements' => 'Аб’явы',
     ];
 }
 
