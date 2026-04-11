@@ -218,35 +218,6 @@ ksort($emptyByTitle, SORT_NATURAL | SORT_FLAG_CASE);
       line-height: 1.4;
       text-align: center;
     }
-    .top-nav {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 8px;
-      justify-content: flex-end;
-      max-width: 100%;
-      flex: 1 1 auto;
-      min-width: 0;
-    }
-    .top-nav-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      gap: 14px 22px;
-      justify-content: flex-end;
-      width: 100%;
-    }
-    .nav-group { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
-    .nav-group-label {
-      font-size: 0.625rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(148, 163, 184, 0.85);
-      line-height: 1;
-    }
-    .nav-group-items { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-    .nav-group-items form { display: inline; margin: 0; }
     a.btn-pill, button.btn-pill {
       display: inline-flex;
       align-items: center;
@@ -296,8 +267,6 @@ ksort($emptyByTitle, SORT_NATURAL | SORT_FLAG_CASE);
     @media (max-width: 1180px) {
       .header { flex-direction: column; align-items: flex-start; }
       .header-brand { align-self: center; }
-      .top-nav { justify-content: flex-start; max-width: none; width: 100%; align-items: flex-start; }
-      .top-nav-row { justify-content: flex-start; gap: 10px 14px; }
     }
     @media (max-width: 760px) {
       .filters { grid-template-columns: 1fr; }
@@ -310,7 +279,7 @@ ksort($emptyByTitle, SORT_NATURAL | SORT_FLAG_CASE);
   <div class="header">
     <div class="header-brand">
       <h1>Totus Tuus</h1>
-      <p class="header-tagline">Панэль кіравання<br>імя Біскупа Казіміра Велікасельца OP</p>
+      <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
     <?php
         $panelNavPage = 'liturgy_empty';

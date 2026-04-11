@@ -88,6 +88,12 @@ try {
                 }
             }
         }
+        $optionalMemorialPrefixAuto = [];
+        if (is_array($auto['optional_memorial_prefix_auto'] ?? null)) {
+            foreach ($auto['optional_memorial_prefix_auto'] as $pa) {
+                $optionalMemorialPrefixAuto[] = (bool)$pa;
+            }
+        }
         $dateLookupTitle = liturgy_christmas_period_date_lookup_title($d, (bool)$auto['is_important']);
         $resolvedReadings = liturgy_resolve_readings_text(
             $entry,
@@ -96,7 +102,8 @@ try {
             $lectionaryMap,
             $dateLookupTitle,
             $optionalLookupTitles,
-            $d
+            $d,
+            $optionalMemorialPrefixAuto
         );
         $effectiveColor = liturgy_resolve_liturgical_color_for_day(
             $d,
@@ -122,7 +129,8 @@ try {
             'optional_memorial_title' => liturgy_format_optional_memorial_title_for_display(
                 $d,
                 $optionalTitle,
-                $optionalLookupTitles
+                $optionalLookupTitles,
+                $optionalMemorialPrefixAuto
             ),
             'optional_memorial_colors' => is_array($auto['optional_memorial_colors'] ?? null)
                 ? array_values($auto['optional_memorial_colors'])

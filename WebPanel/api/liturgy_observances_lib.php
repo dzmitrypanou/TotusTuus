@@ -305,13 +305,13 @@ function liturgy_observances_build_important_map(int $year, array $dioceseOpts):
 
 /**
  * @param array<string, bool> $dioceseOpts
- * @return array<string, array{title:string,color:string}>
+ * @return array<string, array{title:string,color:string,colors?:list<string>,optional_title_prefix_auto?:list<bool>}>
  */
 function liturgy_observances_build_optional_map(int $year, array $dioceseOpts): array
 {
     $easter = liturgy_observances_easter_sunday($year);
-    /** @var array<string, array<string,string>> $titleColorByDate */
-    $titleColorByDate = [];
+    /** @var array<string, list<array{title:string,color:string,prefix_auto:bool}>> $branchesByDate */
+    $branchesByDate = [];
     foreach (liturgy_observances_fetch_active_rows() as $row) {
         if ((string)($row['observance_kind'] ?? '') === 'patch') {
             continue;
@@ -330,20 +330,33 @@ function liturgy_observances_build_optional_map(int $year, array $dioceseOpts): 
         if ($t === '') {
             continue;
         }
-        if (!isset($titleColorByDate[$ymd])) {
-            $titleColorByDate[$ymd] = [];
-        }
         $dbColor = liturgy_observances_normalize_color((string)($row['liturgical_color'] ?? ''));
         $resolvedColor = $dbColor !== '' ? $dbColor : liturgy_observances_infer_optional_color($t);
-        if (!isset($titleColorByDate[$ymd][$t])) {
-            $titleColorByDate[$ymd][$t] = $resolvedColor;
+        $prefixAuto = ((int)($row['optional_title_prefix_auto'] ?? 1)) !== 0;
+        if (!isset($branchesByDate[$ymd])) {
+            $branchesByDate[$ymd] = [];
+        }
+        $seen = false;
+        foreach ($branchesByDate[$ymd] as $ex) {
+            if ($ex['title'] === $t) {
+                $seen = true;
+                break;
+            }
+        }
+        if (!$seen) {
+            $branchesByDate[$ymd][] = [
+                'title' => $t,
+                'color' => $resolvedColor,
+                'prefix_auto' => $prefixAuto,
+            ];
         }
     }
 
     $result = [];
-    foreach ($titleColorByDate as $ymd => $titleColor) {
-        $titles = array_keys($titleColor);
-        $colors = array_values($titleColor);
+    foreach ($branchesByDate as $ymd => $items) {
+        $titles = array_column($items, 'title');
+        $colors = array_column($items, 'color');
+        $prefixAutos = array_column($items, 'prefix_auto');
         if ($titles === []) {
             continue;
         }
@@ -356,6 +369,7 @@ function liturgy_observances_build_optional_map(int $year, array $dioceseOpts): 
             'title' => $merged,
             'color' => $colors[0] ?? liturgy_observances_infer_optional_color($merged),
             'colors' => $colors,
+            'optional_title_prefix_auto' => $prefixAutos,
         ];
     }
 

@@ -593,9 +593,10 @@ function liturgy_optional_enrich_alternative_labels_with_observance(array $label
 
 /**
  * Адна галіна optional_memorial_title для кліента: без «Чацвер — …»;
- * замест гэтага «Успамін — …» / «Свята — …» (як у шапцы экрана дня).
+ * калі $prefixAuto: «Успамін — …» / «Свята — …» (як у шапцы экрана дня);
+ * калі false — паказваем тэкст з БД (пасля зняцця дня тыдня) без аўта-допісу «Успамін —».
  */
-function liturgy_optional_memorial_variant_for_client_display(string $label): string
+function liturgy_optional_memorial_variant_for_client_display(string $label, bool $prefixAuto = true): string
 {
     $t = trim($label);
     if ($t === '') {
@@ -604,6 +605,9 @@ function liturgy_optional_memorial_variant_for_client_display(string $label): st
     $t = liturgy_optional_label_strip_leading_weekday($t);
     if ($t === '') {
         return '';
+    }
+    if (!$prefixAuto) {
+        return $t;
     }
     if (preg_match(
         '/^((?:Даброўны\s+успамін|Урачыстасць|Свята|Успамін)(?:\s*[—–\-]\s*|\s+))(.*)$/isu',
@@ -634,25 +638,36 @@ function liturgy_optional_memorial_variant_for_client_display(string $label): st
  * optional_memorial_title для JSON: варыянты праз «альбо» з тыпам дня (Успамін — …), без паўтору дня тыдня.
  *
  * @param array<int, string> $optionalLookupTitles
+ * @param array<int, bool>|null $optionalPrefixAutoByLookupIndex той жа парадак, што ў $optionalLookupTitles
  */
 function liturgy_format_optional_memorial_title_for_display(
     DateTimeImmutable $date,
     string $optionalMemorialTitleRaw,
-    array $optionalLookupTitles
+    array $optionalLookupTitles,
+    ?array $optionalPrefixAutoByLookupIndex = null
 ): string {
     $raw = trim($optionalMemorialTitleRaw);
     $labels = liturgy_optional_memorial_row_labels($raw, $optionalLookupTitles);
     if ($labels === []) {
         if ($raw !== '') {
-            return liturgy_optional_memorial_variant_for_client_display($raw);
+            $pa0 = true;
+            if (is_array($optionalPrefixAutoByLookupIndex) && array_key_exists(0, $optionalPrefixAutoByLookupIndex)) {
+                $pa0 = (bool)$optionalPrefixAutoByLookupIndex[0];
+            }
+
+            return liturgy_optional_memorial_variant_for_client_display($raw, $pa0);
         }
 
         return '';
     }
     $labels = liturgy_optional_enrich_alternative_labels_with_observance($labels);
     $parts = [];
-    foreach ($labels as $lab) {
-        $parts[] = liturgy_optional_memorial_variant_for_client_display(trim((string)$lab));
+    foreach ($labels as $i => $lab) {
+        $pa = true;
+        if (is_array($optionalPrefixAutoByLookupIndex) && array_key_exists($i, $optionalPrefixAutoByLookupIndex)) {
+            $pa = (bool)$optionalPrefixAutoByLookupIndex[$i];
+        }
+        $parts[] = liturgy_optional_memorial_variant_for_client_display(trim((string)$lab), $pa);
     }
 
     return implode(' альбо ', $parts);
@@ -1358,10 +1373,45 @@ function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = nu
     $optionalTitles = [];
     $optionalLookupTitles = [];
     $optionalTitleColors = [];
+    $optionalMemorialPrefixAuto = [];
     if ($optional !== null) {
         $optionalTitle = trim((string)($optional['title'] ?? ''));
         if ($optionalTitle !== '') {
-            $optionalVariants = liturgy_expand_optional_memorial_title_variants($optionalTitle);
+            $branchPrefix = $optional['optional_title_prefix_auto'] ?? null;
+            if (!is_array($branchPrefix)) {
+                $branchPrefix = null;
+            }
+            $topParts = preg_split('/\s+альбо\s+/iu', $optionalTitle, -1, PREG_SPLIT_NO_EMPTY);
+            if ($topParts === false || $topParts === []) {
+                $topParts = [$optionalTitle];
+            }
+            $optionalVariants = [];
+            $variantPrefixAuto = [];
+            foreach ($topParts as $ti => $chunk) {
+                $chunk = trim((string)$chunk);
+                if ($chunk === '') {
+                    continue;
+                }
+                $pa = true;
+                if ($branchPrefix !== null && array_key_exists($ti, $branchPrefix)) {
+                    $pa = (bool)$branchPrefix[$ti];
+                }
+                foreach (liturgy_expand_optional_memorial_title_variants($chunk) as $sub) {
+                    $optionalVariants[] = $sub;
+                    $variantPrefixAuto[] = $pa;
+                }
+            }
+            /** @var array<string, bool> $variantToPrefix */
+            $variantToPrefix = [];
+            foreach ($optionalVariants as $vi => $variant) {
+                $v = trim((string)$variant);
+                if ($v === '') {
+                    continue;
+                }
+                if (!array_key_exists($v, $variantToPrefix)) {
+                    $variantToPrefix[$v] = $variantPrefixAuto[$vi] ?? true;
+                }
+            }
             $optionalColorsFromMap = [];
             if (is_array($optional['colors'] ?? null)) {
                 foreach ($optional['colors'] as $c) {
@@ -1377,16 +1427,19 @@ function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = nu
                 }
             }
             foreach ($optionalVariants as $variant) {
-                if ($variant !== '' && !in_array($variant, $optionalTitles, true)) {
+                $v = trim((string)$variant);
+                if ($v !== '' && !in_array($v, $optionalTitles, true)) {
                     $variantIndex = count($optionalTitles);
-                    $optionalTitles[] = $variant;
+                    $optionalTitles[] = $v;
                     $optionalTitleColors[] = $optionalColorsFromMap[$variantIndex]
-                        ?? liturgy_infer_optional_memorial_color($variant);
+                        ?? liturgy_infer_optional_memorial_color($v);
                 }
             }
             foreach ($optionalVariants as $variantLookup) {
-                if ($variantLookup !== '' && !in_array($variantLookup, $optionalLookupTitles, true)) {
-                    $optionalLookupTitles[] = $variantLookup;
+                $v = trim((string)$variantLookup);
+                if ($v !== '' && !in_array($v, $optionalLookupTitles, true)) {
+                    $optionalLookupTitles[] = $v;
+                    $optionalMemorialPrefixAuto[] = $variantToPrefix[$v] ?? true;
                 }
             }
         }
@@ -1409,6 +1462,7 @@ function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = nu
         }
         if (!in_array($lookupTitle, $optionalLookupTitles, true)) {
             $optionalLookupTitles[] = $lookupTitle;
+            $optionalMemorialPrefixAuto[] = true;
         }
     }
     // Вігілія Унебаўзяцця — у лекцыянарыі як папярэдні дзень; у спісе варыянтаў — апошнім (пасля іншых успамінаў / датаваных радкоў).
@@ -1421,6 +1475,7 @@ function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = nu
         }
         if (!in_array($assumptionVigilLookup, $optionalLookupTitles, true)) {
             $optionalLookupTitles[] = $assumptionVigilLookup;
+            $optionalMemorialPrefixAuto[] = true;
         }
     }
     $color = $important !== null
@@ -1442,6 +1497,7 @@ function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = nu
             ? ($optionalTitleColors[0] ?? liturgy_infer_optional_memorial_color(implode(' ', $optionalTitles)))
             : 'white',
         'has_optional_memorial' => $optionalTitles !== [],
+        'optional_memorial_prefix_auto' => $optionalMemorialPrefixAuto,
     ];
 }
 
@@ -1924,6 +1980,7 @@ function liturgy_fetch_lectionary_map_by_titles(array $titles): array
  *
  * @param array<int, string> $optionalLookupTitles
  * @param array<string, array<string,mixed>> $lectionaryMap
+ * @param array<int, bool> $optionalMemorialPrefixAuto той жа парадак, што ў $optionalLookupTitles
  * @return array<int, array{kind:string,label:string,lookup_title:string,lookup_key:string,has_text:bool}>
  */
 function liturgy_admin_reading_slots(
@@ -1933,7 +1990,8 @@ function liturgy_admin_reading_slots(
     string $dateLookupTitle,
     array $optionalLookupTitles,
     array $lectionaryMap,
-    ?DateTimeImmutable $resolveDate = null
+    ?DateTimeImmutable $resolveDate = null,
+    array $optionalMemorialPrefixAuto = []
 ): array {
     $manual = is_array($entry) ? liturgy_sanitize_readings_html((string)($entry['readings_full'] ?? '')) : '';
     if ($manual !== '') {
@@ -2051,7 +2109,8 @@ function liturgy_admin_reading_slots(
         }
     }
 
-    foreach ($optionalLookupTitles as $lookupTitle) {
+    $rowLabelsForSlots = liturgy_optional_memorial_row_labels(trim($optionalMemorialTitle), $optionalLookupTitles);
+    foreach ($optionalLookupTitles as $i => $lookupTitle) {
         if (!is_string($lookupTitle)) {
             continue;
         }
@@ -2083,9 +2142,12 @@ function liturgy_admin_reading_slots(
             continue;
         }
         $seenKeys[$chosen] = true;
+        $rl = $rowLabelsForSlots[$i] ?? $lt;
+        $pa = $optionalMemorialPrefixAuto[$i] ?? true;
+        $disp = liturgy_optional_memorial_variant_for_client_display((string)$rl, (bool)$pa);
         $slots[] = [
             'kind' => 'optional',
-            'label' => $lt,
+            'label' => $disp,
             'lookup_title' => $lt,
             'lookup_key' => $chosen,
             'has_text' => $textAtKey($chosen) !== '',
@@ -2102,7 +2164,7 @@ function liturgy_admin_reading_slots(
             $seenKeys[$cand] = true;
             $slots[] = [
                 'kind' => 'optional',
-                'label' => trim($optionalMemorialTitle),
+                'label' => liturgy_optional_memorial_variant_for_client_display(trim($optionalMemorialTitle), true),
                 'lookup_title' => $optionalMemorialTitle,
                 'lookup_key' => $cand,
                 'has_text' => $textAtKey($cand) !== '',
@@ -2186,6 +2248,7 @@ function liturgy_optional_memorial_row_labels(string $optionalMemorialTitle, arr
  * @param array<string, array<string,mixed>> $lectionaryMap
  * @param array<int, string> $optionalLookupTitles
  * @param DateTimeImmutable|null $displayDate калі зададзена — загалоўкі асноўных секцый у readings_full з прэфіксам дня тыдня; для даброўных успамінаў у <details> — толькі назва без дня тыдня
+ * @param array<int, bool> $optionalMemorialPrefixAuto той жа парадак, што ў $optionalLookupTitles
  * @return array{readings_full:string, lectionary_key:string, lectionary_source:string, liturgical_color:string}
  */
 function liturgy_resolve_readings_text(
@@ -2195,7 +2258,8 @@ function liturgy_resolve_readings_text(
     array $lectionaryMap,
     string $dateLookupTitle = '',
     array $optionalLookupTitles = [],
-    ?DateTimeImmutable $displayDate = null
+    ?DateTimeImmutable $displayDate = null,
+    array $optionalMemorialPrefixAuto = []
 ): array {
     $manual = is_array($entry) ? liturgy_sanitize_readings_html((string)($entry['readings_full'] ?? '')) : '';
     if ($manual !== '') {
@@ -2311,8 +2375,10 @@ function liturgy_resolve_readings_text(
             continue;
         }
         $seenOptKeys[$chosen] = true;
+        $rl = $rowLabels[$i] ?? $lookupTitle;
+        $pa = $optionalMemorialPrefixAuto[$i] ?? true;
         $optionalEntries[] = [
-            'title' => $rowLabels[$i] ?? $lookupTitle,
+            'title' => liturgy_optional_memorial_variant_for_client_display((string)$rl, (bool)$pa),
             'text' => $candidateText,
             'key' => $chosen,
         ];

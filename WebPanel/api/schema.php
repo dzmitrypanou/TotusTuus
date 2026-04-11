@@ -233,6 +233,11 @@ function ensureLiturgyObservancesTable(): void
             KEY idx_liturgy_obs_active_sort (is_active, sort_order)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
     );
+    ensureTableColumnExists(
+        'liturgy_observances',
+        'optional_title_prefix_auto',
+        'ALTER TABLE liturgy_observances ADD COLUMN optional_title_prefix_auto TINYINT(1) NOT NULL DEFAULT 1 AFTER title'
+    );
 }
 
 function ensureLiturgyLectionaryEntriesTable(): void

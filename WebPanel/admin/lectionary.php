@@ -6,8 +6,6 @@ require_once __DIR__ . '/../api/db.php';
 require_once __DIR__ . '/../api/schema.php';
 require_once __DIR__ . '/../includes/panel_auth.php';
 require_once __DIR__ . '/../api/liturgy_common.php';
-require_once __DIR__ . '/../api/liturgy_observances_lib.php';
-require_once __DIR__ . '/../api/liturgy_particular_calendar.php';
 
 panel_configure_session_before_start();
 session_start();
@@ -45,6 +43,254 @@ function lectionary_ajax_response(bool $ok, string $messageText = '', string $er
         'error' => $errorText,
         'redirect' => $redirectUrl,
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+function lec_bulk_replace(string $text, string $find, string $replace, bool $caseSensitive): string
+{
+    if ($find === '') {
+        return $text;
+    }
+    if ($caseSensitive) {
+        return str_replace($find, $replace, $text);
+    }
+    $pattern = '/' . preg_quote($find, '/') . '/iu';
+
+    return (string)preg_replace_callback(
+        $pattern,
+        static function () use ($replace): string {
+            return $replace;
+        },
+        $text
+    );
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function lec_bulk_load_rows(bool $scopeFiltered, string $searchQ): array
+{
+    $searchQ = trim($searchQ);
+    if ($scopeFiltered && $searchQ !== '') {
+        $like = '%' . $searchQ . '%';
+        $stmt = db()->prepare(
+            'SELECT id, title, text_html, lookup_key
+             FROM liturgy_lectionary_entries
+             WHERE is_active = 1
+               AND (title LIKE :q OR lookup_key LIKE :q2)
+             ORDER BY id ASC'
+        );
+        $stmt->execute([':q' => $like, ':q2' => $like]);
+
+        return $stmt->fetchAll();
+    }
+    $stmt = db()->query(
+        'SELECT id, title, text_html, lookup_key
+         FROM liturgy_lectionary_entries
+         WHERE is_active = 1
+         ORDER BY id ASC'
+    );
+
+    return $stmt->fetchAll();
+}
+
+/**
+ * @return array{error: string|null, changes: list<array<string, mixed>>}
+ */
+function lec_bulk_compute(
+    string $find,
+    string $replace,
+    bool $caseSensitive,
+    bool $useTitle,
+    bool $useText,
+    bool $scopeFiltered,
+    string $searchQ
+): array {
+    if ($find === '') {
+        return ['error' => 'Увядзіце тэкст для пошуку.', 'changes' => []];
+    }
+    if (!$useTitle && !$useText) {
+        return ['error' => 'Абярыце хаця б адно поле: назва і/або тэкст (HTML).', 'changes' => []];
+    }
+    $scan = lec_bulk_load_rows($scopeFiltered, $searchQ);
+    $changes = [];
+    foreach ($scan as $r) {
+        $id = (int)$r['id'];
+        $title = (string)($r['title'] ?? '');
+        $textHtml = (string)($r['text_html'] ?? '');
+        $nt = $useTitle ? lec_bulk_replace($title, $find, $replace, $caseSensitive) : $title;
+        $nh = $useText ? lec_bulk_replace($textHtml, $find, $replace, $caseSensitive) : $textHtml;
+        if ($nt !== $title || $nh !== $textHtml) {
+            $changes[] = [
+                'id' => $id,
+                'title_old' => $title,
+                'title_new' => $nt,
+                'text_old' => $textHtml,
+                'text_new' => $nh,
+                'touch_title' => $useTitle && $nt !== $title,
+                'touch_text' => $useText && $nh !== $textHtml,
+            ];
+        }
+    }
+
+    return ['error' => null, 'changes' => $changes];
+}
+
+/**
+ * @param list<array<string, mixed>> $changes
+ */
+function lec_bulk_validate_final_lookup_keys_global(array $changes): ?string
+{
+    $stmt = db()->query('SELECT id, title FROM liturgy_lectionary_entries WHERE is_active = 1 ORDER BY id ASC');
+    $titleById = [];
+    while (is_array($r = $stmt->fetch())) {
+        $titleById[(int)$r['id']] = (string)($r['title'] ?? '');
+    }
+    foreach ($changes as $ch) {
+        $titleById[(int)$ch['id']] = (string)($ch['title_new'] ?? '');
+    }
+    $keyToIds = [];
+    foreach ($titleById as $id => $t) {
+        $k = liturgy_normalize_lectionary_key($t);
+        if ($k === '') {
+            return 'Пасля замены запіс id=' . $id . ' атрымлівае пусты ключ назвы.';
+        }
+        if (!isset($keyToIds[$k])) {
+            $keyToIds[$k] = [];
+        }
+        $keyToIds[$k][] = $id;
+    }
+    foreach ($keyToIds as $k => $ids) {
+        if (count($ids) > 1) {
+            return 'Ключ назвы «' . $k . '» супадзе для запісаў: ' . implode(', ', $ids) . '. Зменіце шаблон замены.';
+        }
+    }
+
+    return null;
+}
+
+/**
+ * @param list<array<string, mixed>> $changes
+ * @return list<array<string, mixed>>
+ */
+function lec_bulk_json_rows_for_preview(array $changes, int $maxRows, int $maxChars): array
+{
+    $slice = array_slice($changes, 0, $maxRows);
+    $out = [];
+    foreach ($slice as $ch) {
+        $row = [
+            'id' => (int)$ch['id'],
+            'touch_title' => (bool)$ch['touch_title'],
+            'touch_text' => (bool)$ch['touch_text'],
+        ];
+        foreach (['title_old', 'title_new'] as $k) {
+            $s = (string)($ch[$k] ?? '');
+            if (mb_strlen($s) > $maxChars) {
+                $row[$k] = mb_substr($s, 0, $maxChars) . '…';
+            } else {
+                $row[$k] = $s;
+            }
+        }
+        foreach (['text_old', 'text_new'] as $k) {
+            $s = strip_tags((string)($ch[$k] ?? ''));
+            if (mb_strlen($s) > $maxChars) {
+                $row[$k] = mb_substr($s, 0, $maxChars) . '…';
+            } else {
+                $row[$k] = $s;
+            }
+        }
+        $out[] = $row;
+    }
+
+    return $out;
+}
+
+$isBulkAjax = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
+    && (string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest'
+    && isset($_POST['bulk_ajax']) && (string)$_POST['bulk_ajax'] === '1'
+    && (isset($_POST['bulk_preview']) || isset($_POST['bulk_execute']));
+
+if ($isBulkAjax) {
+    header('Content-Type: application/json; charset=utf-8');
+    try {
+        if (!panel_csrf_token_valid()) {
+            echo json_encode(['ok' => false, 'error' => 'Сесія пратэрмінаваная. Абнавіце старонку.'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            exit;
+        }
+        $find = (string)($_POST['bulk_find'] ?? '');
+        $replace = (string)($_POST['bulk_replace'] ?? '');
+        $caseSensitive = isset($_POST['bulk_case_sensitive']);
+        $useTitle = isset($_POST['bulk_col_title']);
+        $useText = isset($_POST['bulk_col_text']);
+        $scopeFiltered = isset($_POST['bulk_scope_filtered']);
+        $searchQ = trim((string)($_POST['bulk_search_q'] ?? ''));
+        $computed = lec_bulk_compute($find, $replace, $caseSensitive, $useTitle, $useText, $scopeFiltered, $searchQ);
+        if ($computed['error'] !== null) {
+            echo json_encode(['ok' => false, 'error' => $computed['error']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            exit;
+        }
+        $changes = $computed['changes'];
+        if ($changes !== []) {
+            $keyErr = lec_bulk_validate_final_lookup_keys_global($changes);
+            if ($keyErr !== null) {
+                echo json_encode(['ok' => false, 'error' => $keyErr], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                exit;
+            }
+        }
+        if (isset($_POST['bulk_execute']) && $changes === []) {
+            echo json_encode(['ok' => false, 'error' => 'Няма змен для захавання. Спачатку зрабіце прадпрагляд.'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            exit;
+        }
+        if (isset($_POST['bulk_preview'])) {
+            $maxRows = 500;
+            $maxChars = 600;
+            $rowsJson = lec_bulk_json_rows_for_preview($changes, $maxRows, $maxChars);
+            $omitted = count($changes) - count($rowsJson);
+            echo json_encode([
+                'ok' => true,
+                'change_count' => count($changes),
+                'rows' => $rowsJson,
+                'rows_omitted' => max(0, $omitted),
+                'message' => count($changes) === 0
+                    ? 'Супадзенняў не знойдзена.'
+                    : ('Знойдзена запісаў са зменамі: ' . count($changes) . ($omitted > 0 ? ' (у адказе першыя ' . count($rowsJson) . ')' : '') . '.'),
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            exit;
+        }
+        $pdo = db();
+        $pdo->beginTransaction();
+        try {
+            $upd = $pdo->prepare(
+                'UPDATE liturgy_lectionary_entries
+                 SET title = :title,
+                     lookup_key = :lookup_key,
+                     text_html = :text_html
+                 WHERE id = :id AND is_active = 1'
+            );
+            $n = 0;
+            foreach ($changes as $ch) {
+                $lk = liturgy_normalize_lectionary_key((string)$ch['title_new']);
+                $upd->execute([
+                    ':title' => $ch['title_new'],
+                    ':lookup_key' => $lk,
+                    ':text_html' => $ch['text_new'],
+                    ':id' => $ch['id'],
+                ]);
+                $n++;
+            }
+            $pdo->commit();
+            echo json_encode([
+                'ok' => true,
+                'updated' => $n,
+                'message' => 'Масавая замена выканана. Абноўлена запісаў: ' . $n . '.',
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    } catch (Throwable $e) {
+        echo json_encode(['ok' => false, 'error' => 'Памылка: ' . $e->getMessage()], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
     exit;
 }
 
@@ -198,17 +444,22 @@ if ($currentTitle === '' && $prefillTitle !== '') {
     $currentTitle = $prefillTitle;
 }
 
-$dioceseLabels = [
-    LITURGY_DIOCESE_PINSK => 'Пінская',
-    LITURGY_DIOCESE_MINSK_MOGILEV => 'Мінск-Магілёў',
-    LITURGY_DIOCESE_VITEBSK => 'Віцебская',
-    LITURGY_DIOCESE_GRODNO => 'Гродзенская',
-];
-
 $obsFilterApplied = isset($_GET['obs_filter']);
 $obsYear = (int)($_GET['obs_year'] ?? date('Y'));
 if ($obsYear < 1970 || $obsYear > 2100) {
     $obsYear = (int)date('Y');
+}
+$obsPeriod = trim((string)($_GET['obs_period'] ?? 'one'));
+if (!in_array($obsPeriod, ['one', 'range', 'all'], true)) {
+    $obsPeriod = 'one';
+}
+$obsYearFrom = (int)($_GET['obs_year_from'] ?? $obsYear);
+$obsYearTo = (int)($_GET['obs_year_to'] ?? $obsYear);
+if ($obsYearFrom < 1970 || $obsYearFrom > 2100) {
+    $obsYearFrom = $obsYear;
+}
+if ($obsYearTo < 1970 || $obsYearTo > 2100) {
+    $obsYearTo = $obsYear;
 }
 $obsHideNonDiocesan = isset($_GET['obs_hide_general']) && (string)$_GET['obs_hide_general'] === '1';
 
@@ -226,82 +477,6 @@ if ($obsFilterApplied) {
         $dioceseOpts[$dk] = true;
     }
 }
-
-/** @var array<string, true> */
-$lectionaryKeysWithText = [];
-$lkStmt = db()->query(
-    'SELECT lookup_key, title, text_html
-     FROM liturgy_lectionary_entries
-     WHERE is_active = 1 AND text_html IS NOT NULL'
-);
-while (is_array($row = $lkStmt->fetch())) {
-    if (trim(strip_tags((string)($row['text_html'] ?? ''))) === '') {
-        continue;
-    }
-    foreach (['lookup_key', 'title'] as $field) {
-        $raw = trim((string)($row[$field] ?? ''));
-        if ($raw === '') {
-            continue;
-        }
-        $nk = liturgy_normalize_lectionary_key($raw);
-        if ($nk !== '') {
-            $lectionaryKeysWithText[$nk] = true;
-        }
-    }
-}
-
-$observancesMissingLectionary = [];
-$easterObs = liturgy_observances_easter_sunday($obsYear);
-foreach (liturgy_observances_fetch_active_rows() as $obsRow) {
-    if ((string)($obsRow['observance_kind'] ?? '') !== 'optional') {
-        continue;
-    }
-    if (!liturgy_observances_row_matches_diocese($obsRow, $dioceseOpts)) {
-        continue;
-    }
-    $reqAny = trim((string)($obsRow['require_any_of'] ?? ''));
-    $reqAll = trim((string)($obsRow['require_all_of'] ?? ''));
-    $forbid = trim((string)($obsRow['forbid_if_any_of'] ?? ''));
-    if ($obsHideNonDiocesan && $reqAny === '' && $reqAll === '' && $forbid === '') {
-        continue;
-    }
-    $ymd = liturgy_observances_resolve_ymd($obsRow, $obsYear, $easterObs);
-    if ($ymd === null) {
-        continue;
-    }
-    $obsTitle = trim((string)($obsRow['title'] ?? ''));
-    if ($obsTitle === '') {
-        continue;
-    }
-    $matched = false;
-    foreach ([$obsTitle, liturgy_strip_cycle_suffix($obsTitle)] as $t) {
-        $nk = liturgy_normalize_lectionary_key($t);
-        if ($nk !== '' && isset($lectionaryKeysWithText[$nk])) {
-            $matched = true;
-            break;
-        }
-    }
-    if ($matched) {
-        continue;
-    }
-    $observancesMissingLectionary[] = [
-        'id' => (int)($obsRow['id'] ?? 0),
-        'date' => $ymd,
-        'title' => $obsTitle,
-        'require_any_of' => $reqAny,
-        'require_all_of' => $reqAll,
-        'forbid_if_any_of' => $forbid,
-        'source_tag' => trim((string)($obsRow['source_tag'] ?? '')),
-    ];
-}
-usort($observancesMissingLectionary, static function (array $a, array $b): int {
-    $c = strcmp($a['date'], $b['date']);
-    if ($c !== 0) {
-        return $c;
-    }
-
-    return strcmp($a['title'], $b['title']);
-});
 ?>
 <!doctype html>
 <html lang="ru">
@@ -399,35 +574,7 @@ usort($observancesMissingLectionary, static function (array $a, array $b): int {
       line-height: 1.4;
       text-align: center;
     }
-    .top-nav {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 8px;
-      justify-content: flex-end;
-      max-width: 100%;
-      flex: 1 1 auto;
-      min-width: 0;
-    }
-    .top-nav-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      gap: 14px 22px;
-      justify-content: flex-end;
-      width: 100%;
-    }
-    .nav-group { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
-    .nav-group-label {
-      font-size: 0.625rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(148, 163, 184, 0.85);
-      line-height: 1;
-    }
-    .nav-group-items { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-    .nav-group-items form { display: inline; margin: 0; }
+    .toolbar-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
     a.btn-pill, button.btn-pill {
       display: inline-flex;
       align-items: center;
@@ -463,7 +610,6 @@ usort($observancesMissingLectionary, static function (array $a, array $b): int {
       color: #fff;
     }
     .grid { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: 14px; }
-    .grid-full { grid-column: 1 / -1; }
     .card { background: #111827; border: 1px solid #334155; border-radius: 14px; padding: 14px; overflow: hidden; }
     .table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .table th, .table td { border-bottom: 1px solid #273449; padding: 7px 6px; text-align: left; vertical-align: top; }
@@ -496,13 +642,6 @@ usort($observancesMissingLectionary, static function (array $a, array $b): int {
     }
     option { background: #111827; color: #e2e8f0; }
     .search-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
-    .obs-filter-row { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: flex-end; margin-bottom: 12px; }
-    .obs-filter-row .field-year { min-width: 120px; flex: 0 0 auto; }
-    .obs-filter-row .field-year label { margin-top: 0; }
-    .diocese-checkboxes { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
-    label.diocese-cb { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-weight: 600; cursor: pointer; }
-    label.diocese-cb input { width: auto; margin: 0; }
-    label.obs-hide-general-cb { flex-basis: 100%; margin-top: 4px; max-width: 42rem; }
     button { border: 1px solid #334155; background: #7c6cf0; color: #fff; font-weight: 700; border-radius: 10px; padding: 10px 12px; cursor: pointer; }
     .danger { background: #7f1d1d; border-color: #b91c1c; }
     .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
@@ -611,17 +750,301 @@ usort($observancesMissingLectionary, static function (array $a, array $b): int {
     @media (max-width: 1180px) {
       .header { flex-direction: column; align-items: flex-start; }
       .header-brand { align-self: center; }
-      .top-nav { justify-content: flex-start; max-width: none; width: 100%; align-items: flex-start; }
-      .top-nav-row { justify-content: flex-start; gap: 10px 14px; }
     }
     @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+    .lec-bulk-span { grid-column: 1 / -1; }
+    .diff-old {
+      color: #fecaca;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: 12px;
+      padding: 6px 8px;
+      margin-top: 4px;
+      border-radius: 6px;
+      background: rgba(127, 29, 29, 0.2);
+      border: 1px solid rgba(248, 113, 113, 0.12);
+    }
+    .diff-new {
+      color: #86efac;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: 12px;
+      padding: 6px 8px;
+      margin-top: 4px;
+      border-radius: 6px;
+      background: rgba(22, 101, 52, 0.2);
+      border: 1px solid rgba(74, 222, 128, 0.12);
+    }
+    .bulk-panel { margin-top: 0; padding-top: 0; border-top: none; }
+    .bulk-fold {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      margin-top: 0;
+      background: rgba(0, 0, 0, 0.18);
+      overflow: hidden;
+    }
+    .bulk-fold-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      padding: 10px 12px;
+      border-bottom: 1px solid transparent;
+    }
+    .bulk-fold:not(.bulk-fold--collapsed) .bulk-fold-toolbar { border-bottom-color: var(--line); }
+    button.bulk-fold-toggle {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: #cbd5e1;
+      cursor: pointer;
+      line-height: 0;
+      font-weight: 600;
+      font-family: inherit;
+      margin-top: 0;
+      box-shadow: none;
+      filter: none;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    button.bulk-fold-toggle:hover:not(:disabled) {
+      background: rgba(124, 108, 240, 0.2);
+      color: #fff;
+    }
+    button.bulk-fold-toggle:focus-visible {
+      outline: 2px solid rgba(124, 108, 240, 0.55);
+      outline-offset: 2px;
+    }
+    .bulk-fold--collapsed .bulk-fold-toggle .bulk-fold-chev { transform: rotate(-90deg); }
+    .bulk-fold-chev {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      transition: transform 0.15s ease;
+      transform-origin: 50% 50%;
+    }
+    .bulk-fold-chev svg { display: block; width: 12px; height: 12px; }
+    .bulk-fold-title {
+      margin: 0;
+      flex: 1 1 140px;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+    .bulk-fold-body { padding: 12px 14px 14px; }
+    .bulk-fold-body[hidden] { display: none !important; }
+    .bulk-log-section { margin-top: 12px; }
+    .bulk-log-section[hidden] { display: none !important; }
+    .bulk-log-heading { margin: 0 0 8px; font-size: 0.875rem; font-weight: 600; color: #e2e8f0; }
+    .bulk-preview-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      margin: 12px 0 10px;
+    }
+    .bulk-preview-row .btn-bulk-preview,
+    .bulk-preview-row .danger {
+      box-sizing: border-box;
+      min-height: 42px;
+      padding: 10px 16px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      line-height: 1.2;
+      border-radius: var(--radius-sm);
+      margin-top: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bulk-preview-row .danger:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      filter: grayscale(0.2);
+      box-shadow: none;
+    }
+    .btn-bulk-preview {
+      gap: 8px;
+      min-width: 0;
+      background: linear-gradient(135deg, rgba(124, 108, 240, 0.92) 0%, rgba(88, 63, 168, 0.95) 100%);
+      border: 1px solid rgba(196, 181, 253, 0.28);
+      color: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 2px 12px -4px rgba(124, 108, 240, 0.5);
+      transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.15s ease;
+    }
+    .btn-bulk-preview:hover:not(:disabled) {
+      filter: brightness(1.06);
+      box-shadow: 0 4px 16px -4px rgba(124, 108, 240, 0.55);
+    }
+    .btn-bulk-preview:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+    .bulk-status-line { font-size: 13px; flex: 1 1 220px; line-height: 1.45; min-height: 1.4em; margin: 0; }
+    .bulk-status-line.is-error { color: #fecaca !important; }
+    .bulk-spinner {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #a5b4fc;
+      font-weight: 600;
+    }
+    .bulk-spinner[hidden] { display: none !important; }
+    .bulk-spinner::before {
+      content: "";
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(165, 180, 252, 0.25);
+      border-top-color: #a5b4fc;
+      border-radius: 50%;
+      animation: bulk-spin 0.7s linear infinite;
+    }
+    @keyframes bulk-spin { to { transform: rotate(360deg); } }
+    .bulk-form { margin: 0; }
+    .bulk-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; align-items: start; }
+    .bulk-form-grid .bulk-field input[type="text"] {
+      min-height: 0;
+      padding: 9px 11px;
+      border-radius: 10px;
+    }
+    @media (max-width: 640px) { .bulk-form-grid { grid-template-columns: 1fr; } }
+    .bulk-field label { margin-top: 0; }
+    .bulk-options { border: none; padding: 0; margin: 10px 0 0; }
+    .bulk-options__legend {
+      font-size: 13px;
+      text-transform: none;
+      letter-spacing: normal;
+      color: #cbd5e1;
+      font-weight: 600;
+      margin: 0 0 8px;
+      padding: 0;
+    }
+    .bulk-chip-grid { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+    label.bulk-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(51, 65, 85, 0.75);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      color: #e2e8f0;
+    }
+    label.bulk-chip:hover { border-color: rgba(124, 108, 240, 0.35); background: rgba(124, 108, 240, 0.06); }
+    label.bulk-chip:has(input:checked) {
+      border-color: rgba(196, 163, 90, 0.35);
+      background: rgba(124, 108, 240, 0.12);
+    }
+    label.bulk-chip input { width: 15px; height: 15px; accent-color: #7c6cf0; cursor: pointer; }
+    .bulk-change-log {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: auto;
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid rgba(51, 65, 85, 0.55);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      max-height: min(360px, 52vh);
+      scrollbar-gutter: stable;
+    }
+    .bulk-change-log .bulk-log-placeholder { margin: 0; color: #64748b; padding: 6px 4px; }
+    .bulk-log-item {
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    .bulk-log-id { font-weight: 700; color: #e2e8f0; margin-bottom: 8px; font-size: 12px; }
+    .bulk-diff-block { margin-top: 8px; }
+    .bulk-diff-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+    .bulk-log-more {
+      margin-top: 4px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: rgba(124, 108, 240, 0.08);
+      border: 1px dashed rgba(124, 108, 240, 0.28);
+      color: #c4b5fd;
+      font-size: 12px;
+    }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay[hidden] { display: none !important; }
+    .modal-dialog {
+      background: linear-gradient(165deg, rgba(30, 27, 60, 0.98) 0%, rgba(17, 24, 39, 0.99) 100%);
+      border: 1px solid rgba(124, 108, 240, 0.25);
+      border-radius: 18px;
+      padding: 26px 24px 24px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 28px 56px rgba(0, 0, 0, 0.55);
+    }
+    .modal-danger-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+      color: #fff;
+      font-size: 28px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .modal-dialog h3 { margin: 0 0 10px; font-size: 1.05rem; text-align: center; color: #fecaca; }
+    .modal-dialog p { margin: 0 0 16px; font-size: 0.9rem; color: #cbd5e1; line-height: 1.45; }
+    .modal-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .modal-actions button { min-width: 100px; }
+    .btn-muted {
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #e2e8f0;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-family: inherit;
+    }
   </style>
 </head>
 <body>
   <div class="header">
     <div class="header-brand">
       <h1>Totus Tuus</h1>
-      <p class="header-tagline">Панэль кіравання<br>імя Біскупа Казіміра Велікасельца OP</p>
+      <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
     <?php
         $panelNavPage = 'lectionary';
@@ -631,121 +1054,68 @@ usort($observancesMissingLectionary, static function (array $a, array $b): int {
         ?>
   </div>
 
+  <div class="toolbar-row">
+    <a class="btn-pill" href="/admin/lectionary_observances_gap.php">Святы з БД без чытанняў</a>
+  </div>
+
   <div class="grid">
-    <div class="card grid-full">
-      <h2 style="margin:0 0 8px; font-size:1rem;">Святы з БД без чытанняў (варынт «альбо»)</h2>
-      <p class="muted" style="margin-top:0;">Радкі <code>optional</code> з <code>liturgy_observances</code>, якія трапяюць у каляндар пры абраных дыяцэзіях, але не маюць непустога тэксту ў лекцыянарыі па ключы назвы. Ключ збіраецца як для поля «Назва» запісу лекцыянарыя.</p>
-      <form method="get" class="obs-filter-form">
-        <input type="hidden" name="obs_filter" value="1">
-        <?php if ($search !== ''): ?>
-          <input type="hidden" name="q" value="<?= htmlspecialchars($search, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-        <?php endif; ?>
-        <?php if ($editId > 0): ?>
-          <input type="hidden" name="edit_id" value="<?= $editId ?>">
-        <?php endif; ?>
-        <div class="obs-filter-row">
-          <div class="field-year">
-            <label for="obs_year">Год</label>
-            <input id="obs_year" type="number" name="obs_year" min="1970" max="2100" value="<?= $obsYear ?>">
-          </div>
-          <div>
-            <span class="nav-group-label" style="display:block;margin-bottom:6px;">Дыяцэзіі (для ўзору «хто ўкліканы»)</span>
-            <div class="diocese-checkboxes">
-              <?php foreach (liturgy_diocese_keys() as $dk): ?>
-                <label class="diocese-cb">
-                  <input type="checkbox" name="d[<?= htmlspecialchars($dk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>]" value="1" <?= !empty($dioceseOpts[$dk]) ? 'checked' : '' ?>>
-                  <?= htmlspecialchars((string)($dioceseLabels[$dk] ?? $dk), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
-                </label>
-              <?php endforeach; ?>
+    <section class="bulk-panel lec-bulk-span" aria-labelledby="lec-bulk-heading">
+      <div class="bulk-fold bulk-fold--collapsed" id="lec-bulk-main-fold">
+        <div class="bulk-fold-toolbar">
+          <button type="button" class="bulk-fold-toggle" id="lec-bulk-main-toggle" aria-expanded="false" aria-controls="lec-bulk-main-body" title="Паказаць або схаваць налады"><span class="bulk-fold-chev" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.75 4.25L6 7.5l3.25-3.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+          <h2 id="lec-bulk-heading" class="bulk-fold-title">Масавая замена</h2>
+        </div>
+        <div id="lec-bulk-main-body" class="bulk-fold-body" hidden>
+          <form method="post" id="lec-bulk-form" class="bulk-form" onsubmit="return false;">
+            <?= panel_csrf_field() ?>
+            <input type="hidden" name="bulk_search_q" value="<?= htmlspecialchars($search, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+            <div class="bulk-form-grid">
+              <div class="bulk-field">
+                <label for="lec_bulk_find">Шукаць (фрагмент)</label>
+                <input type="text" id="lec_bulk_find" name="bulk_find" autocomplete="off" placeholder="Напрыклад: частка назвы">
+              </div>
+              <div class="bulk-field">
+                <label for="lec_bulk_replace">Замяніць на</label>
+                <input type="text" id="lec_bulk_replace" name="bulk_replace" autocomplete="off" placeholder="Пуста — выдаліць фрагмент">
+              </div>
             </div>
-            <label class="diocese-cb obs-hide-general-cb">
-              <input type="checkbox" name="obs_hide_general" value="1" <?= $obsHideNonDiocesan ? 'checked' : '' ?>>
-              Схаваць агульныя (без умоў any/all/forbid для дыяцэзій у БД)
-            </label>
+            <fieldset class="bulk-options">
+              <legend class="bulk-options__legend">Параметры</legend>
+              <div class="bulk-chip-grid">
+                <label class="bulk-chip"><input type="checkbox" name="bulk_col_title" value="1" checked><span>Назва (title)</span></label>
+                <label class="bulk-chip"><input type="checkbox" name="bulk_col_text" value="1"><span>Тэкст (HTML)</span></label>
+                <label class="bulk-chip"><input type="checkbox" name="bulk_case_sensitive" value="1"><span>Улічваць рэгістр</span></label>
+                <label class="bulk-chip"><input type="checkbox" name="bulk_scope_filtered" value="1" <?= $search !== '' ? 'checked' : '' ?>><span>Толькі вынікі бягучага пошуку<?= $search !== '' ? ' («' . htmlspecialchars(mb_substr($search, 0, 40), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . (mb_strlen($search) > 40 ? '…' : '') . '»)' : '' ?></span></label>
+              </div>
+            </fieldset>
+          </form>
+          <div class="bulk-preview-row">
+            <button type="button" class="btn-bulk-preview" id="lec-bulk-btn-preview">Прадпрагляд змен</button>
+            <button type="button" class="danger" id="lec-bulk-exec-open" disabled>Выканаць замену</button>
+            <span class="bulk-spinner" id="lec-bulk-spinner" hidden>Загрузка</span>
+            <p class="bulk-status-line muted" id="lec-bulk-status-line"></p>
           </div>
-          <div>
-            <label style="margin-top:0;visibility:hidden;" for="obs-filter-submit">Дзеянне</label>
-            <button type="submit" id="obs-filter-submit">Паказаць</button>
+          <div id="lec-bulk-log-section" class="bulk-log-section" hidden>
+            <h3 class="bulk-log-heading">Вынік прадпрагляду</h3>
+            <div id="lec-bulk-change-log" class="bulk-change-log" role="log" aria-live="polite"></div>
           </div>
         </div>
-      </form>
-      <p class="muted" style="margin:0 0 8px;">Без прадпісаных чытанняў у лекцыянарыі: <strong><?= count($observancesMissingLectionary) ?></strong>.
-        <?php if (!$obsFilterApplied): ?><span class="muted"> Па змаўчанні ўсе дыяцэзіі ўлічаны як уключаныя; адмяніце непатрэбныя і націсніце «Паказаць», каб звузіць спіс.</span><?php endif; ?>
-      </p>
-      <div class="table-wrap" style="overflow-x:auto;">
-        <table class="table">
-          <thead>
-          <tr>
-            <th style="width:104px;">Дата</th>
-            <th style="width:56px;">БД</th>
-            <th>Назва</th>
-            <th style="width:140px;">Умовы дыяцэзій</th>
-            <th style="width:200px;"></th>
-          </tr>
-          </thead>
-          <tbody>
-          <?php foreach ($observancesMissingLectionary as $om): ?>
-            <tr>
-              <td><code><?= htmlspecialchars($om['date'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></code></td>
-              <td><?= (int)$om['id'] ?></td>
-              <td><?= htmlspecialchars($om['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
-              <td class="muted" style="font-size:12px;"><?php
-                $bits = array_filter([
-                    $om['require_any_of'] !== '' ? 'any: ' . $om['require_any_of'] : '',
-                    $om['require_all_of'] !== '' ? 'all: ' . $om['require_all_of'] : '',
-                    $om['forbid_if_any_of'] !== '' ? '!: ' . $om['forbid_if_any_of'] : '',
-                ]);
-                echo htmlspecialchars(implode('; ', $bits), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-                ?></td>
-              <td>
-                <?php
-                $prefillQ = [
-                    'prefill_title' => $om['title'],
-                    'obs_filter' => '1',
-                    'obs_year' => (string)$obsYear,
-                ];
-                $dSub = [];
-                foreach (liturgy_diocese_keys() as $dk) {
-                    if (!empty($dioceseOpts[$dk])) {
-                        $dSub[$dk] = '1';
-                    }
-                }
-                if ($dSub !== []) {
-                    $prefillQ['d'] = $dSub;
-                }
-                if ($search !== '') {
-                    $prefillQ['q'] = $search;
-                }
-                if ($obsHideNonDiocesan) {
-                    $prefillQ['obs_hide_general'] = '1';
-                }
-                $prefillHref = '/admin/lectionary.php?' . http_build_query($prefillQ);
-                ?>
-                <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                  <a class="btn-pill" href="<?= htmlspecialchars($prefillHref, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Стварыць чытанне</a>
-                  <a class="btn-pill" href="/admin/liturgy_observances.php?edit=<?= (int)$om['id'] ?>">Свята БД</a>
-                </div>
-              </td>
-            </tr>
-          <?php endforeach; ?>
-          <?php if ($observancesMissingLectionary === []): ?>
-            <tr><td colspan="5" class="muted">Прагалаў для абраных умоў няма (або ўсе маюць тэкст у лекцыянарыі).</td></tr>
-          <?php endif; ?>
-          </tbody>
-        </table>
       </div>
-    </div>
+    </section>
 
     <div class="card">
       <h2 style="margin:0 0 8px; font-size:1rem;">Запісы лекцыянарыя</h2>
-      <p class="muted" style="margin-top:0;">Падбор у каляндары ідзе па назве дня і, калі ёсць, па назве «успаміну».</p>
+      <p class="muted" style="margin-top:0;">Падбор у каляндары ідзе па назве дня і, калі ёсць, па назве «успаміну». Кнопка «Святы з БД без чытанняў» вышэй — спіс optional-свят без непустога тэксту ў лекцыянарыі (варынт «альбо» па ключы назвы).</p>
       <form method="get" class="search-row">
         <?php if ($obsHideNonDiocesan): ?>
           <input type="hidden" name="obs_hide_general" value="1">
         <?php endif; ?>
         <?php if ($obsFilterApplied): ?>
           <input type="hidden" name="obs_filter" value="1">
+          <input type="hidden" name="obs_period" value="<?= htmlspecialchars($obsPeriod, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
           <input type="hidden" name="obs_year" value="<?= (int)$obsYear ?>">
+          <input type="hidden" name="obs_year_from" value="<?= (int)$obsYearFrom ?>">
+          <input type="hidden" name="obs_year_to" value="<?= (int)$obsYearTo ?>">
           <?php foreach (liturgy_diocese_keys() as $dk): ?>
             <?php if (!empty($dioceseOpts[$dk])): ?>
               <input type="hidden" name="d[<?= htmlspecialchars($dk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>]" value="1">
@@ -864,6 +1234,18 @@ usort($observancesMissingLectionary, static function (array $a, array $b): int {
           <?php endif; ?>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div id="lec-bulk-modal" class="modal-overlay" hidden>
+    <div class="modal-dialog" role="alertdialog" aria-modal="true" aria-labelledby="lec-bulk-modal-title">
+      <div class="modal-danger-icon" aria-hidden="true">!</div>
+      <h3 id="lec-bulk-modal-title">Пацвердзіце масавую замену</h3>
+      <p>Гэта дзеянне зменіць даныя ў базе для ўсіх паказаных запісаў. Працягнуць?</p>
+      <div class="modal-actions">
+        <button type="button" class="btn-muted" id="lec-bulk-modal-no">Не</button>
+        <button type="button" class="danger" id="lec-bulk-modal-yes">Так</button>
+      </div>
     </div>
   </div>
 
@@ -1191,6 +1573,181 @@ usort($observancesMissingLectionary, static function (array $a, array $b): int {
         }
       });
     }
+    (function () {
+      var BULK_OPEN_KEY = 'lectionary_bulk_open';
+      var mainFold = document.getElementById('lec-bulk-main-fold');
+      var mainBody = document.getElementById('lec-bulk-main-body');
+      var mainToggle = document.getElementById('lec-bulk-main-toggle');
+      function setMainExpanded(expanded) {
+        if (!mainFold || !mainBody || !mainToggle) return;
+        mainBody.hidden = !expanded;
+        mainFold.classList.toggle('bulk-fold--collapsed', !expanded);
+        mainToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        try { window.localStorage.setItem(BULK_OPEN_KEY, expanded ? '1' : '0'); } catch (e) {}
+      }
+      if (mainFold && mainBody && mainToggle) {
+        try { setMainExpanded(window.localStorage.getItem(BULK_OPEN_KEY) === '1'); } catch (e) { setMainExpanded(false); }
+        mainToggle.addEventListener('click', function () { setMainExpanded(!!mainBody.hidden); });
+      }
+      var bulkForm = document.getElementById('lec-bulk-form');
+      var btnPreview = document.getElementById('lec-bulk-btn-preview');
+      var btnApply = document.getElementById('lec-bulk-exec-open');
+      var logEl = document.getElementById('lec-bulk-change-log');
+      var logSection = document.getElementById('lec-bulk-log-section');
+      var statusEl = document.getElementById('lec-bulk-status-line');
+      var spinnerEl = document.getElementById('lec-bulk-spinner');
+      var modal = document.getElementById('lec-bulk-modal');
+      var noBtn = document.getElementById('lec-bulk-modal-no');
+      var yesBtn = document.getElementById('lec-bulk-modal-yes');
+      if (!bulkForm || !btnPreview || !btnApply || !logEl) return;
+      var lastChangeCount = 0;
+      function setBulkLogSectionVisible(visible) { if (logSection) logSection.hidden = !visible; }
+      function bulkUrlNow() { return window.location.pathname + window.location.search; }
+      function setLoading(on) {
+        btnPreview.disabled = on;
+        btnApply.disabled = on || lastChangeCount === 0;
+        spinnerEl.hidden = !on;
+      }
+      function setStatus(text, isErr) {
+        statusEl.textContent = text || '';
+        statusEl.classList.toggle('is-error', !!isErr);
+      }
+      function makeDiffBlock(label, oldV, newV) {
+        var w = document.createElement('div');
+        w.className = 'bulk-diff-block';
+        var lb = document.createElement('span');
+        lb.className = 'bulk-diff-label';
+        lb.textContent = label;
+        w.appendChild(lb);
+        var o = document.createElement('div');
+        o.className = 'diff-old';
+        o.textContent = oldV;
+        var n = document.createElement('div');
+        n.className = 'diff-new';
+        n.textContent = newV;
+        w.appendChild(o);
+        w.appendChild(n);
+        return w;
+      }
+      function renderLog(rows, rowsOmitted, changeCount) {
+        logEl.innerHTML = '';
+        var total = typeof changeCount === 'number' ? changeCount : 0;
+        lastChangeCount = total;
+        if (total === 0) {
+          var p0 = document.createElement('p');
+          p0.className = 'bulk-log-placeholder';
+          p0.textContent = 'Няма запісаў для змены пры гэтых умовах.';
+          logEl.appendChild(p0);
+          btnApply.disabled = true;
+          return;
+        }
+        rows = rows || [];
+        rows.forEach(function (r) {
+          var item = document.createElement('div');
+          item.className = 'bulk-log-item';
+          var idEl = document.createElement('div');
+          idEl.className = 'bulk-log-id';
+          idEl.appendChild(document.createTextNode('Запіс '));
+          var idCode = document.createElement('code');
+          idCode.textContent = String(r.id);
+          idEl.appendChild(idCode);
+          item.appendChild(idEl);
+          if (r.touch_title) item.appendChild(makeDiffBlock('Назва', r.title_old, r.title_new));
+          if (r.touch_text) item.appendChild(makeDiffBlock('Тэкст (без HTML)', r.text_old, r.text_new));
+          logEl.appendChild(item);
+        });
+        var omitted = Number(rowsOmitted) || 0;
+        if (omitted > 0) {
+          var more = document.createElement('div');
+          more.className = 'bulk-log-more';
+          more.textContent = '… і яшчэ ' + omitted + ' запіс(аў).';
+          logEl.appendChild(more);
+        }
+        btnApply.disabled = false;
+      }
+      function placeholderLog() {
+        logEl.innerHTML = '';
+        lastChangeCount = 0;
+        btnApply.disabled = true;
+        setBulkLogSectionVisible(false);
+      }
+      function buildBody(extra) {
+        var fd = new FormData(bulkForm);
+        fd.set('bulk_ajax', '1');
+        Object.keys(extra).forEach(function (k) { fd.set(k, extra[k]); });
+        return fd;
+      }
+      function bulkFetch(extra) {
+        return fetch(bulkUrlNow(), {
+          method: 'POST',
+          body: buildBody(extra),
+          credentials: 'same-origin',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(function (res) {
+          return res.json().catch(function () { throw new Error('Некарэктны адказ сервера.'); });
+        });
+      }
+      btnPreview.addEventListener('click', function () {
+        setStatus('');
+        setBulkLogSectionVisible(false);
+        setLoading(true);
+        bulkFetch({ bulk_preview: '1' })
+          .then(function (data) {
+            if (!data.ok) {
+              setStatus(data.error || 'Памылка', true);
+              lastChangeCount = 0;
+              btnApply.disabled = true;
+              setBulkLogSectionVisible(false);
+              return;
+            }
+            setStatus(data.message || '');
+            renderLog(data.rows || [], data.rows_omitted, data.change_count);
+            setBulkLogSectionVisible(true);
+          })
+          .catch(function (e) {
+            setStatus(e.message || 'Памылка сеткі', true);
+            btnApply.disabled = true;
+            setBulkLogSectionVisible(false);
+          })
+          .finally(function () { setLoading(false); });
+      });
+      function closeModal() {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+      }
+      function openModal() {
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        noBtn.focus();
+      }
+      btnApply.addEventListener('click', function () {
+        if (btnApply.disabled || lastChangeCount === 0) return;
+        openModal();
+      });
+      noBtn.addEventListener('click', closeModal);
+      modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !modal.hidden) closeModal();
+      });
+      yesBtn.addEventListener('click', function () {
+        closeModal();
+        setStatus('');
+        setLoading(true);
+        bulkFetch({ bulk_execute: '1' })
+          .then(function (data) {
+            if (!data.ok) {
+              setStatus(data.error || 'Памылка', true);
+              return;
+            }
+            setStatus(data.message || 'Зроблена.');
+            placeholderLog();
+            window.setTimeout(function () { window.location.reload(); }, 500);
+          })
+          .catch(function (e) { setStatus(e.message || 'Памылка сеткі', true); })
+          .finally(function () { setLoading(false); });
+      });
+    })();
+
     initRichEditors();
     bindLectionaryForm();
     if (initialMessage) showToast('ok', initialMessage);
