@@ -197,6 +197,7 @@ function announcements_extract_auto_line_title_be(string $line): string
 
 /**
  * Абарона ад публікацыі састарэлых аўтарадкоў (перакрытыя ўспаміны і г.д.).
+ * Падтрымлівае складаны загаловак «A і B» (адзін радок у аб’явах замест двух).
  */
 function announcements_should_publish_week_note_line(string $line, DateTimeImmutable $date, ?array $dioceseOpts = null): bool
 {
@@ -209,7 +210,24 @@ function announcements_should_publish_week_note_line(string $line, DateTimeImmut
         return true;
     }
 
-    return in_array($title, $allowed, true);
+    if (in_array($title, $allowed, true)) {
+        return true;
+    }
+
+    $pieces = preg_split('/\s+і\s+/u', $title, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    if (count($pieces) < 2) {
+        return false;
+    }
+    foreach ($pieces as $piece) {
+        $t = trim((string)$piece);
+        $t = preg_replace('/\.$/u', '', $t) ?? $t;
+        $t = trim($t);
+        if ($t === '' || !in_array($t, $allowed, true)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /**
@@ -329,6 +347,7 @@ function announcements_suggest_day_bulletin_line(DateTimeImmutable $cur, DateTim
     if ($main === '') {
         $main = 'літургічны дзень';
     }
+    $main = trim((string)(preg_replace('/\s*\R+\s*/u', ' і ', $main) ?? $main));
     if (liturgy_is_great_monday_through_easter_sunday($cur)) {
         $line = sprintf('%s, %s.', $dm, $main);
     } else {
@@ -336,6 +355,7 @@ function announcements_suggest_day_bulletin_line(DateTimeImmutable $cur, DateTim
     }
     $opt = trim((string)($auto['optional_memorial_title'] ?? ''));
     if ($opt !== '') {
+        $opt = trim((string)(preg_replace('/\s*\R+\s*/u', ' і ', $opt) ?? $opt));
         $line .= ' Даброўны успамін: ' . $opt . '.';
     }
 
@@ -364,26 +384,42 @@ function announcements_suggest_optional_memorial_lines(DateTimeImmutable $period
             continue;
         }
         $parts = preg_split('/\s+альбо\s+/u', $joined, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $titlesOk = [];
         foreach ($parts as $part) {
             $title = trim((string)$part);
             if ($title === '') {
                 continue;
             }
             if (liturgy_is_great_monday_through_easter_sunday($cur)) {
-                $line = sprintf('%s, %s.', announcements_day_month_phrase_be($cur), $title);
+                $probe = sprintf('%s, %s.', announcements_day_month_phrase_be($cur), $title);
             } else {
-                $line = sprintf(
+                $probe = sprintf(
                     '%s, %s, %s.',
                     announcements_ucfirst_utf8(announcements_weekday_name_locative_be($cur)),
                     announcements_day_month_phrase_be($cur),
                     $title
                 );
             }
-            if (!announcements_should_publish_week_note_line($line, $cur, $dioceseOpts)) {
+            if (!announcements_should_publish_week_note_line($probe, $cur, $dioceseOpts)) {
                 continue;
             }
-            $lines[] = ['date' => $key, 'line' => $line];
+            $titlesOk[] = $title;
         }
+        if ($titlesOk === []) {
+            continue;
+        }
+        $combined = implode(' і ', $titlesOk);
+        if (liturgy_is_great_monday_through_easter_sunday($cur)) {
+            $line = sprintf('%s, %s.', announcements_day_month_phrase_be($cur), $combined);
+        } else {
+            $line = sprintf(
+                '%s, %s, %s.',
+                announcements_ucfirst_utf8(announcements_weekday_name_locative_be($cur)),
+                announcements_day_month_phrase_be($cur),
+                $combined
+            );
+        }
+        $lines[] = ['date' => $key, 'line' => $line];
     }
 
     return $lines;

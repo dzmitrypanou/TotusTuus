@@ -263,7 +263,7 @@ class LiturgyCalendarFragment : Fragment() {
         fun collectTitles(raw: String?) {
             val src = raw?.trim().orEmpty()
             if (src.isBlank()) return
-            src.split(Regex("\\s+альбо\\s+|[/;\\n]+", RegexOption.IGNORE_CASE))
+            src.split(Regex("\\s+(?:альбо|або)\\s+|[/;\\n]+", RegexOption.IGNORE_CASE))
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
                 .forEach { titleParts.add(it.lowercase(Locale.ROOT)) }
@@ -354,29 +354,55 @@ class LiturgyCalendarFragment : Fragment() {
                 fun strokeWidthDp(dpVal: Float) = (dpVal * density).roundToInt().coerceAtLeast(1)
                 val baseCardBg = when {
                     selected -> ctx.themeColor(R.attr.totusColorScriptureHighlightFill)
-                    item.inCurrentMonth && item.isToday -> ctx.themeColor(R.attr.totusColorScriptureHighlightFill)
+                    item.inCurrentMonth && item.isToday -> ColorUtils.blendARGB(
+                        ctx.themeColor(R.attr.totusColorBgSecondary),
+                        ctx.themeColor(R.attr.totusColorScriptureHighlightFill),
+                        0.2f
+                    )
                     item.inCurrentMonth -> ctx.themeColor(R.attr.totusColorBgSecondary)
                     else -> ctx.themeColor(R.attr.totusColorBgPrimary)
                 }
+                val primaryBlend = when {
+                    selected -> 0.58f
+                    item.isToday -> 0.48f
+                    else -> 0.52f
+                }
+                val whiteWash = when {
+                    selected -> 0.08f
+                    item.isToday -> 0.04f
+                    else -> 0.05f
+                }
                 val cardBg = if (item.inCurrentMonth) {
                     // Keep liturgical color visible; blend closer to legend swatches (vivid), less gray wash.
-                    val tinted = ColorUtils.blendARGB(baseCardBg, primaryColor, if (selected) 0.58f else 0.52f)
-                    ColorUtils.blendARGB(tinted, Color.WHITE, if (selected) 0.08f else 0.05f)
+                    val tinted = ColorUtils.blendARGB(baseCardBg, primaryColor, primaryBlend)
+                    ColorUtils.blendARGB(tinted, Color.WHITE, whiteWash)
                 } else {
                     baseCardBg
                 }
+                val liturgicalBlend = when {
+                    selected -> 0.62f
+                    item.isToday -> 0.5f
+                    else -> 0.54f
+                }
+                val liturgicalWhite = when {
+                    selected -> 0.07f
+                    item.isToday -> 0.04f
+                    else -> 0.05f
+                }
                 val tintedLiturgical = liturgicalColors.map { src ->
-                    val tinted = ColorUtils.blendARGB(baseCardBg, src, if (selected) 0.62f else 0.54f)
-                    ColorUtils.blendARGB(tinted, Color.WHITE, if (selected) 0.07f else 0.05f)
+                    val tinted = ColorUtils.blendARGB(baseCardBg, src, liturgicalBlend)
+                    ColorUtils.blendARGB(tinted, Color.WHITE, liturgicalWhite)
                 }
                 val primaryTint = tintedLiturgical.first()
                 val secondaryTint = tintedLiturgical.getOrNull(1)
                 applyDayBackground(tintedLiturgical)
                 val highlightStroke = ctx.themeColor(R.attr.totusColorScriptureHighlightStroke)
+                val defaultStroke = ctx.themeColor(R.attr.totusColorSurfaceStroke)
                 val stroke = when {
                     selected -> highlightStroke
-                    item.isToday && item.inCurrentMonth -> highlightStroke
-                    else -> ctx.themeColor(R.attr.totusColorSurfaceStroke)
+                    item.isToday && item.inCurrentMonth ->
+                        ColorUtils.blendARGB(highlightStroke, defaultStroke, 0.38f)
+                    else -> defaultStroke
                 }
                 val readableTextColor = if (tintedLiturgical.size > 1) {
                     bestReadableTextColorForBackgrounds(tintedLiturgical)
@@ -403,8 +429,8 @@ class LiturgyCalendarFragment : Fragment() {
                 binding.root.setCardBackgroundColor(cardBg)
                 binding.root.strokeColor = stroke
                 binding.root.strokeWidth = when {
-                    item.isToday && item.inCurrentMonth -> strokeWidthDp(3f)
                     selected -> strokeWidthDp(2f)
+                    item.isToday && item.inCurrentMonth -> strokeWidthDp(1.5f)
                     else -> strokeWidthDp(1f)
                 }
 

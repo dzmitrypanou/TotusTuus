@@ -92,7 +92,8 @@
             font-weight: 600;
             margin-top: 0.75rem;
             margin-bottom: 0.35rem;
-            color: rgba(255,255,255,0.95);
+            /* Успадкоўваем text-app-text (цёмная/светлая/бэжавая тэма), без жорсткага белага */
+            color: inherit;
         }
         .readings-content > h1:first-child,
         .readings-content > h2:first-child,
@@ -101,7 +102,7 @@
         }
         .readings-content p {
             margin-bottom: 0.65rem;
-            color: rgba(255,255,255,0.9);
+            color: inherit;
         }
         /* Адступ тэксту чытанняў ад загалоўка <details>/<summary> */
         .readings-content details > div {

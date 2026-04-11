@@ -519,7 +519,119 @@ function liturgy_title_with_weekday_for_display(DateTimeImmutable $date, string 
 }
 
 /**
- * optional_memorial_title для JSON: кожны варыянт праз «альбо» з прэфіксам дня тыдня.
+ * Прыбірае вядомы прэфікс «дзень — …» для выяўлення рангу (Успамін / Свята / …).
+ */
+function liturgy_optional_label_strip_leading_weekday(string $title): string
+{
+    $t = trim($title);
+    if ($t === '') {
+        return $t;
+    }
+    if (preg_match(
+        '/^(?:Панядзелак|Аўторак|Серада|Чацвер|Пятніца|Субота|Нядзеля)\s*—\s*(.+)$/u',
+        $t,
+        $m
+    ) === 1) {
+        return trim((string)($m[1] ?? ''));
+    }
+
+    return $t;
+}
+
+/**
+ * Прэфікс назвы ўрачыстасці / свята / успаміна ў пачатку радка («Успамін », «Свята — » і г.д.).
+ */
+function liturgy_optional_extract_observance_prefix(string $title): ?string
+{
+    $t = liturgy_optional_label_strip_leading_weekday(trim($title));
+    if ($t === '') {
+        return null;
+    }
+    if (preg_match(
+        '/^((?:Даброўны\s+успамін|Урачыстасць|Свята|Успамін)(?:\s*[—–\-]\s*|\s+))/iu',
+        $t,
+        $m
+    ) === 1) {
+        return $m[1];
+    }
+
+    return null;
+}
+
+/**
+ * Кожны варыянт пасля «альбо» атрымлівае той жа тып назвы (Успамін / Свята / …), што і першы,
+ * калі ў другім варыянце тып не пазначаны (напр. толькі «св. …»).
+ *
+ * @param array<int, string> $labels
+ * @return array<int, string>
+ */
+function liturgy_optional_enrich_alternative_labels_with_observance(array $labels): array
+{
+    $out = [];
+    $inherited = null;
+    $seenFirst = false;
+    foreach (array_values($labels) as $lab) {
+        $raw = trim((string)$lab);
+        if ($raw === '') {
+            continue;
+        }
+        if (!$seenFirst) {
+            $inherited = liturgy_optional_extract_observance_prefix($raw);
+            $seenFirst = true;
+            $out[] = $raw;
+            continue;
+        }
+        $core = liturgy_optional_label_strip_leading_weekday($raw);
+        if ($inherited !== null && liturgy_optional_extract_observance_prefix($core) === null) {
+            $raw = $inherited . $core;
+        }
+        $out[] = $raw;
+    }
+
+    return $out;
+}
+
+/**
+ * Адна галіна optional_memorial_title для кліента: без «Чацвер — …»;
+ * замест гэтага «Успамін — …» / «Свята — …» (як у шапцы экрана дня).
+ */
+function liturgy_optional_memorial_variant_for_client_display(string $label): string
+{
+    $t = trim($label);
+    if ($t === '') {
+        return '';
+    }
+    $t = liturgy_optional_label_strip_leading_weekday($t);
+    if ($t === '') {
+        return '';
+    }
+    if (preg_match(
+        '/^((?:Даброўны\s+успамін|Урачыстасць|Свята|Успамін)(?:\s*[—–\-]\s*|\s+))(.*)$/isu',
+        $t,
+        $m
+    ) !== 1) {
+        return 'Успамін — ' . $t;
+    }
+    $pre = (string)($m[1] ?? '');
+    $body = trim((string)($m[2] ?? ''));
+    if (preg_match('/^Даброўны\s+успамін/iu', $pre) === 1) {
+        return 'Даброўны успамін — ' . $body;
+    }
+    if (preg_match('/^Урачыстасць/iu', $pre) === 1) {
+        return 'Урачыстасць — ' . $body;
+    }
+    if (preg_match('/^Свята/iu', $pre) === 1) {
+        return 'Свята — ' . $body;
+    }
+    if (preg_match('/^Успамін/iu', $pre) === 1) {
+        return 'Успамін — ' . $body;
+    }
+
+    return 'Успамін — ' . $t;
+}
+
+/**
+ * optional_memorial_title для JSON: варыянты праз «альбо» з тыпам дня (Успамін — …), без паўтору дня тыдня.
  *
  * @param array<int, string> $optionalLookupTitles
  */
@@ -532,14 +644,15 @@ function liturgy_format_optional_memorial_title_for_display(
     $labels = liturgy_optional_memorial_row_labels($raw, $optionalLookupTitles);
     if ($labels === []) {
         if ($raw !== '') {
-            return liturgy_title_with_weekday_for_display($date, $raw);
+            return liturgy_optional_memorial_variant_for_client_display($raw);
         }
 
         return '';
     }
+    $labels = liturgy_optional_enrich_alternative_labels_with_observance($labels);
     $parts = [];
     foreach ($labels as $lab) {
-        $parts[] = liturgy_title_with_weekday_for_display($date, $lab);
+        $parts[] = liturgy_optional_memorial_variant_for_client_display(trim((string)$lab));
     }
 
     return implode(' альбо ', $parts);

@@ -10,6 +10,7 @@ import android.text.Html
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.AbsoluteSizeSpan
+import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.content.Context
 import android.os.Bundle
@@ -336,12 +337,13 @@ class LiturgyDayFragment : Fragment() {
 
     /**
      * В API-тэксце могуць прыходзіць html-памеры (h1/font-size), якія перабіваюць глабальны маштаб.
-     * Выдаляем толькі size-span, захоўваючы астатняе фарматаванне (bold/italic/links/colors).
+     * Выдаляем size-span і inline-колеры, каб у светлай тэме тэкст не заставаўся белым з цёмнага рэдактара.
      */
     private fun stripHtmlFontSizeSpans(content: CharSequence): CharSequence {
         val styled = SpannableStringBuilder(content)
         styled.getSpans(0, styled.length, AbsoluteSizeSpan::class.java).forEach(styled::removeSpan)
         styled.getSpans(0, styled.length, RelativeSizeSpan::class.java).forEach(styled::removeSpan)
+        styled.getSpans(0, styled.length, ForegroundColorSpan::class.java).forEach(styled::removeSpan)
         return styled
     }
 
@@ -408,16 +410,48 @@ class LiturgyDayFragment : Fragment() {
                 } else {
                     optionalColor
                 }
-                container.addView(createLiturgyOptionRow(ctx, part, partColorInt))
+                container.addView(createLiturgyOptionRow(ctx, formatOptionalMemorialPartForDisplay(part), partColorInt))
             }
         }
     }
 
-    /** API злучае некалькі даброўных успамінаў праз «альбо» ў адным радку — раскладваем у асобныя радкі з паўторным «альбо». */
+    /**
+     * Як liturgy_optional_memorial_variant_for_client_display у WebPanel: без «Чацвер — …»,
+     * для даброўных варыянтаў — «Успамін — …» (кэш/API могуць яшчэ з днём тыдня).
+     */
+    private fun formatOptionalMemorialPartForDisplay(part: String): String {
+        var t = part.trim()
+        if (t.isEmpty()) return ""
+        val wdStrip = Regex(
+            "^(?:Панядзелак|Аўторак|Серада|Чацвер|Пятніца|Субота|Нядзеля)\\s*—\\s*(.+)$",
+            RegexOption.IGNORE_CASE
+        ).find(t)?.groupValues?.getOrNull(1)?.trim()
+        if (wdStrip != null) t = wdStrip
+        if (t.isEmpty()) return ""
+        val obs = Regex(
+            "^((?:Даброўны\\s+успамін|Урачыстасць|Свята|Успамін)(?:\\s*[—–\\-]\\s*|\\s+))(.*)$",
+            setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
+        ).find(t)
+        val body = obs?.groupValues?.getOrNull(2)?.trim().orEmpty()
+        val pre = obs?.groupValues?.getOrNull(1).orEmpty()
+        return when {
+            obs == null -> "Успамін — $t"
+            Regex("^Даброўны\\s+успамін", RegexOption.IGNORE_CASE).containsMatchIn(pre) -> "Даброўны успамін — $body"
+            Regex("^Урачыстасць", RegexOption.IGNORE_CASE).containsMatchIn(pre) -> "Урачыстасць — $body"
+            Regex("^Свята", RegexOption.IGNORE_CASE).containsMatchIn(pre) -> "Свята — $body"
+            Regex("^Успамін", RegexOption.IGNORE_CASE).containsMatchIn(pre) -> "Успамін — $body"
+            else -> "Успамін — $t"
+        }
+    }
+
+    /**
+     * API можа злучаць некалькі даброўных успамінаў праз «альбо», «або», касую рысу, «;» або перанос —
+     * як у [LiturgyCalendarFragment] пры падліку варыянтаў, раскладваем у асобныя радкі з паўторным «альбо».
+     */
     private fun splitOptionalMemorialTitles(combined: String): List<String> {
         val raw = combined.trim()
         if (raw.isEmpty()) return emptyList()
-        return raw.split(Regex("\\s+альбо\\s+", RegexOption.IGNORE_CASE))
+        return raw.split(Regex("\\s+(?:альбо|або)\\s+|[/;\\n]+", RegexOption.IGNORE_CASE))
             .map { it.trim() }
             .filter { it.isNotEmpty() }
     }
