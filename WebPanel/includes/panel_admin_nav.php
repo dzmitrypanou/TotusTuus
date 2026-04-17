@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 /**
  * Агульная навігацыя адмін-панэлі (пасля ўваходу).
- * Перад include: $panelNavPage — 'index'|'liturgy'|'liturgy_observances'|'lectionary'|'lectionary_gap'|'liturgy_empty'|'announcements'|'users';
+ * Перад include: $panelNavPage — 'index'|'liturgy'|'liturgy_observances'|'lectionary'|'lectionary_gap'|'liturgy_empty'|'ordo_missae'|'announcements'|'users';
  * для index: $panelNavView — бягучы ?view=; для liturgy*: $panelNavCalYear — год у спасылцы «Пустыя дні».
  */
 if (!function_exists('panel_can_access_section')) {
@@ -269,6 +269,7 @@ if (!defined('PANEL_ADMIN_NAV_STYLE_EMITTED')) {
           <a href="/admin/liturgy.php" class="panel-nav-link<?= panel_admin_nav_active_page('liturgy', $panelNavPage) ?>">Каляндар</a>
           <a href="/admin/liturgy_observances.php" class="panel-nav-link<?= panel_admin_nav_active_page('liturgy_observances', $panelNavPage) ?>">Святы БД</a>
           <a href="/admin/liturgy_empty_days.php?from_year=<?= $panelNavCalYear ?>&amp;to_year=<?= $panelNavCalYear ?>" class="panel-nav-link<?= panel_admin_nav_active_page('liturgy_empty', $panelNavPage) ?>">Пустыя дні</a>
+          <a href="/admin/ordo_missae.php" class="panel-nav-link<?= panel_admin_nav_active_page('ordo_missae', $panelNavPage) ?>">Ordo Missae</a>
           <?php endif; ?>
           <?php if (panel_can_access_section('lectionary')): ?>
           <a href="/admin/lectionary.php" class="panel-nav-link<?= panel_admin_nav_active_page('lectionary', $panelNavPage) ?>">Лекцыянарый</a>

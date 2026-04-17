@@ -5,6 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import by.dzmitrypanou.catholicapp.R
+import by.dzmitrypanou.catholicapp.data.OrdoMissaeCacheStore
+import by.dzmitrypanou.catholicapp.data.OrdoMissaeFoldStore
 import by.dzmitrypanou.catholicapp.data.PrayerCacheInvalidationNotifier
 import by.dzmitrypanou.catholicapp.data.PrayerRepository
 import by.dzmitrypanou.catholicapp.data.SongbookCacheInvalidationNotifier
@@ -25,6 +27,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         SongbookRepository(getApplication()).clearCache()
         SongbookCacheInvalidationNotifier.signalCacheCleared()
         ScriptureRemoteSync.clearCache(getApplication())
+        OrdoMissaeCacheStore(getApplication()).clear()
+        OrdoMissaeFoldStore.clear(getApplication())
         _message.value = getApplication<Application>().getString(R.string.settings_data_cleared)
     }
 }

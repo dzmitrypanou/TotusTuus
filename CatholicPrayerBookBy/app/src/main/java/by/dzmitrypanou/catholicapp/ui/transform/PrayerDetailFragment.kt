@@ -139,7 +139,7 @@ class PrayerDetailFragment : Fragment() {
               color: $textHex;
               font-family: $cssFontFamily;
               font-size: ${cssBodyFontPx}px;
-              line-height: 1.55;
+              line-height: 1.38;
               -webkit-text-size-adjust: 100%;
               touch-action: manipulation;
               word-wrap: break-word;

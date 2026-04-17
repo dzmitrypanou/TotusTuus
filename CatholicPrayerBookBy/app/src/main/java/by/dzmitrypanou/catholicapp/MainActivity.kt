@@ -38,6 +38,7 @@ import by.dzmitrypanou.catholicapp.databinding.ActivityMainBinding
 import by.dzmitrypanou.catholicapp.ui.PrayerBookUiTypography
 import by.dzmitrypanou.catholicapp.ui.ReadingTextScaleToolbar
 import by.dzmitrypanou.catholicapp.ui.liturgy.LiturgyDayFragment
+import by.dzmitrypanou.catholicapp.ui.ordomissae.OrdoMissaeFragment
 import by.dzmitrypanou.catholicapp.ui.liturgy.LiturgyDiocesePreferences
 import by.dzmitrypanou.catholicapp.ui.themeColor
 import by.dzmitrypanou.catholicapp.ui.TotusToolbarTitleTextView
@@ -398,6 +399,13 @@ class MainActivity : AppCompatActivity() {
                     R.dimen.text_toolbar_scripture_title
                 )
             }
+            R.id.nav_ordo_missae -> {
+                clearToolbarBrand()
+                attachAutoSizedToolbarTitle(
+                    getString(R.string.home_item_ordo_missae),
+                    getString(R.string.home_item_ordo_missae)
+                )
+            }
             R.id.nav_slideshow -> {
                 clearToolbarBrand()
                 attachAutoSizedToolbarTitle(
@@ -685,6 +693,13 @@ class MainActivity : AppCompatActivity() {
         return navHost.childFragmentManager.primaryNavigationFragment as? SongbookDetailFragment
     }
 
+    private fun currentOrdoMissaeFragment(): OrdoMissaeFragment? {
+        val navHost =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as? NavHostFragment
+                ?: return null
+        return navHost.childFragmentManager.primaryNavigationFragment as? OrdoMissaeFragment
+    }
+
     private fun bindLiturgyCalendarSettingsToolbarAction(menu: Menu) {
         menu.findItem(R.id.action_liturgy_calendar_settings)?.actionView
             ?.findViewById<View>(R.id.button_liturgy_calendar_settings)
@@ -727,6 +742,10 @@ class MainActivity : AppCompatActivity() {
         }
         if (currentDestinationId == R.id.nav_songbook_detail) {
             menuInflater.inflate(R.menu.menu_songbook_detail, menu)
+            return true
+        }
+        if (currentDestinationId == R.id.nav_ordo_missae) {
+            menuInflater.inflate(R.menu.menu_ordo_missae, menu)
             return true
         }
         val showPrayerSearch =
@@ -791,6 +810,12 @@ class MainActivity : AppCompatActivity() {
             val actionView = menu.findItem(R.id.action_prayer_detail_tools)?.actionView
             if (actionView != null) {
                 currentPrayerDetailFragment()?.bindPrayerDetailToolbarActions(actionView)
+            }
+        }
+        if (currentDestinationId == R.id.nav_ordo_missae) {
+            val actionView = menu.findItem(R.id.action_ordo_reading_text_scale)?.actionView
+            if (actionView != null) {
+                currentOrdoMissaeFragment()?.bindOrdoMissaeToolbarActions(actionView)
             }
         }
         if (currentDestinationId == R.id.nav_songbook_detail) {

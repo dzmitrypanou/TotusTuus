@@ -42,9 +42,8 @@ class HomeFragment : Fragment() {
         val sections = listOf(
             HomeSection(
                 getString(R.string.home_item_ordo_missae),
-                false,
+                true,
                 R.drawable.ordo_missae_header_image,
-                infoHint = getString(R.string.home_ordo_missae_hint)
             ),
             HomeSection(getString(R.string.home_item_prayerbook), true, R.drawable.prayerbook_header_image),
             HomeSection(getString(R.string.home_item_liturgy_calendar), true, R.drawable.liturgy_calendar_header_image, spanSize = 2),
@@ -64,6 +63,8 @@ class HomeFragment : Fragment() {
                         findNavController().navigate(R.id.action_nav_home_to_nav_songbook)
                     getString(R.string.home_item_liturgy_calendar) ->
                         findNavController().navigate(R.id.action_nav_home_to_nav_liturgy_calendar)
+                    getString(R.string.home_item_ordo_missae) ->
+                        findNavController().navigate(R.id.action_nav_home_to_nav_ordo_missae)
                 }
             },
             onUnavailableClick = {

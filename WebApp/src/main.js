@@ -17,9 +17,8 @@
             title: 'Ordo Missae',
             span: 1,
             target: 'ordo-missae',
-            available: false,
+            available: true,
             image: 'assets/home/ordo_missae_header_image.png',
-            infoHint: 'Парадак святой Імшы',
         },
         {
             title: 'Малітоўнік',
@@ -478,10 +477,11 @@
 
         const promise = (async () => {
             try {
-                const res = await fetch(url, {
-                    method: 'GET',
-                    headers,
-                });
+                const fetchOpts = { method: 'GET', headers };
+                if (scriptName === 'ordo_missae.php') {
+                    fetchOpts.cache = 'no-store';
+                }
+                const res = await fetch(url, fetchOpts);
                 const text = await res.text();
                 let data;
                 try {
@@ -561,6 +561,65 @@
      * Як sanitizePrayerHtmlPreserveLayout + stripUnsafeWebContent у PrayerDetailFragment.kt:
      * захоўваем span[style*=color], font[color], разметку; выдаляем небяспечнае і рэдактарскі шум.
      */
+    /** Толькі для Ordo: TinyMCE часта піша font-size у style — ламае А±. */
+    function stripOrdoInlineFontSizesFromHtml(html) {
+        let s = String(html || '');
+        s = s.replace(/\bfont-size\s*:\s*[^;]+;?/gi, '');
+        s = s.replace(/;\s*;+/g, ';');
+        s = s.replace(/\sstyle\s*=\s*"\s*;*\s*"/gi, '');
+        s = s.replace(/\sstyle\s*=\s*'\s*;*\s*'/gi, '');
+        return s;
+    }
+
+    /** Прыбраць open у <details … ordo-missae-section …> — па змаўчанні ўсё згорнута. */
+    function stripOrdoDetailsOpenFromHtml(html) {
+        return String(html || '').replace(/<details\b[^>]*>/gi, (tag) => {
+            if (!/ordo-missae-section/i.test(tag)) return tag;
+            let t = tag.replace(/\s+open\s*=\s*(?:"[^"]*"|'[^']*')/gi, '');
+            t = t.replace(/\s+open\b(?=\s|>)/gi, '');
+            return t;
+        });
+    }
+
+    /** Толькі светлыя колеры (як Android stripLightEditorTextColorsForOrdo); чырвоныя рубрыкі захоўваюцца. */
+    function stripOrdoLightTextColorsFromHtml(html) {
+        let s = String(html || '');
+        const imp = '(?:\\s*!important)?';
+        const colorDecl = [
+            `\\bcolor\\s*:\\s*#fff\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*#ffffff\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*#fefefe\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*#f0f0f0\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*#f4f4f4\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*#f5f5f5\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*#fafafa\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*#eeeeee\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*#e8e8e8\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*#e0e0e0\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*white\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*ivory\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*snow\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*ghostwhite\\b${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*rgb\\s*\\(\\s*255\\s*,\\s*255\\s*,\\s*255\\s*\\)${imp}\\s*;?`,
+            `\\bcolor\\s*:\\s*rgba\\s*\\(\\s*255\\s*,\\s*255\\s*,\\s*255\\s*,\\s*[\\d.]+\\s*\\)${imp}\\s*;?`,
+            `\\b-webkit-text-fill-color\\s*:\\s*#fff\\b${imp}\\s*;?`,
+            `\\b-webkit-text-fill-color\\s*:\\s*#ffffff\\b${imp}\\s*;?`,
+            `\\b-webkit-text-fill-color\\s*:\\s*white\\b${imp}\\s*;?`,
+            `\\b-webkit-text-fill-color\\s*:\\s*rgb\\s*\\(\\s*255\\s*,\\s*255\\s*,\\s*255\\s*\\)${imp}\\s*;?`,
+        ];
+        for (const pat of colorDecl) {
+            s = s.replace(new RegExp(pat, 'gi'), '');
+        }
+        s = s.replace(
+            /(<font\b[^>]*?)\s+color\s*=\s*["']?(?:#fff(?:fff)?|#fefefe|#f5f5f5|#eeeeee|#e0e0e0|white|ivory|snow)["']?/gi,
+            '$1',
+        );
+        s = s.replace(/;\s*;+/g, ';');
+        s = s.replace(/\sstyle\s*=\s*"\s*;*\s*"/gi, '');
+        s = s.replace(/\sstyle\s*=\s*'\s*;*\s*'/gi, '');
+        return s;
+    }
+
     function sanitizePrayerHtmlForWebDisplay(raw) {
         let s = String(raw ?? '');
         if (!s) return '';
@@ -1236,6 +1295,9 @@
             const st = songbookBookmarksOnly ? 'Выбранае (спеўнік)' : 'Спеўнік';
             return `<h1 class="${TOOLBAR_H1_CLASS}">${escapeHtml(st)}</h1>`;
         }
+        if (currentView === 'ordo-missae') {
+            return `<h1 class="${TOOLBAR_H1_CLASS}">${escapeHtml('Ordo Missae')}</h1>`;
+        }
         if (currentView === 'scripture') {
             const h1Cls = TOOLBAR_H1_CLASS;
             if (scPanel === 'favorites') {
@@ -1373,6 +1435,9 @@
         }
         if (currentView === 'calendar') {
             return `<button type="button" data-action="open-calendar-settings" class="${TOOLBAR_ICON_BTN}" aria-label="Налады календара"><i class="fas fa-gear text-lg" aria-hidden="true"></i></button>`;
+        }
+        if (currentView === 'ordo-missae') {
+            return toolbarReadingTextScaleGroupHtml();
         }
         return '';
     }
@@ -2530,6 +2595,8 @@
                 return;
             }
             currentView = 'home';
+        } else if (currentView === 'ordo-missae') {
+            currentView = 'home';
         } else if (currentView === 'calendar') {
             currentView = 'home';
         } else if (currentView === 'settings') {
@@ -2846,6 +2913,123 @@
         </div>
         <div id="prayer-detail-root" class="hidden min-h-[200px]"></div>
     </div>`;
+    }
+
+    function ordoMissaeShellHtml() {
+        return `
+        <div class="w-full max-w-[480px] mx-auto px-2 pb-8 pt-2 min-h-[min(70dvh,640px)]">
+            <div id="ordo-missae-root" class="min-h-[min(70dvh,640px)] flex flex-col">
+                <div class="flex flex-1 flex-col items-center justify-center py-16 gap-3 text-app-textTer">
+                    <i class="fas fa-circle-notch fa-spin text-3xl text-app-textSec" aria-hidden="true"></i>
+                    <span class="text-sm">Загрузка…</span>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function ordoMissaeContentFp(raw) {
+        const s = String(raw || '').trim();
+        let h = 2166136261 >>> 0;
+        for (let i = 0; i < s.length; i++) {
+            h ^= s.charCodeAt(i);
+            h = Math.imul(h, 16777619) >>> 0;
+        }
+        return h.toString(16) + '_' + s.length;
+    }
+
+    /** Запамінае разгорнутыя/згорнутыя часткі Ordo Missae (localStorage, прывязка да зместу). */
+    function ordoMissaeApplyFoldMemory(hostEl, rawOriginal) {
+        const raw = String(rawOriginal || '');
+        if (!hostEl || raw.indexOf('data-ordo-section=') < 0) return;
+        const fp = ordoMissaeContentFp(raw);
+        const keys = ['intro', 'liturgy_word', 'eucharist', 'eucharist_prayer2', 'communion', 'closing'];
+        const lsKey = (k) => 'totus.ordo.fold.' + fp + '.' + k;
+        const prefsFpKey = 'totus.ordo.fold.content_fp';
+        /** Без open у HTML: першая загрузка — усё згорнута; далей толькі localStorage. */
+        function parseDefault() {
+            return false;
+        }
+        try {
+            const old = localStorage.getItem(prefsFpKey);
+            if (old && old !== fp) {
+                keys.forEach((k) => localStorage.removeItem('totus.ordo.fold.' + old + '.' + k));
+            }
+            localStorage.setItem(prefsFpKey, fp);
+        } catch (e) {
+            /* ignore */
+        }
+        hostEl.querySelectorAll('details.ordo-missae-section').forEach((det) => {
+            det.open = false;
+        });
+        hostEl.querySelectorAll('details.ordo-missae-section[data-ordo-section]').forEach((det) => {
+            const k = det.getAttribute('data-ordo-section');
+            if (!k) return;
+            let open = parseDefault();
+            try {
+                const v = localStorage.getItem(lsKey(k));
+                if (v === '1') open = true;
+                else if (v === '0') open = false;
+            } catch (e2) {
+                /* ignore */
+            }
+            det.open = open;
+        });
+        hostEl.querySelectorAll('details.ordo-missae-section[data-ordo-section]').forEach((det) => {
+            det.addEventListener(
+                'toggle',
+                () => {
+                    const k = det.getAttribute('data-ordo-section');
+                    if (!k) return;
+                    try {
+                        localStorage.setItem(lsKey(k), det.open ? '1' : '0');
+                    } catch (e3) {
+                        /* ignore */
+                    }
+                },
+                { passive: true },
+            );
+        });
+    }
+
+    async function hydrateOrdoMissae() {
+        const root = document.getElementById('ordo-missae-root');
+        if (!root || currentView !== 'ordo-missae') return;
+        const shellMin = 'min-h-[min(70dvh,640px)]';
+        if (!isApiConfigured()) {
+            root.innerHTML = `<div class="p-4 ${shellMin}">${configBannerHtml()}</div>`;
+            return;
+        }
+        const res = await apiFetch('ordo_missae.php', { _: Date.now() });
+        if (!res.ok || res.data.error) {
+            const { apiBaseUrl } = getApiConfig();
+            const isNet = res.status === 0 || res.data.error === 'network_error';
+            const hint = isNet ? apiNetworkFailureHint(apiBaseUrl) : '';
+            const msg = res.data.message || res.data.error || 'Памылка загрузкі';
+            root.innerHTML = `<div class="p-4 ${shellMin} bg-red-950/40 border border-red-500/30 text-app-error rounded-md text-sm">${escapeHtml(msg)}${hint}</div>`;
+            return;
+        }
+        let raw = String(res.data.html ?? '').trim();
+        raw = stripOrdoDetailsOpenFromHtml(raw);
+        if (!raw) {
+            root.innerHTML = `<div class="rounded-md border border-app-stroke bg-app-elevated overflow-hidden ${shellMin}"><div class="totus-read-18 p-4 text-app-text totus-reading-detail whitespace-pre-wrap">${escapeHtml(
+                'Тэкст пакуль не дададзены ў панэлі кіравання.'
+            )}</div></div>`;
+            return;
+        }
+        const useHtml = stringLooksLikeHtmlFragment(raw);
+        const bodyInner = useHtml
+            ? sanitizePrayerHtmlForWebDisplay(
+                  stripOrdoLightTextColorsFromHtml(stripOrdoInlineFontSizesFromHtml(raw)),
+              )
+            : escapeHtml(normalizePrayerTextForDisplay(raw));
+        const bodyClass = useHtml
+            ? 'totus-read-18 p-4 text-app-text totus-reading-detail prayer-detail-html'
+            : 'totus-read-18 p-4 text-app-text totus-reading-detail whitespace-pre-wrap';
+        root.innerHTML = `<div class="rounded-md border border-app-stroke bg-app-elevated overflow-hidden ${shellMin}"><div class="${bodyClass}">${bodyInner}</div></div>`;
+        if (useHtml) {
+            const host = root.querySelector('.prayer-detail-html');
+            if (host) ordoMissaeApplyFoldMemory(host, raw);
+        }
     }
 
     function scriptureTrPanelClose() {
@@ -5508,6 +5692,8 @@
             content = songbookShellHtml();
         } else if (currentView === 'scripture') {
             content = scriptureShellHtml();
+        } else if (currentView === 'ordo-missae') {
+            content = ordoMissaeShellHtml();
         } else if (currentView === 'settings') {
             content = settingsShellHtml();
         } else if (currentView === 'about') {
@@ -5533,6 +5719,8 @@
             hydrateSongbook();
         } else if (currentView === 'scripture') {
             hydrateScriptureView();
+        } else if (currentView === 'ordo-missae') {
+            void hydrateOrdoMissae();
         }
         scheduleToolbarTitleFit();
         syncReadingTextToolbarButtons();

@@ -24,6 +24,8 @@ const TOTUS_PROXY_ALLOWED = [
     'songbook.php',
     'liturgy_calendar_month.php',
     'liturgy_day.php',
+    'ordo_missae.php',
+    'ordo_missae_version.php',
 ];
 
 header('Content-Type: application/json; charset=utf-8');
@@ -167,6 +169,9 @@ if (function_exists('curl_init')) {
 
 if ($status < 100) {
     $status = 502;
+}
+if (($route === 'ordo_missae.php' || $route === 'ordo_missae_version.php') && $status === 200) {
+    header('Cache-Control: private, max-age=0, must-revalidate');
 }
 http_response_code($status);
 echo $body;

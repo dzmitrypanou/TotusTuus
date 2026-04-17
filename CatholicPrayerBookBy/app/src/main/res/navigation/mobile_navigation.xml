@@ -92,7 +92,16 @@
         <action
             android:id="@+id/action_nav_home_to_nav_liturgy_calendar"
             app:destination="@id/nav_liturgy_calendar" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_ordo_missae"
+            app:destination="@id/nav_ordo_missae" />
     </fragment>
+
+    <fragment
+        android:id="@+id/nav_ordo_missae"
+        android:name="by.dzmitrypanou.catholicapp.ui.ordomissae.OrdoMissaeFragment"
+        tools:label="@string/home_item_ordo_missae"
+        tools:layout="@layout/fragment_ordo_missae" />
 
     <fragment
         android:id="@+id/nav_liturgy_calendar"

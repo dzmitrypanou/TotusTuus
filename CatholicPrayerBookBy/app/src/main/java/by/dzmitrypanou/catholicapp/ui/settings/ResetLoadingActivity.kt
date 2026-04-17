@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import by.dzmitrypanou.catholicapp.MainActivity
 import by.dzmitrypanou.catholicapp.R
 import by.dzmitrypanou.catholicapp.data.AppColorSchemeStore
+import by.dzmitrypanou.catholicapp.data.OrdoMissaeRepository
 import by.dzmitrypanou.catholicapp.data.PrayerRepository
 import by.dzmitrypanou.catholicapp.data.SongbookRepository
 import by.dzmitrypanou.catholicapp.sync.ScriptureRemoteSync
@@ -150,6 +151,7 @@ class ResetLoadingActivity : AppCompatActivity() {
                         forceRefresh = true
                     )
                 }
+                runCatching { OrdoMissaeRepository(applicationContext).syncFromRemote() }
             }
             updateProgress(100, R.string.reset_loading_status_done)
 

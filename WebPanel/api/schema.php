@@ -444,6 +444,105 @@ function ensurePanelUsersSchema(): void
     ensurePanelUserSectionGrantsTable();
 }
 
+function ensurePanelOrdoMissaeTable(): void
+{
+    db()->exec(
+        'CREATE TABLE IF NOT EXISTS panel_ordo_missae (
+            id TINYINT UNSIGNED NOT NULL PRIMARY KEY DEFAULT 1,
+            html MEDIUMTEXT NOT NULL,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+    );
+    db()->exec('INSERT IGNORE INTO panel_ordo_missae (id, html) VALUES (1, \'\')');
+    ensurePanelOrdoMissaeSectionColumns();
+}
+
+function ensurePanelOrdoMissaeSectionColumns(): void
+{
+    ensureTableColumnExists(
+        'panel_ordo_missae',
+        'html_intro',
+        'ALTER TABLE panel_ordo_missae ADD COLUMN html_intro MEDIUMTEXT NOT NULL DEFAULT \'\' AFTER html'
+    );
+    ensureTableColumnExists(
+        'panel_ordo_missae',
+        'html_liturgy_word',
+        'ALTER TABLE panel_ordo_missae ADD COLUMN html_liturgy_word MEDIUMTEXT NOT NULL DEFAULT \'\' AFTER html_intro'
+    );
+    ensureTableColumnExists(
+        'panel_ordo_missae',
+        'html_eucharist',
+        'ALTER TABLE panel_ordo_missae ADD COLUMN html_eucharist MEDIUMTEXT NOT NULL DEFAULT \'\' AFTER html_liturgy_word'
+    );
+    ensureTableColumnExists(
+        'panel_ordo_missae',
+        'html_eucharist_prayer2',
+        'ALTER TABLE panel_ordo_missae ADD COLUMN html_eucharist_prayer2 MEDIUMTEXT NOT NULL DEFAULT \'\' AFTER html_eucharist'
+    );
+    ensureTableColumnExists(
+        'panel_ordo_missae',
+        'html_communion',
+        'ALTER TABLE panel_ordo_missae ADD COLUMN html_communion MEDIUMTEXT NOT NULL DEFAULT \'\' AFTER html_eucharist_prayer2'
+    );
+    ensureTableColumnExists(
+        'panel_ordo_missae',
+        'html_closing',
+        'ALTER TABLE panel_ordo_missae ADD COLUMN html_closing MEDIUMTEXT NOT NULL DEFAULT \'\' AFTER html_communion'
+    );
+
+    try {
+        $row = db()->query(
+            'SELECT
+                LENGTH(COALESCE(html, \'\')) AS lh,
+                LENGTH(COALESCE(html_intro, \'\')) + LENGTH(COALESCE(html_liturgy_word, \'\')) + LENGTH(COALESCE(html_eucharist, \'\')) + LENGTH(COALESCE(html_eucharist_prayer2, \'\')) + LENGTH(COALESCE(html_communion, \'\')) + LENGTH(COALESCE(html_closing, \'\')) AS ls
+             FROM panel_ordo_missae
+             WHERE id = 1
+             LIMIT 1'
+        )->fetch(PDO::FETCH_ASSOC);
+        if (is_array($row) && (int)($row['lh'] ?? 0) > 0 && (int)($row['ls'] ?? 0) === 0) {
+            db()->exec('UPDATE panel_ordo_missae SET html_intro = html WHERE id = 1');
+        }
+    } catch (Throwable $e) {
+        // ignore
+    }
+
+    ensurePanelOrdoMissaeSectionTitleColumns();
+}
+
+function ensurePanelOrdoMissaeSectionTitleColumns(): void
+{
+    ensureTableColumnExists(
+        'panel_ordo_missae',
+        'title_intro',
+        'ALTER TABLE panel_ordo_missae ADD COLUMN title_intro VARCHAR(255) NOT NULL DEFAULT \'\' AFTER html_closing'
+    );
+    ensureTableColumnExists(
+        'panel_ordo_missae',
+        'title_liturgy_word',
+        'ALTER TABLE panel_ordo_missae ADD COLUMN title_liturgy_word VARCHAR(255) NOT NULL DEFAULT \'\' AFTER title_intro'
+    );
+    ensureTableColumnExists(
+        'panel_ordo_missae',
+        'title_eucharist',
+        'ALTER TABLE panel_ordo_missae ADD COLUMN title_eucharist VARCHAR(255) NOT NULL DEFAULT \'\' AFTER title_liturgy_word'
+    );
+    ensureTableColumnExists(
+        'panel_ordo_missae',
+        'title_eucharist_prayer2',
+        'ALTER TABLE panel_ordo_missae ADD COLUMN title_eucharist_prayer2 VARCHAR(255) NOT NULL DEFAULT \'\' AFTER title_eucharist'
+    );
+    ensureTableColumnExists(
+        'panel_ordo_missae',
+        'title_communion',
+        'ALTER TABLE panel_ordo_missae ADD COLUMN title_communion VARCHAR(255) NOT NULL DEFAULT \'\' AFTER title_eucharist_prayer2'
+    );
+    ensureTableColumnExists(
+        'panel_ordo_missae',
+        'title_closing',
+        'ALTER TABLE panel_ordo_missae ADD COLUMN title_closing VARCHAR(255) NOT NULL DEFAULT \'\' AFTER title_communion'
+    );
+}
+
 function ensureSchemaAndSeed(): void
 {
     ensurePanelUsersSchema();
@@ -455,6 +554,7 @@ function ensureSchemaAndSeed(): void
     ensureLiturgyObservancesTable();
     ensureLiturgyLectionaryEntriesTable();
     ensurePanelAnnouncementsSettingsTable();
+    ensurePanelOrdoMissaeTable();
     scriptureEnsureSchema();
     scriptureEnsureAllTranslationMeta();
     require_once __DIR__ . '/liturgy_observances_seed.php';
