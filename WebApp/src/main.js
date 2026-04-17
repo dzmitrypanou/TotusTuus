@@ -1412,33 +1412,42 @@
                 : '';
             const unavailableOverlay = c.available
                 ? ''
-                : `<div class="absolute inset-0 bg-gray-700/65 pointer-events-none"></div>
+                : `<div class="absolute inset-0 pointer-events-none" style="background-color: rgba(71, 85, 105, 0.46);"></div>
                     <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span class="rounded-md bg-gray-600 px-3 py-1 text-sm font-semibold text-white">In progress</span>
+                        <span class="rounded-md px-3 py-1 text-sm font-semibold" style="background-color: rgba(71, 85, 105, 0.86); color: #ffffff !important; -webkit-text-fill-color: #ffffff;">In progress</span>
                     </div>`;
-            const unavailableHeadClasses = c.available ? '' : ' grayscale brightness-75';
-            const unavailableCardClasses = c.available ? '' : ' border-gray-500/70';
-            const infoHintBtn = c.infoHint
-                ? `<button type="button" data-home-info-hint="${escapeHtml(c.infoHint)}"
-                        class="absolute right-4 bottom-4 z-10 h-6 w-6 rounded-full bg-gray-600 text-white text-xs font-bold leading-none"
-                        aria-label="Інфармацыя">
-                        i
-                   </button>`
+            /** Фільтр толькі на медыя — інакш «In progress» атрымлівае той жа grayscale/brightness і выглядае шэрым. */
+            const unavailableMediaFilterStyle = c.available ? '' : 'filter: grayscale(1) brightness(0.5) saturate(0);';
+            const unavailableCardStyle = c.available
+                ? ''
+                : 'background-color: rgba(30, 41, 59, 0.72); border-color: rgba(71, 85, 105, 0.55);';
+            const unavailableTitleStyle = c.available ? '' : 'color: rgb(203, 213, 225);';
+            const cardInteractionClasses = c.available ? 'active:scale-[0.98] cursor-pointer' : 'cursor-default';
+            const infoHintBadge = c.infoHint
+                ? `<span
+                        style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;min-width:22px;min-height:22px;border-radius:9999px;background-color:#111827;color:#ffffff;font-size:12px;font-weight:700;line-height:1;font-family:system-ui,-apple-system,sans-serif;flex-shrink:0;"
+                        title="${escapeHtml(c.infoHint)}"
+                        aria-label="${escapeHtml(c.infoHint)}">i</span>`
                 : '';
             return `
             <div class="relative w-full min-h-0 ${colSpan}">
                 <button type="button" data-home-card="${c.target}" data-home-available="${c.available ? '1' : '0'}"
-                    class="text-left rounded-md border border-app-stroke bg-app-elevated overflow-hidden w-full min-h-0 active:scale-[0.98] transition-transform ${unavailableCardClasses}">
-                    <div class="home-card-head relative h-[132px] w-full overflow-hidden bg-app-surface ${unavailableHeadClasses}">
-                        ${img}
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent pointer-events-none"></div>
+                    class="text-left rounded-md border border-app-stroke bg-app-elevated overflow-hidden w-full min-h-0 transition-transform ${cardInteractionClasses}"
+                    style="${unavailableCardStyle}">
+                    <div class="home-card-head relative h-[132px] w-full overflow-hidden bg-app-surface">
+                        <div class="absolute inset-0 overflow-hidden" style="${unavailableMediaFilterStyle}">
+                            ${img}
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent pointer-events-none"></div>
+                        </div>
                         ${unavailableOverlay}
                     </div>
                     <div class="p-[18px]">
-                        <div class="font-bold text-[18px] leading-snug text-app-text pr-8">${escapeHtml(c.title)}</div>
+                        <div class="flex items-center gap-2">
+                            <div class="font-bold text-[18px] leading-snug text-app-text" style="${unavailableTitleStyle}">${escapeHtml(c.title)}</div>
+                            ${infoHintBadge}
+                        </div>
                     </div>
                 </button>
-                ${infoHintBtn}
             </div>`;
         }).join('');
         return `
@@ -3565,14 +3574,8 @@
                 }
             }
             const hc = e.target.closest('[data-home-card]');
-            const infoBtn = e.target.closest('[data-home-info-hint]');
-            if (infoBtn && infoBtn.dataset.homeInfoHint !== undefined) {
-                window.alert(infoBtn.dataset.homeInfoHint);
-                return;
-            }
             if (hc) {
                 if (hc.dataset.homeAvailable === '0') {
-                    window.alert('In progress');
                     return;
                 }
                 switchView(hc.dataset.homeCard);
