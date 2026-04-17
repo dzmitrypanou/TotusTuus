@@ -40,10 +40,17 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val sections = listOf(
+            HomeSection(
+                getString(R.string.home_item_ordo_missae),
+                false,
+                R.drawable.ordo_missae_header_image,
+                infoHint = getString(R.string.home_ordo_missae_hint)
+            ),
             HomeSection(getString(R.string.home_item_prayerbook), true, R.drawable.prayerbook_header_image),
+            HomeSection(getString(R.string.home_item_liturgy_calendar), true, R.drawable.liturgy_calendar_header_image, spanSize = 2),
             HomeSection(getString(R.string.home_item_songbook), true, R.drawable.songbook_header_image),
-            HomeSection(getString(R.string.home_item_scripture), true, R.drawable.scripture_header_bible, spanSize = 2),
-            HomeSection(getString(R.string.home_item_liturgy_calendar), true, R.drawable.liturgy_calendar_header_image, spanSize = 2)
+            HomeSection(getString(R.string.home_item_kantaral), false, R.drawable.kantaral_header_image),
+            HomeSection(getString(R.string.home_item_scripture), true, R.drawable.scripture_header_bible, spanSize = 2)
         )
 
         val adapter = HomeSectionAdapter(
@@ -60,7 +67,10 @@ class HomeFragment : Fragment() {
                 }
             },
             onUnavailableClick = {
-                Toast.makeText(requireContext(), getString(R.string.home_in_development), Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.home_in_progress), Toast.LENGTH_SHORT).show()
+            },
+            onInfoClick = { hint ->
+                Toast.makeText(requireContext(), hint, Toast.LENGTH_SHORT).show()
             }
         )
         val grid = GridLayoutManager(requireContext(), 2).apply {
@@ -94,12 +104,14 @@ data class HomeSection(
     val isAvailable: Boolean,
     val imageRes: Int,
     /** 1 — палова шырыні сеткі, 2 — на ўсю шырыню (як два звычайныя). */
-    val spanSize: Int = 1
+    val spanSize: Int = 1,
+    val infoHint: String? = null
 )
 
 private class HomeSectionAdapter(
     private val onAvailableClick: (HomeSection) -> Unit,
-    private val onUnavailableClick: () -> Unit
+    private val onUnavailableClick: () -> Unit,
+    private val onInfoClick: (String) -> Unit
 ) : ListAdapter<HomeSection, HomeSectionAdapter.HomeSectionViewHolder>(Diff) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeSectionViewHolder {
@@ -108,19 +120,32 @@ private class HomeSectionAdapter(
     }
 
     override fun onBindViewHolder(holder: HomeSectionViewHolder, position: Int) {
-        holder.bind(getItem(position), onAvailableClick, onUnavailableClick)
+        holder.bind(getItem(position), onAvailableClick, onUnavailableClick, onInfoClick)
     }
 
     class HomeSectionViewHolder(
         private val binding: ItemHomeSectionBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: HomeSection, onAvailableClick: (HomeSection) -> Unit, onUnavailableClick: () -> Unit) {
+        fun bind(
+            item: HomeSection,
+            onAvailableClick: (HomeSection) -> Unit,
+            onUnavailableClick: () -> Unit,
+            onInfoClick: (String) -> Unit
+        ) {
             val ctx = binding.root.context
             PrayerBookUiTypography.applyUiSp(binding.textHomeItemTitle, R.dimen.text_home_card_title, ctx)
             PrayerBookUiTypography.applyUiSp(binding.textHomeItemStatus, R.dimen.text_home_card_caption, ctx)
             binding.textHomeItemTitle.text = item.title
             binding.imageHomeItem.setImageResource(item.imageRes)
+            val hint = item.infoHint
+            if (hint.isNullOrBlank()) {
+                binding.buttonHomeItemInfo.visibility = View.GONE
+                binding.buttonHomeItemInfo.setOnClickListener(null)
+            } else {
+                binding.buttonHomeItemInfo.visibility = View.VISIBLE
+                binding.buttonHomeItemInfo.setOnClickListener { onInfoClick(hint) }
+            }
 
             if (item.isAvailable) {
                 binding.textHomeItemStatus.visibility = View.GONE
@@ -131,7 +156,7 @@ private class HomeSectionAdapter(
                 )
             } else {
                 binding.textHomeItemStatus.visibility = View.VISIBLE
-                binding.textHomeItemStatus.text = binding.root.context.getString(R.string.home_in_development)
+                binding.textHomeItemStatus.text = binding.root.context.getString(R.string.home_in_progress)
                 binding.viewHomeItemOverlay.visibility = View.VISIBLE
                 val matrix = ColorMatrix().apply { setSaturation(0f) }
                 binding.imageHomeItem.colorFilter = ColorMatrixColorFilter(matrix)

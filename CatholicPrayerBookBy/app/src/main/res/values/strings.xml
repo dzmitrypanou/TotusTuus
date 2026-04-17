@@ -13,11 +13,16 @@
     <string name="menu_slideshow">Інфармацыя</string>
     <string name="app_version_line">Версія: v%1$s</string>
     <string name="menu_settings">Налады</string>
+    <string name="home_item_ordo_missae">Ordo Missae</string>
     <string name="home_item_prayerbook">Малітоўнік</string>
     <string name="home_item_scripture">Святое Пісанне</string>
     <string name="home_item_songbook">Спеўнік</string>
+    <string name="home_item_kantaral">Кантарал</string>
     <string name="home_item_liturgy_calendar">Літургічны каляндар</string>
     <string name="home_in_development">у распрацоўцы</string>
+    <string name="home_in_progress">In progress</string>
+    <string name="home_ordo_missae_hint">Парадак святой Імшы</string>
+    <string name="home_info_content_description">Інфармацыя пра раздзел</string>
     <string name="refresh_prayers">Абнавіць малітвы</string>
     <string name="refresh_songbook">Абнавіць спеўнік</string>
     <string name="transform_no_prayers_need_network">Малітвы не былі загружаны.\nУключыце інтэрнэт і націсніце «Абнавіць малітвы», каб загрузіць іх.</string>

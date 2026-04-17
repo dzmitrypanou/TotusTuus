@@ -14,11 +14,26 @@
      */
     const HOME_CARDS = [
         {
+            title: 'Ordo Missae',
+            span: 1,
+            target: 'ordo-missae',
+            available: false,
+            image: 'assets/home/ordo_missae_header_image.png',
+            infoHint: 'Парадак святой Імшы',
+        },
+        {
             title: 'Малітоўнік',
             span: 1,
             target: 'prayers',
             available: true,
             image: 'assets/home/prayerbook_header_image.jpg',
+        },
+        {
+            title: 'Літургічны каляндар',
+            span: 2,
+            target: 'calendar',
+            available: true,
+            image: 'assets/home/liturgy_calendar_header_image.jpg',
         },
         {
             title: 'Спеўнік',
@@ -28,18 +43,18 @@
             image: 'assets/home/songbook_header_image.jpg',
         },
         {
+            title: 'Кантарал',
+            span: 1,
+            target: 'kantaral',
+            available: false,
+            image: 'assets/home/kantaral_header_image.png',
+        },
+        {
             title: 'Святое Пісанне',
             span: 2,
             target: 'scripture',
             available: true,
             image: 'assets/home/scripture_header_bible.jpg',
-        },
-        {
-            title: 'Літургічны каляндар',
-            span: 2,
-            target: 'calendar',
-            available: true,
-            image: 'assets/home/liturgy_calendar_header_image.jpg',
         },
     ];
 
@@ -109,9 +124,13 @@
         if (!rasterPath) return '';
         const high = opts && opts.fetchPriorityHigh;
         const sizes = escapeHtml(homeCardImageSizes(span));
-        const webpSrcset = homeCardWebpSrcset(rasterPath, span);
         const src = escapeHtml(totusAssetUrl(rasterPath));
         const fetchPri = high ? ' fetchpriority="high"' : '';
+        const useWebpSource = /\.jpe?g$/i.test(String(rasterPath));
+        if (!useWebpSource) {
+            return `<img src="${src}" alt="" class="absolute inset-0 h-full w-full object-cover pointer-events-none" loading="eager" decoding="async" sizes="${sizes}"${fetchPri} />`;
+        }
+        const webpSrcset = homeCardWebpSrcset(rasterPath, span);
         return `<picture class="absolute inset-0 h-full w-full pointer-events-none">
             <source type="image/webp" srcset="${webpSrcset}" sizes="${sizes}" />
             <img src="${src}" alt="" class="absolute inset-0 h-full w-full object-cover pointer-events-none" loading="eager" decoding="async" sizes="${sizes}"${fetchPri} />
@@ -1391,17 +1410,36 @@
             const img = c.image
                 ? homeCardPictureHtml(c.image, c.span, { fetchPriorityHigh: c.target === 'scripture' })
                 : '';
+            const unavailableOverlay = c.available
+                ? ''
+                : `<div class="absolute inset-0 bg-gray-700/65 pointer-events-none"></div>
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span class="rounded-md bg-gray-600 px-3 py-1 text-sm font-semibold text-white">In progress</span>
+                    </div>`;
+            const unavailableHeadClasses = c.available ? '' : ' grayscale brightness-75';
+            const unavailableCardClasses = c.available ? '' : ' border-gray-500/70';
+            const infoHintBtn = c.infoHint
+                ? `<button type="button" data-home-info-hint="${escapeHtml(c.infoHint)}"
+                        class="absolute right-4 bottom-4 z-10 h-6 w-6 rounded-full bg-gray-600 text-white text-xs font-bold leading-none"
+                        aria-label="Інфармацыя">
+                        i
+                   </button>`
+                : '';
             return `
-            <button type="button" data-home-card="${c.target}" data-home-available="${c.available ? '1' : '0'}"
-                class="text-left rounded-md border border-app-stroke bg-app-elevated overflow-hidden w-full min-h-0 ${colSpan} active:scale-[0.98] transition-transform">
-                <div class="home-card-head relative h-[132px] w-full overflow-hidden bg-app-surface">
-                    ${img}
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent pointer-events-none"></div>
-                </div>
-                <div class="p-[18px]">
-                    <div class="font-bold text-[18px] leading-snug text-app-text">${escapeHtml(c.title)}</div>
-                </div>
-            </button>`;
+            <div class="relative w-full min-h-0 ${colSpan}">
+                <button type="button" data-home-card="${c.target}" data-home-available="${c.available ? '1' : '0'}"
+                    class="text-left rounded-md border border-app-stroke bg-app-elevated overflow-hidden w-full min-h-0 active:scale-[0.98] transition-transform ${unavailableCardClasses}">
+                    <div class="home-card-head relative h-[132px] w-full overflow-hidden bg-app-surface ${unavailableHeadClasses}">
+                        ${img}
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent pointer-events-none"></div>
+                        ${unavailableOverlay}
+                    </div>
+                    <div class="p-[18px]">
+                        <div class="font-bold text-[18px] leading-snug text-app-text pr-8">${escapeHtml(c.title)}</div>
+                    </div>
+                </button>
+                ${infoHintBtn}
+            </div>`;
         }).join('');
         return `
         <div class="w-full max-w-[480px] mx-auto px-2 pb-8 pt-2">
@@ -3527,9 +3565,14 @@
                 }
             }
             const hc = e.target.closest('[data-home-card]');
+            const infoBtn = e.target.closest('[data-home-info-hint]');
+            if (infoBtn && infoBtn.dataset.homeInfoHint !== undefined) {
+                window.alert(infoBtn.dataset.homeInfoHint);
+                return;
+            }
             if (hc) {
                 if (hc.dataset.homeAvailable === '0') {
-                    window.alert('у распрацоўцы');
+                    window.alert('In progress');
                     return;
                 }
                 switchView(hc.dataset.homeCard);
