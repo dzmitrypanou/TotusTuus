@@ -42,15 +42,8 @@
             image: 'assets/home/songbook_header_image.jpg',
         },
         {
-            title: 'Кантарал',
-            span: 1,
-            target: 'kantaral',
-            available: false,
-            image: 'assets/home/kantaral_header_image.png',
-        },
-        {
             title: 'Святое Пісанне',
-            span: 2,
+            span: 1,
             target: 'scripture',
             available: true,
             image: 'assets/home/scripture_header_bible.jpg',
