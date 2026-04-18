@@ -58,20 +58,70 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['ordo_save_
     if (!panel_csrf_token_valid()) {
         ordo_missae_ajax_response(false, '', 'Несапраўдны токен бяспекі. Абнавіце старонку.');
     }
+    ensurePanelOrdoMissaeTable();
+    $stmtRow = db()->query('SELECT * FROM panel_ordo_missae WHERE id = 1 LIMIT 1');
+    $prevRow = $stmtRow->fetch();
+    $prevRow = is_array($prevRow) ? $prevRow : [];
+
+    $layoutRaw = (string)($_POST['ordo_layout_json'] ?? '');
+    $layoutDecoded = json_decode($layoutRaw, true);
+    if (!is_array($layoutDecoded)) {
+        ordo_missae_ajax_response(false, '', 'Некарэктныя даныя парадку секцый (ordo_layout_json). Абнавіце старонку.');
+    }
+    $layout = ordo_missae_normalize_layout($layoutDecoded);
+
+    $customTitles = $_POST['ordo_custom_title'] ?? [];
+    $customHtmls = $_POST['ordo_custom_html'] ?? [];
+    if (!is_array($customTitles)) {
+        $customTitles = [];
+    }
+    if (!is_array($customHtmls)) {
+        $customHtmls = [];
+    }
+
+    foreach ($layout['order'] as $slot) {
+        if (!is_array($slot) || ($slot['type'] ?? '') !== 'custom') {
+            continue;
+        }
+        $id = (string)($slot['id'] ?? '');
+        if ($id === '' || !ordo_missae_custom_id_valid($id)) {
+            continue;
+        }
+        $layout['custom'][$id]['title'] = ordo_missae_sanitize_custom_title(
+            (string)($customTitles[$id] ?? ($layout['custom'][$id]['title'] ?? ''))
+        );
+        $layout['custom'][$id]['html'] = (string)($customHtmls[$id] ?? ($layout['custom'][$id]['html'] ?? ''));
+    }
+
     $parts = [];
     $titlesStored = [];
     $titlesEffective = [];
     foreach (ordo_missae_section_defs() as $d) {
-        $parts[$d['key']] = (string)($_POST['ordo_' . $d['key']] ?? '');
-        $titlesStored[$d['key']] = ordo_missae_title_storage_from_post(
-            (string)($_POST['ordo_title_' . $d['key']] ?? ''),
-            $d['label']
-        );
-        $titlesEffective[$d['key']] = trim($titlesStored[$d['key']]) !== ''
-            ? $titlesStored[$d['key']]
+        $k = $d['key'];
+        if (array_key_exists('ordo_' . $k, $_POST)) {
+            $parts[$k] = (string)$_POST['ordo_' . $k];
+        } else {
+            $parts[$k] = (string)($prevRow[$d['column']] ?? '');
+        }
+        if (array_key_exists('ordo_title_' . $k, $_POST)) {
+            $titlesStored[$k] = ordo_missae_title_storage_from_post(
+                (string)$_POST['ordo_title_' . $k],
+                $d['label']
+            );
+        } else {
+            $titlesStored[$k] = (string)($prevRow[$d['title_column']] ?? '');
+        }
+        $titlesEffective[$k] = trim($titlesStored[$k]) !== ''
+            ? $titlesStored[$k]
             : $d['label'];
     }
-    $merged = ordo_missae_merged_html_for_legacy_column($parts, $titlesEffective);
+
+    $merged = ordo_missae_merged_html_for_legacy_column($parts, $titlesEffective, $layout);
+    $layoutJsonOut = json_encode($layout, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($layoutJsonOut === false) {
+        ordo_missae_ajax_response(false, '', 'Не ўдалося скласці JSON размеркавання.');
+    }
+
     $sets = [];
     $params = [];
     foreach (ordo_missae_section_defs() as $d) {
@@ -82,6 +132,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['ordo_save_
     }
     $sets[] = '`html` = :merged';
     $params[':merged'] = $merged;
+    $sets[] = '`ordo_layout_json` = :ordo_layout_json';
+    $params[':ordo_layout_json'] = $layoutJsonOut;
     $sql = 'UPDATE panel_ordo_missae SET ' . implode(', ', $sets) . ' WHERE id = 1';
     try {
         $upd = db()->prepare($sql);
@@ -95,10 +147,29 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['ordo_save_
 $stmt = db()->query('SELECT * FROM panel_ordo_missae WHERE id = 1 LIMIT 1');
 $row = $stmt->fetch();
 $row = is_array($row) ? $row : [];
+$ordoLayout = ordo_missae_layout_from_db_row($row);
 $initialB64Map = [];
-foreach (ordo_missae_section_defs() as $d) {
-    $html = (string)($row[$d['column']] ?? '');
-    $initialB64Map[$d['key']] = $html !== '' ? base64_encode($html) : '';
+foreach ($ordoLayout['order'] as $slot) {
+    if (!is_array($slot)) {
+        continue;
+    }
+    if (($slot['type'] ?? '') === 'built_in') {
+        $k = (string)($slot['key'] ?? '');
+        $d = ordo_missae_def_by_key($k);
+        if (!$d) {
+            continue;
+        }
+        $html = (string)($row[$d['column']] ?? '');
+        $initialB64Map[$k] = $html !== '' ? base64_encode($html) : '';
+    } elseif (($slot['type'] ?? '') === 'custom') {
+        $id = (string)($slot['id'] ?? '');
+        if ($id === '') {
+            continue;
+        }
+        $block = $ordoLayout['custom'][$id] ?? ['title' => '', 'html' => ''];
+        $html = (string)($block['html'] ?? '');
+        $initialB64Map[$id] = $html !== '' ? base64_encode($html) : '';
+    }
 }
 
 $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/admin/ordo_missae.php'));
@@ -502,6 +573,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       cursor: pointer;
       user-select: none;
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
@@ -619,6 +691,79 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
     }
     .ordo-actions button[type="submit"]:hover { filter: brightness(1.08); }
     .ordo-actions button[type="submit"]:disabled { opacity: 0.65; cursor: wait; filter: none; }
+    .ordo-section-toolbar {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
+    .ordo-move-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.65);
+      color: #cbd5e1;
+      cursor: pointer;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .ordo-move-btn:hover:not(:disabled) {
+      border-color: rgba(124, 108, 240, 0.55);
+      color: #fff;
+      background: rgba(124, 108, 240, 0.22);
+    }
+    .ordo-move-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .ordo-remove-custom {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 8px;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      background: rgba(127, 29, 29, 0.35);
+      color: #fecaca;
+      cursor: pointer;
+      font: inherit;
+    }
+    .ordo-remove-custom:hover {
+      background: rgba(185, 28, 28, 0.55);
+      color: #fff;
+    }
+    .ordo-add-section-wrap {
+      padding: 12px 16px;
+      border-top: 1px solid var(--line);
+      background: rgba(15, 23, 42, 0.45);
+    }
+    .ordo-add-section {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px dashed rgba(124, 108, 240, 0.45);
+      background: rgba(124, 108, 240, 0.12);
+      color: #e0e7ff;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .ordo-add-section:hover {
+      border-style: solid;
+      background: rgba(124, 108, 240, 0.22);
+    }
     @media (max-width: 1180px) {
       .header { flex-direction: column; align-items: flex-start; }
       .header-brand { align-self: center; }
@@ -677,18 +822,35 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
               <button type="button" class="rich-btn" data-action="clearBackground" title="Прыбраць колер/відарыс фону (колер тэксту і тоўсты/курсіў застаюцца)" aria-label="Без фону">Без фону</button>
             </div>
           </div>
+          <input type="hidden" name="ordo_layout_json" id="ordo_layout_json" value="<?= htmlspecialchars(json_encode($ordoLayout, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" />
           <div class="ordo-sections" id="ordo-sections">
-            <?php foreach (ordo_missae_section_defs() as $idx => $d) :
-                $k = $d['key'];
-                $label = $d['label'];
-                $effectiveTitle = ordo_missae_effective_section_title($row, $d);
-                ?>
+            <?php
+            $secIdx = 0;
+            foreach ($ordoLayout['order'] as $slot) :
+                if (!is_array($slot)) {
+                    continue;
+                }
+                if (($slot['type'] ?? '') === 'built_in') :
+                    $k = (string) ($slot['key'] ?? '');
+                    $d = ordo_missae_def_by_key($k);
+                    if (!$d) {
+                        continue;
+                    }
+                    $label = $d['label'];
+                    $effectiveTitle = ordo_missae_effective_section_title($row, $d);
+                    ?>
             <details
               class="ordo-section"
+              data-section-kind="built_in"
+              data-ordo-key="<?= htmlspecialchars($k, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
               data-default-title="<?= htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
-              <?= $idx === 0 ? ' open' : '' ?>
+              <?= $secIdx === 0 ? ' open' : '' ?>
             >
               <summary>
+                <span class="ordo-section-toolbar" aria-label="Парадак секцый">
+                  <button type="button" class="ordo-move-btn ordo-move-up" title="Уверх">↑</button>
+                  <button type="button" class="ordo-move-btn ordo-move-down" title="Уніз">↓</button>
+                </span>
                 <span class="ordo-title-row">
                   <span class="ordo-title-text"><?= htmlspecialchars($effectiveTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                   <input
@@ -730,7 +892,80 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
                 aria-hidden="true"
               ></textarea>
             </details>
-            <?php endforeach; ?>
+            <?php
+                    $secIdx++;
+                elseif (($slot['type'] ?? '') === 'custom') :
+                    $cid = (string) ($slot['id'] ?? '');
+                    if ($cid === '' || !ordo_missae_custom_id_valid($cid)) {
+                        continue;
+                    }
+                    $cBlock = $ordoLayout['custom'][$cid] ?? ['title' => '', 'html' => ''];
+                    $defaultCustom = 'Дадатковая частка';
+                    $storedTitle = trim((string) ($cBlock['title'] ?? ''));
+                    $effectiveTitle = $storedTitle !== '' ? $storedTitle : $defaultCustom;
+                    ?>
+            <details
+              class="ordo-section ordo-section--custom"
+              data-section-kind="custom"
+              data-ordo-key="<?= htmlspecialchars($cid, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+              data-default-title="<?= htmlspecialchars($defaultCustom, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+              <?= $secIdx === 0 ? ' open' : '' ?>
+            >
+              <summary>
+                <span class="ordo-section-toolbar" aria-label="Парадак і выдаленне">
+                  <button type="button" class="ordo-move-btn ordo-move-up" title="Уверх">↑</button>
+                  <button type="button" class="ordo-move-btn ordo-move-down" title="Уніз">↓</button>
+                  <button type="button" class="ordo-remove-custom" title="Выдаліць частку" aria-label="Выдаліць частку">×</button>
+                </span>
+                <span class="ordo-title-row">
+                  <span class="ordo-title-text"><?= htmlspecialchars($effectiveTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
+                  <input
+                    type="text"
+                    class="ordo-section-title-input"
+                    name="ordo_custom_title[<?= htmlspecialchars($cid, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>]"
+                    value="<?= htmlspecialchars($storedTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                    maxlength="255"
+                    placeholder="<?= htmlspecialchars($defaultCustom, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                    title="Загаловак дадатковай часткі"
+                    aria-label="Загаловак секцыі"
+                    autocomplete="off"
+                    onclick="event.stopPropagation()"
+                  />
+                  <button
+                    type="button"
+                    class="ordo-title-edit-btn"
+                    title="Рэдагаваць загаловак"
+                    aria-label="Рэдагаваць загаловак"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                  </button>
+                </span>
+              </summary>
+              <div
+                id="ordo_editor_<?= htmlspecialchars($cid, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                class="ordo-body"
+                contenteditable="true"
+                role="textbox"
+                aria-multiline="true"
+                aria-label="<?= htmlspecialchars($effectiveTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                spellcheck="true"
+                data-ordo-key="<?= htmlspecialchars($cid, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+              ></div>
+              <textarea
+                id="ordo_html_<?= htmlspecialchars($cid, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                class="ordo-html-hidden"
+                name="ordo_custom_html[<?= htmlspecialchars($cid, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>]"
+                aria-hidden="true"
+              ></textarea>
+            </details>
+            <?php
+                    $secIdx++;
+                endif;
+            endforeach;
+            ?>
+          </div>
+          <div class="ordo-add-section-wrap">
+            <button type="button" class="ordo-add-section" id="ordo-add-custom-section">+ Дадаць частку Святой Імшы</button>
           </div>
         </div>
         <div class="ordo-actions">
@@ -764,6 +999,21 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
           return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
       } catch (e) { return ''; }
+    }
+
+    function escapeHtmlAttr(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function escapeHtmlText(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
     }
 
     function editors() {
@@ -823,6 +1073,92 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
 
     function syncAllToTextareas() {
       editors().forEach(syncOneEditorToTextarea);
+    }
+
+    function newCustomSectionId() {
+      var bytes = new Uint8Array(8);
+      if (window.crypto && window.crypto.getRandomValues) {
+        window.crypto.getRandomValues(bytes);
+      } else {
+        for (var i = 0; i < bytes.length; i++) {
+          bytes[i] = Math.floor(Math.random() * 256);
+        }
+      }
+      var hex = '';
+      for (var j = 0; j < bytes.length; j++) {
+        hex += ('0' + bytes[j].toString(16)).slice(-2);
+      }
+      return 'c_' + hex;
+    }
+
+    function syncOrdoLayoutHiddenInput() {
+      var order = [];
+      var custom = {};
+      var root = document.getElementById('ordo-sections');
+      if (!root) return;
+      Array.prototype.forEach.call(root.querySelectorAll(':scope > details.ordo-section'), function (det) {
+        var kind = det.getAttribute('data-section-kind');
+        var key = det.getAttribute('data-ordo-key');
+        if (!key) return;
+        if (kind === 'built_in') {
+          order.push({ type: 'built_in', key: key });
+        } else if (kind === 'custom') {
+          order.push({ type: 'custom', id: key });
+          var ti = det.querySelector('.ordo-section-title-input');
+          var ta = det.querySelector('textarea.ordo-html-hidden');
+          custom[key] = {
+            title: ti ? ti.value.trim() : '',
+            html: ta ? ta.value : ''
+          };
+        }
+      });
+      var inp = document.getElementById('ordo_layout_json');
+      if (inp) {
+        inp.value = JSON.stringify({ v: 1, order: order, custom: custom });
+      }
+    }
+
+    function refreshOrdoMoveButtonsState() {
+      var root = document.getElementById('ordo-sections');
+      if (!root) return;
+      var rows = root.querySelectorAll(':scope > details.ordo-section');
+      for (var i = 0; i < rows.length; i++) {
+        var det = rows[i];
+        var up = det.querySelector('.ordo-move-up');
+        var down = det.querySelector('.ordo-move-down');
+        if (up) up.disabled = i === 0;
+        if (down) down.disabled = i === rows.length - 1;
+      }
+    }
+
+    function moveOrdoSection(detailsEl, delta) {
+      var root = document.getElementById('ordo-sections');
+      if (!root || !detailsEl || !root.contains(detailsEl)) return;
+      if (delta < 0 && detailsEl.previousElementSibling) {
+        root.insertBefore(detailsEl, detailsEl.previousElementSibling);
+      } else if (delta > 0 && detailsEl.nextElementSibling) {
+        root.insertBefore(detailsEl.nextElementSibling, detailsEl);
+      }
+      refreshOrdoMoveButtonsState();
+    }
+
+    function wireNewOrdoSectionEditors(detailsEl) {
+      var edList = detailsEl.querySelectorAll('.ordo-body[contenteditable="true"]');
+      Array.prototype.forEach.call(edList, function (ed) {
+        ed.addEventListener('input', function () {
+          positionOrdoQuickToolbar();
+        });
+        ed.addEventListener('mouseup', positionOrdoQuickToolbar);
+        ed.addEventListener('keyup', positionOrdoQuickToolbar);
+        ed.addEventListener('blur', function () {
+          window.setTimeout(function () {
+            var active = document.activeElement;
+            var quick = document.getElementById('ordo-quick-toolbar');
+            if (quick && active && quick.contains(active)) return;
+            hideOrdoQuickToolbar();
+          }, 0);
+        });
+      });
     }
 
     function showToast(ok, text) {
@@ -1155,6 +1491,75 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
 
       bindOrdoTitleEditors(document.getElementById('ordo-sections'));
 
+      var sectionsRoot = document.getElementById('ordo-sections');
+      if (sectionsRoot) {
+        sectionsRoot.addEventListener('click', function (e) {
+          var up = e.target.closest('.ordo-move-up');
+          if (up) {
+            e.preventDefault();
+            e.stopPropagation();
+            moveOrdoSection(up.closest('details.ordo-section'), -1);
+            return;
+          }
+          var dn = e.target.closest('.ordo-move-down');
+          if (dn) {
+            e.preventDefault();
+            e.stopPropagation();
+            moveOrdoSection(dn.closest('details.ordo-section'), 1);
+            return;
+          }
+          var rm = e.target.closest('.ordo-remove-custom');
+          if (rm) {
+            e.preventDefault();
+            e.stopPropagation();
+            var detRm = rm.closest('details.ordo-section');
+            if (detRm && detRm.parentNode) {
+              detRm.parentNode.removeChild(detRm);
+              refreshOrdoMoveButtonsState();
+            }
+          }
+        }, true);
+      }
+
+      var addSecBtn = document.getElementById('ordo-add-custom-section');
+      if (addSecBtn && sectionsRoot) {
+        addSecBtn.addEventListener('click', function () {
+          var id = newCustomSectionId();
+          var dc = 'Дадатковая частка';
+          var html =
+            '<details class="ordo-section ordo-section--custom" data-section-kind="custom" data-ordo-key="' + escapeHtmlAttr(id) + '" data-default-title="' + escapeHtmlAttr(dc) + '" open>'
+            + '<summary>'
+            + '<span class="ordo-section-toolbar" aria-label="Парадак і выдаленне">'
+            + '<button type="button" class="ordo-move-btn ordo-move-up" title="Уверх">↑</button>'
+            + '<button type="button" class="ordo-move-btn ordo-move-down" title="Уніз">↓</button>'
+            + '<button type="button" class="ordo-remove-custom" title="Выдаліць частку" aria-label="Выдаліць частку">×</button>'
+            + '</span>'
+            + '<span class="ordo-title-row">'
+            + '<span class="ordo-title-text">' + escapeHtmlText(dc) + '</span>'
+            + '<input type="text" class="ordo-section-title-input" name="ordo_custom_title[' + id + ']" value="" maxlength="255" placeholder="' + escapeHtmlAttr(dc) + '" title="Загаловак дадатковай часткі" aria-label="Загаловак секцыі" autocomplete="off" onclick="event.stopPropagation()" />'
+            + '<button type="button" class="ordo-title-edit-btn" title="Рэдагаваць загаловак" aria-label="Рэдагаваць загаловак">'
+            + '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>'
+            + '</button>'
+            + '</span>'
+            + '</summary>'
+            + '<div id="ordo_editor_' + id + '" class="ordo-body" contenteditable="true" role="textbox" aria-multiline="true" aria-label="' + escapeHtmlAttr(dc) + '" spellcheck="true" data-ordo-key="' + escapeHtmlAttr(id) + '"></div>'
+            + '<textarea id="ordo_html_' + id + '" class="ordo-html-hidden" name="ordo_custom_html[' + id + ']" aria-hidden="true"></textarea>'
+            + '</details>';
+          sectionsRoot.insertAdjacentHTML('beforeend', html);
+          var last = sectionsRoot.lastElementChild;
+          if (last && last.matches && last.matches('details.ordo-section')) {
+            var bodyEl = last.querySelector('.ordo-body');
+            if (bodyEl) {
+              bodyEl.innerHTML = '<p></p>';
+              syncOneEditorToTextarea(bodyEl);
+            }
+            wireNewOrdoSectionEditors(last);
+          }
+          refreshOrdoMoveButtonsState();
+          closeAllOrdoTitleEdits(null);
+        });
+      }
+
       editors().forEach(function (ed) {
         var k = ed.getAttribute('data-ordo-key');
         var html = decodeB64Utf8((initialMap && initialMap[k]) ? initialMap[k] : '');
@@ -1162,6 +1567,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       });
       syncAllToTextareas();
       activeEd = editors()[0] || null;
+      refreshOrdoMoveButtonsState();
 
       stack.addEventListener('focusin', function (e) {
         var t = e.target;
@@ -1245,6 +1651,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         syncAllToTextareas();
+        syncOrdoLayoutHiddenInput();
         closeAllOrdoTitleEdits(null);
 
         var savePath = form.getAttribute('data-save-path') || window.location.pathname;

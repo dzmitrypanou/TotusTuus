@@ -541,6 +541,11 @@ function ensurePanelOrdoMissaeSectionTitleColumns(): void
         'title_closing',
         'ALTER TABLE panel_ordo_missae ADD COLUMN title_closing VARCHAR(255) NOT NULL DEFAULT \'\' AFTER title_communion'
     );
+    ensureTableColumnExists(
+        'panel_ordo_missae',
+        'ordo_layout_json',
+        'ALTER TABLE panel_ordo_missae ADD COLUMN ordo_layout_json MEDIUMTEXT NOT NULL DEFAULT \'\' AFTER title_closing'
+    );
 }
 
 function ensureSchemaAndSeed(): void

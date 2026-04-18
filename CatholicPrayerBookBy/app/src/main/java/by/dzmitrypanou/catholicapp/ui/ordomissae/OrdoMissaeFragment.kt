@@ -100,17 +100,9 @@ class OrdoMissaeFragment : Fragment() {
             loadWithOverviewMode = false
             useWideViewPort = true
         }
-        w.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                if (_binding == null) return
-                val u = url.orEmpty()
-                if (u == "about:blank" || u.startsWith("about:")) return
-                val c = context ?: return
-                val px = PrayerBodyTextSizeStore.readPx(c, resources)
-                applyOrdoBodyFontToWebView(px)
-            }
-        }
+        // Як у PrayerDetailFragment: маштаб ужо ў збудаваным CSS — без onPageFinished і паўторнага JS,
+        // каб не было рыўка раскладкі пасля першай адмалёўкі.
+        w.webViewClient = WebViewClient()
         foldBridge = OrdoFoldJsBridge(requireContext().applicationContext) { bodyRaw }
         w.addJavascriptInterface(foldBridge!!, "OrdoFold")
     }
@@ -143,7 +135,9 @@ class OrdoMissaeFragment : Fragment() {
     private fun reloadWebContent() {
         if (_binding == null) return
         val ctx = context ?: return
-        val inner = buildInnerHtml(bodyRaw)
+        val innerBase = buildInnerHtml(bodyRaw)
+        val openMap = OrdoMissaeFoldStore.initialOpenMap(ctx, bodyRaw)
+        val inner = applyOrdoSectionOpenAttributes(innerBase, openMap)
         val fontPx = PrayerBodyTextSizeStore.readPx(ctx, resources)
         val doc = buildHtmlDocument(inner, fontPx, bodyRaw)
         binding.webOrdoBody.loadDataWithBaseURL(
@@ -195,6 +189,23 @@ class OrdoMissaeFragment : Fragment() {
     }
 
     /** Кэш/legacy HTML з атрыбутам open — прыбіраем, каб па змаўчанні ўсе секцыі былі згорнутыя. */
+    /**
+     * Пачатковы атрыбут [open] у HTML — без «спачатку ўсе закрыць, потым адкрыць» у JS (без рыўка раскладкі).
+     */
+    private fun applyOrdoSectionOpenAttributes(html: String, openMap: Map<String, Boolean>): String =
+        Regex("""(?i)<details(\s[^>]*?)>""").replace(html) { m ->
+            val attrs = m.groupValues[1]
+            if (!attrs.contains("ordo-missae-section", ignoreCase = true)) return@replace m.value
+            val keyMatch = Regex("""(?i)data-ordo-section\s*=\s*["']([^"']+)["']""").find(attrs)
+            val sectionKey = keyMatch?.groupValues?.getOrNull(1) ?: return@replace m.value
+            val wantOpen = openMap[sectionKey] ?: false
+            var a = attrs
+            a = a.replace(Regex("""(?i)\s+open\s*=\s*(?:"[^"]*"|'[^']*')"""), "")
+            a = a.replace(Regex("""(?i)\s+open\b(?=\s|>)"""), "")
+            val openAttr = if (wantOpen) " open" else ""
+            "<details$openAttr$a>"
+        }
+
     private fun stripOpenAttributeFromOrdoDetails(html: String): String =
         Regex("""(?i)<details\b[^>]*>""").replace(html) { m ->
             val tag = m.value
@@ -433,7 +444,6 @@ class OrdoMissaeFragment : Fragment() {
 <script>
 (function(){
   var init = window.__ordoInitialOpen || {};
-  document.querySelectorAll('details.ordo-missae-section').forEach(function(d){ d.open = false; });
   Object.keys(init).forEach(function(k){
     var d = document.querySelector('details.ordo-missae-section[data-ordo-section="' + k + '"]');
     if (d) d.open = !!init[k];

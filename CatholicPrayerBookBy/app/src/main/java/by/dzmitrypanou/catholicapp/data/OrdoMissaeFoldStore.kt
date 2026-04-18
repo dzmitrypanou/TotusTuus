@@ -13,7 +13,9 @@ object OrdoMissaeFoldStore {
     private const val KEY_FP = "content_fp"
     private const val KEY_PREFIX = "open."
 
-    /** Тыя ж ключы, што ў WebPanel `ordo_missae_section_defs()` — парадак не абавязковы для чытання. */
+    private val DATA_ORDO_SECTION_REGEX = Regex("""data-ordo-section\s*=\s*"([^"]+)"""")
+
+    /** Убудаваныя ключы (WebPanel): калі ў HTML няма атрыбутаў — старая схема. */
     val SECTION_KEYS: List<String> = listOf(
         "intro",
         "liturgy_word",
@@ -33,6 +35,16 @@ object OrdoMissaeFoldStore {
     private fun prefs(ctx: Context) =
         ctx.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
+    /** Ключы секцый з HTML (`data-ordo-section`), уключна з дадатковымі з панэлі. */
+    fun sectionKeysFromBodyHtml(body: String): List<String> {
+        val keys = LinkedHashSet<String>()
+        for (m in DATA_ORDO_SECTION_REGEX.findAll(body)) {
+            val k = m.groupValues.getOrNull(1)?.trim().orEmpty()
+            if (k.isNotEmpty()) keys.add(k)
+        }
+        return if (keys.isNotEmpty()) keys.toList() else SECTION_KEYS
+    }
+
     /**
      * Ключ -> адкрыта/закрыта для загрузкі ў WebView.
      * Калі змест змяніўся (іншы fingerprint), захаванне скідаецца; прадвызначэнне — усе згорнутыя.
@@ -47,7 +59,8 @@ object OrdoMissaeFoldStore {
         }
         val fpMatch = p.getString(KEY_FP, null) == fp
         val out = LinkedHashMap<String, Boolean>()
-        for (key in SECTION_KEYS) {
+        val keysToLoad = sectionKeysFromBodyHtml(bodyRaw).ifEmpty { SECTION_KEYS }
+        for (key in keysToLoad) {
             val def = false
             val prefKey = KEY_PREFIX + key
             val hasSaved = p.all.containsKey(prefKey)

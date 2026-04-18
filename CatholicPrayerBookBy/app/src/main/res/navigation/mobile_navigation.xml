@@ -94,7 +94,11 @@
             app:destination="@id/nav_liturgy_calendar" />
         <action
             android:id="@+id/action_nav_home_to_nav_ordo_missae"
-            app:destination="@id/nav_ordo_missae" />
+            app:destination="@id/nav_ordo_missae"
+            app:enterAnim="@anim/nav_noop"
+            app:exitAnim="@anim/nav_noop"
+            app:popEnterAnim="@anim/nav_noop"
+            app:popExitAnim="@anim/nav_noop" />
     </fragment>
 
     <fragment
