@@ -36,7 +36,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "by.dzmitrypanou.catholicapp"
+        applicationId = "by.totustuus.app"
         minSdk = 24
         targetSdk = 36
         versionCode = totusAppVersion.getProperty("versionCode").toInt()
