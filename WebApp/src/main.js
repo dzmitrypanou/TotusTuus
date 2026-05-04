@@ -1461,10 +1461,10 @@
     function ordoMissaeSearchChromeHtml() {
         if (currentView !== 'ordo-missae') return '';
         return `
-        <div class="shrink-0 z-40" style="background: linear-gradient(315deg, #0E1020 0%, #171A2A 100%);">
+        <div class="shrink-0 z-40">
             <div class="w-full max-w-[480px] mx-auto" style="padding:8px;box-sizing:border-box;">
                 <div class="relative w-full box-border rounded-md border border-app-stroke border-solid bg-app-elevated focus-within:border-app-stroke/80" style="height:56px;min-height:56px;">
-                    <input type="search" id="ordo-missae-search-query" autocomplete="off" placeholder="Слова або «словазлучэнне»…"
+                    <input type="text" id="ordo-missae-search-query" autocomplete="off" placeholder="Слова або «словазлучэнне»…"
                         value="${escapeHtml(ordoMissaeSearchQuery)}" class="absolute w-full box-border bg-transparent border-0 outline-none text-app-text placeholder:text-app-textSec text-[17px]" style="left:0;top:0;height:56px;padding:0 96px 0 12px;line-height:56px;" />
                     <div id="ordo-missae-search-nav" class="absolute flex items-center gap-0 shrink-0" style="right:8px;top:10px;height:36px;visibility:${ordoMissaeSearchQuery.trim() ? 'visible' : 'hidden'}">
                         <button type="button" data-action="ordo-search-prev" id="ordo-missae-search-prev" class="shrink-0 flex items-center justify-center rounded-full text-app-text hover:bg-white/[0.06] border-0 bg-transparent cursor-pointer disabled:opacity-45 disabled:cursor-default p-0" style="width:36px;height:36px;" aria-label="Папярэдні вынік"><i class="fas fa-chevron-left text-sm" aria-hidden="true"></i></button>
@@ -3096,6 +3096,11 @@
         if (next) next.disabled = !canMove;
     }
 
+    function syncOrdoSearchNavVisibilityImmediate(query) {
+        const nav = document.getElementById('ordo-missae-search-nav');
+        if (nav) nav.style.visibility = String(query || '').trim().length > 0 ? 'visible' : 'hidden';
+    }
+
     function ordoMissaeClearHighlights(host) {
         if (!host) return;
         host.querySelectorAll('mark.ordo-search-highlight').forEach((mark) => {
@@ -4094,6 +4099,7 @@
             }
             if (e.target.id === 'ordo-missae-search-query') {
                 ordoMissaeSearchQuery = e.target.value;
+                syncOrdoSearchNavVisibilityImmediate(ordoMissaeSearchQuery);
                 if (ordoMissaeSearchDebounceTimer) clearTimeout(ordoMissaeSearchDebounceTimer);
                 ordoMissaeSearchDebounceTimer = setTimeout(() => {
                     ordoMissaeSearchDebounceTimer = null;
