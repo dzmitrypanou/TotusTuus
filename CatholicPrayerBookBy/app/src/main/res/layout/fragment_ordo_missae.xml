@@ -1,14 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient_dark">
+    android:background="@drawable/bg_gradient_dark"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/screen_content_horizontal"
+    android:paddingTop="@dimen/prayer_book_screen_padding_top"
+    android:paddingEnd="@dimen/screen_content_horizontal"
+    android:paddingBottom="@dimen/prayer_book_screen_padding_bottom">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_ordo_search_query"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/ordo_missae_search_hint"
+            app:boxBackgroundColor="?attr/totusColorSurfaceElevated"
+            app:boxStrokeColor="?attr/totusColorSurfaceStroke"
+            app:cursorColor="?attr/totusColorTextPrimary"
+            app:hintTextColor="?attr/totusColorTextSecondary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_ordo_search_query"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionSearch"
+                android:inputType="text|textCapSentences"
+                android:paddingEnd="88dp"
+                android:textColor="?attr/totusColorTextPrimary"
+                android:textColorHint="?attr/totusColorTextSecondary"
+                android:textSize="@dimen/text_list_row_title" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_ordo_search_nav"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/button_ordo_search_prev"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/ordo_missae_search_previous"
+                android:padding="6dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_chevron_left_24"
+                app:tint="?attr/totusColorTextPrimary" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/button_ordo_search_next"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/ordo_missae_search_next"
+                android:padding="6dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_chevron_right_24"
+                app:tint="?attr/totusColorTextPrimary" />
+        </LinearLayout>
+    </FrameLayout>
 
     <WebView
         android:id="@+id/web_ordo_body"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:background="@android:color/transparent"
         android:overScrollMode="ifContentScrolls"
         android:scrollbars="none" />
-</FrameLayout>
+</LinearLayout>

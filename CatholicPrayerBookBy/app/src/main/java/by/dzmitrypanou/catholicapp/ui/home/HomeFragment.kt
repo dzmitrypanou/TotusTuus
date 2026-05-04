@@ -5,9 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import android.graphics.Color
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
-import by.dzmitrypanou.catholicapp.ui.themeColor
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -137,6 +137,7 @@ private class HomeSectionAdapter(
             PrayerBookUiTypography.applyUiSp(binding.textHomeItemTitle, R.dimen.text_home_card_title, ctx)
             PrayerBookUiTypography.applyUiSp(binding.textHomeItemStatus, R.dimen.text_home_card_caption, ctx)
             binding.textHomeItemTitle.text = item.title
+            binding.textHomeItemTitle.setTextColor(Color.WHITE)
             binding.imageHomeItem.setImageResource(item.imageRes)
             val hint = item.infoHint
             if (hint.isNullOrBlank()) {
@@ -151,18 +152,12 @@ private class HomeSectionAdapter(
                 binding.textHomeItemStatus.visibility = View.GONE
                 binding.viewHomeItemOverlay.visibility = View.GONE
                 binding.imageHomeItem.colorFilter = null
-                binding.textHomeItemTitle.setTextColor(
-                    binding.root.context.themeColor(R.attr.totusColorTextPrimary)
-                )
             } else {
                 binding.textHomeItemStatus.visibility = View.VISIBLE
                 binding.textHomeItemStatus.text = binding.root.context.getString(R.string.home_in_progress)
                 binding.viewHomeItemOverlay.visibility = View.VISIBLE
                 val matrix = ColorMatrix().apply { setSaturation(0f) }
                 binding.imageHomeItem.colorFilter = ColorMatrixColorFilter(matrix)
-                binding.textHomeItemTitle.setTextColor(
-                    binding.root.context.themeColor(R.attr.totusColorTextPrimary)
-                )
             }
 
             binding.root.setOnClickListener {

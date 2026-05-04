@@ -19,7 +19,7 @@ object ScriptureTestamentExpandStore {
         }
     }
 
-    fun isExpanded(context: Context, key: String, defaultExpanded: Boolean = true): Boolean =
+    fun isExpanded(context: Context, key: String, defaultExpanded: Boolean = false): Boolean =
         context.applicationContext
             .getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .getBoolean(key, defaultExpanded)

@@ -268,7 +268,7 @@ class ScriptureFragment : Fragment(), ScriptureToolbarActions {
         testamentKey: String
     ) {
         val ctx = requireContext().applicationContext
-        var expanded = ScriptureTestamentExpandStore.isExpanded(ctx, testamentKey, true)
+        var expanded = ScriptureTestamentExpandStore.isExpanded(ctx, testamentKey, false)
         fun applyExpandedState() {
             sectionBinding.layoutBooks.visibility = if (expanded) View.VISIBLE else View.GONE
             sectionBinding.imageTestamentExpand.setImageResource(

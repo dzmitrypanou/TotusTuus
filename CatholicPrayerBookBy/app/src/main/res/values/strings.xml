@@ -23,6 +23,13 @@
     <string name="home_info_content_description">Інфармацыя пра раздзел</string>
     <string name="ordo_missae_load_error">Не ўдалося загрузіць Ordo Missae</string>
     <string name="ordo_missae_empty">Тэкст пакуль не дададзены ў панэлі кіравання.</string>
+    <string name="ordo_missae_search_hint">Слова або «словазлучэнне»…</string>
+    <string name="ordo_missae_search_prompt">Пошук адкрые раздзелы, дзе ёсць усе словы або дакладнае словазлучэнне.</string>
+    <string name="ordo_missae_search_empty">Нічога не знойдзена. Паспрабуйце іншыя словы або словазлучэнне ў двукоссі.</string>
+    <string name="ordo_missae_search_stats">Адкрыта раздзелаў: %1$d.</string>
+    <string name="ordo_missae_search_counter">%1$d / %2$d</string>
+    <string name="ordo_missae_search_previous">Папярэдні вынік</string>
+    <string name="ordo_missae_search_next">Наступны вынік</string>
     <string name="refresh_prayers">Абнавіць малітвы</string>
     <string name="refresh_songbook">Абнавіць спеўнік</string>
     <string name="transform_no_prayers_need_network">Малітвы не былі загружаны.\nУключыце інтэрнэт і націсніце «Абнавіць малітвы», каб загрузіць іх.</string>

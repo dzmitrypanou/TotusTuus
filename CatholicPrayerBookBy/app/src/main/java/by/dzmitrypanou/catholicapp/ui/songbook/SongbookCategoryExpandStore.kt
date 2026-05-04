@@ -15,7 +15,7 @@ object SongbookCategoryExpandStore {
             else -> "sb_${groupKey.hashCode()}"
         }
 
-    fun isExpanded(context: Context, groupKey: String, defaultExpanded: Boolean = true): Boolean {
+    fun isExpanded(context: Context, groupKey: String, defaultExpanded: Boolean = false): Boolean {
         val key = preferenceKeyForGroup(groupKey)
         return context.applicationContext
             .getSharedPreferences(PREFS, Context.MODE_PRIVATE)

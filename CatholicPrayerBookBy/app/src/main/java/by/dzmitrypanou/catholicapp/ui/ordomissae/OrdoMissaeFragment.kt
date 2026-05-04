@@ -7,11 +7,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import by.dzmitrypanou.catholicapp.R
@@ -21,10 +24,13 @@ import by.dzmitrypanou.catholicapp.data.OrdoMissaeRepository
 import by.dzmitrypanou.catholicapp.data.PrayerBodyTextSizeStore
 import by.dzmitrypanou.catholicapp.data.remote.PrayerApiClient
 import by.dzmitrypanou.catholicapp.databinding.FragmentOrdoMissaeBinding
+import by.dzmitrypanou.catholicapp.ui.PrayerBookUiTypography
 import by.dzmitrypanou.catholicapp.ui.ReadingTextScaleToolbar
 import by.dzmitrypanou.catholicapp.ui.themeColor
 import kotlin.math.abs
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -38,6 +44,11 @@ class OrdoMissaeFragment : Fragment() {
     private var lastLoadedBodyPx: Float = Float.NaN
     private var bodyRaw: String = ""
     private var foldBridge: OrdoFoldJsBridge? = null
+    private var searchQuery: String = ""
+    private var searchJob: Job? = null
+    private var searchResultCount: Int = 0
+    private var searchResultIndex: Int = -1
+    private var pageLoaded: Boolean = false
     /** Для перазагрузкі WebView пасля пераключэння светлай/цёмнай тэмы. */
     private var lastOrdoThemeSignature: Int? = null
 
@@ -53,6 +64,7 @@ class OrdoMissaeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupSearchUi()
         // Лакальны кэш — адразу, як малітоўнік; сетка толькі калі змяніўся updated_at на серверы.
         bodyRaw = OrdoMissaeRepository(requireContext().applicationContext).getCachedHtml()
         reloadWebContent()
@@ -102,9 +114,39 @@ class OrdoMissaeFragment : Fragment() {
         }
         // Як у PrayerDetailFragment: маштаб ужо ў збудаваным CSS — без onPageFinished і паўторнага JS,
         // каб не было рыўка раскладкі пасля першай адмалёўкі.
-        w.webViewClient = WebViewClient()
+        w.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                pageLoaded = true
+                applyOrdoSearchToWebView(searchQuery)
+            }
+        }
         foldBridge = OrdoFoldJsBridge(requireContext().applicationContext) { bodyRaw }
         w.addJavascriptInterface(foldBridge!!, "OrdoFold")
+    }
+
+    private fun setupSearchUi() {
+        PrayerBookUiTypography.applyUiSp(binding.editOrdoSearchQuery, R.dimen.text_list_row_title, requireContext())
+        updateSearchNav("", 0, -1)
+        binding.buttonOrdoSearchPrev.setOnClickListener { moveOrdoSearchResult(-1) }
+        binding.buttonOrdoSearchNext.setOnClickListener { moveOrdoSearchResult(1) }
+        binding.editOrdoSearchQuery.doAfterTextChanged { editable ->
+            searchQuery = editable?.toString().orEmpty()
+            searchJob?.cancel()
+            searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                delay(180)
+                applyOrdoSearchToWebView(searchQuery)
+            }
+        }
+        binding.editOrdoSearchQuery.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                searchJob?.cancel()
+                applyOrdoSearchToWebView(searchQuery)
+                true
+            } else {
+                false
+            }
+        }
     }
 
     private fun loadFromNetwork() {
@@ -135,6 +177,7 @@ class OrdoMissaeFragment : Fragment() {
     private fun reloadWebContent() {
         if (_binding == null) return
         val ctx = context ?: return
+        pageLoaded = false
         val innerBase = buildInnerHtml(bodyRaw)
         val openMap = OrdoMissaeFoldStore.initialOpenMap(ctx, bodyRaw)
         val inner = applyOrdoSectionOpenAttributes(innerBase, openMap)
@@ -148,6 +191,233 @@ class OrdoMissaeFragment : Fragment() {
             null,
         )
         lastLoadedBodyPx = fontPx
+    }
+
+    private fun updateSearchNav(query: String, count: Int, index: Int) {
+        if (_binding == null) return
+        searchResultCount = count.coerceAtLeast(0)
+        searchResultIndex = if (searchResultCount > 0) index.coerceIn(0, searchResultCount - 1) else -1
+        binding.layoutOrdoSearchNav.isVisible = query.trim().isNotEmpty()
+        val canMove = searchResultCount > 1
+        binding.buttonOrdoSearchPrev.isEnabled = canMove
+        binding.buttonOrdoSearchNext.isEnabled = canMove
+        binding.buttonOrdoSearchPrev.alpha = if (canMove) 1f else 0.45f
+        binding.buttonOrdoSearchNext.alpha = if (canMove) 1f else 0.45f
+    }
+
+    private fun applyOrdoSearchToWebView(query: String) {
+        if (_binding == null) return
+        if (!pageLoaded) {
+            updateSearchNav(query, 0, -1)
+            return
+        }
+        val js = buildOrdoSearchHighlightJs(query)
+        binding.webOrdoBody.evaluateJavascript(js) { value ->
+            val (count, index) = parseSearchPayload(value)
+            updateSearchNav(query, count, index)
+        }
+    }
+
+    private fun moveOrdoSearchResult(delta: Int) {
+        if (_binding == null || !pageLoaded || searchResultCount <= 0) return
+        val js = "window.__ordoMoveSearchResult ? window.__ordoMoveSearchResult($delta) : '0|-1';"
+        binding.webOrdoBody.evaluateJavascript(js) { value ->
+            val (count, index) = parseSearchPayload(value)
+            updateSearchNav(searchQuery, count, index)
+        }
+    }
+
+    private fun parseSearchPayload(value: String?): Pair<Int, Int> {
+        val payload = value
+            ?.trim()
+            ?.removeSurrounding("\"")
+            ?.replace("\\\"", "\"")
+            .orEmpty()
+        val parts = payload.split("|", limit = 2)
+        val count = parts.getOrNull(0)?.toIntOrNull() ?: 0
+        val index = parts.getOrNull(1)?.toIntOrNull() ?: -1
+        return count to index
+    }
+
+    private fun buildOrdoSearchHighlightJs(query: String): String {
+        val quotedQuery = JSONObject.quote(query)
+        return """
+            (function(queryRaw) {
+              function clearMarks() {
+                var old = document.querySelectorAll('mark.ordo-search-highlight');
+                for (var i = old.length - 1; i >= 0; i--) {
+                  var mark = old[i];
+                  var parent = mark.parentNode;
+                  if (!parent) continue;
+                  parent.replaceChild(document.createTextNode(mark.textContent || ''), mark);
+                  parent.normalize();
+                }
+                var matched = document.querySelectorAll('.ordo-search-match');
+                for (var m = 0; m < matched.length; m++) matched[m].classList.remove('ordo-search-match');
+                window.__ordoSearchResults = [];
+                window.__ordoSearchIndex = -1;
+              }
+              function restoreSavedSections() {
+                var sections = document.querySelectorAll('details.ordo-missae-section[data-ordo-section]');
+                var saved = window.__ordoSavedOpen || {};
+                for (var i = 0; i < sections.length; i++) {
+                  var d = sections[i];
+                  var k = d.getAttribute('data-ordo-section');
+                  d.open = !!saved[k];
+                }
+              }
+              function cleanQuery(value) {
+                var q = String(value || '').trim();
+                var pairs = [['"', '"'], ["'", "'"], ['«', '»'], ['“', '”'], ['„', '“']];
+                for (var i = 0; i < pairs.length; i++) {
+                  if (q.length >= 2 && q.charAt(0) === pairs[i][0] && q.charAt(q.length - 1) === pairs[i][1]) {
+                    return q.substring(1, q.length - 1).trim();
+                  }
+                }
+                return q;
+              }
+              function lower(value) {
+                return String(value || '').toLocaleLowerCase();
+              }
+              function isSkippable(node) {
+                var el = node && node.parentElement;
+                while (el) {
+                  var tag = (el.tagName || '').toLowerCase();
+                  if (tag === 'script' || tag === 'style' || tag === 'noscript' || tag === 'textarea' || tag === 'input' || tag === 'select' || tag === 'option') return true;
+                  if (tag === 'mark' && el.classList.contains('ordo-search-highlight')) return true;
+                  el = el.parentElement;
+                }
+                return false;
+              }
+              function openSectionFor(node) {
+                var el = node && (node.parentElement || node.parentNode);
+                while (el && el !== document.body) {
+                  if (el.tagName && el.tagName.toLowerCase() === 'details' && el.classList.contains('ordo-missae-section')) {
+                    el.open = true;
+                    el.classList.add('ordo-search-match');
+                  }
+                  el = el.parentElement;
+                }
+              }
+              var q = cleanQuery(queryRaw);
+              clearMarks();
+              if (!q) {
+                window.__ordoSearchActive = false;
+                restoreSavedSections();
+                return '0|-1';
+              }
+              window.__ordoSearchActive = true;
+              var needle = lower(q);
+              if (!needle) return '0|-1';
+              var sections = document.querySelectorAll('details.ordo-missae-section[data-ordo-section]');
+              for (var s = 0; s < sections.length; s++) sections[s].open = false;
+              var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+                acceptNode: function(node) {
+                  if (!node || !node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+                  if (isSkippable(node)) return NodeFilter.FILTER_REJECT;
+                  return NodeFilter.FILTER_ACCEPT;
+                }
+              });
+              var nodes = [];
+              var node;
+              while ((node = walker.nextNode())) nodes.push(node);
+              for (var n = 0; n < nodes.length; n++) {
+                var textNode = nodes[n];
+                var text = textNode.nodeValue || '';
+                var hay = lower(text);
+                var pos = 0;
+                var hit = hay.indexOf(needle, pos);
+                if (hit < 0) continue;
+                var frag = document.createDocumentFragment();
+                while (hit >= 0) {
+                  if (hit > pos) frag.appendChild(document.createTextNode(text.substring(pos, hit)));
+                  var mark = document.createElement('mark');
+                  mark.className = 'ordo-search-highlight';
+                  mark.textContent = text.substring(hit, hit + q.length);
+                  frag.appendChild(mark);
+                  pos = hit + q.length;
+                  hit = hay.indexOf(needle, pos);
+                }
+                if (pos < text.length) frag.appendChild(document.createTextNode(text.substring(pos)));
+                textNode.parentNode.replaceChild(frag, textNode);
+              }
+              var marks = Array.prototype.slice.call(document.querySelectorAll('mark.ordo-search-highlight'));
+              for (var r = 0; r < marks.length; r++) openSectionFor(marks[r]);
+              window.__ordoSearchResults = marks;
+              window.__ordoSearchIndex = marks.length > 0 ? 0 : -1;
+              if (window.__ordoSelectSearchResult) window.__ordoSelectSearchResult(window.__ordoSearchIndex, true);
+              return String(marks.length) + '|' + String(window.__ordoSearchIndex);
+            })($quotedQuery);
+        """.trimIndent()
+    }
+
+    private fun buildOrdoSearchJs(query: String): String {
+        val quotedQuery = JSONObject.quote(query)
+        return """
+            (function(queryRaw) {
+              function norm(value) {
+                try { value = String(value || '').normalize('NFKD'); } catch (e0) { value = String(value || ''); }
+                return String(value || '')
+                  .replace(/[\u0300-\u036f]/g, '')
+                  .replace(/[’‘ʼ`´]/g, "'")
+                  .toLowerCase()
+                  .replace(/[^0-9A-Za-zА-Яа-яІіҐґЄєЇї'\-]+/g, ' ')
+                  .replace(/\s+/g, ' ')
+                  .trim();
+              }
+              function parseTerms(value) {
+                var out = [];
+                var seen = {};
+                var re = /"([^"]+)"|'([^']+)'|«([^»]+)»|“([^”]+)”|(\S+)/g;
+                var m;
+                while ((m = re.exec(String(value || ''))) !== null) {
+                  var raw = m[1] || m[2] || m[3] || m[4] || m[5] || '';
+                  var n = norm(raw);
+                  if (!n || seen[n]) continue;
+                  seen[n] = true;
+                  out.push(n);
+                }
+                return out;
+              }
+              var rawQuery = String(queryRaw || '');
+              var q = rawQuery.trim();
+              var sections = document.querySelectorAll('details.ordo-missae-section[data-ordo-section]');
+              if (!q) {
+                window.__ordoSearchActive = false;
+                var saved = window.__ordoSavedOpen || {};
+                for (var i0 = 0; i0 < sections.length; i0++) {
+                  var d0 = sections[i0];
+                  var k0 = d0.getAttribute('data-ordo-section');
+                  d0.open = !!saved[k0];
+                  d0.classList.remove('ordo-search-match');
+                }
+                return 0;
+              }
+              var terms = parseTerms(q);
+              var whole = norm(q.replace(/["'«»“”]/g, ' '));
+              window.__ordoSearchActive = true;
+              var count = 0;
+              for (var i = 0; i < sections.length; i++) {
+                var d = sections[i];
+                var text = norm(d.textContent || '');
+                var match = !!whole && text.indexOf(whole) >= 0;
+                if (!match && terms.length > 0) {
+                  match = true;
+                  for (var j = 0; j < terms.length; j++) {
+                    if (text.indexOf(terms[j]) < 0) { match = false; break; }
+                  }
+                }
+                d.open = match;
+                if (match) {
+                  d.classList.add('ordo-search-match');
+                  count++;
+                } else {
+                  d.classList.remove('ordo-search-match');
+                }
+              }
+              return count;
+            })($quotedQuery);
+        """.trimIndent()
     }
 
     fun applyReadingTextScaleFromToolbar() {
@@ -418,6 +688,17 @@ class OrdoMissaeFragment : Fragment() {
             th, td { border: 1px solid $strokeHex; padding: 6px 8px; vertical-align: top; }
             a { color: $linkHex; }
             img { max-width: 100%; height: auto; }
+            mark.ordo-search-highlight {
+              background: rgba(255, 214, 102, 0.44);
+              color: inherit;
+              border-radius: 3px;
+              padding: 0 0.05em;
+            }
+            mark.ordo-search-highlight-active {
+              background: #ffd166;
+              color: #1f1600;
+              box-shadow: 0 0 0 2px rgba(255, 209, 102, 0.34);
+            }
         """.trimIndent()
 
         val openMap = OrdoMissaeFoldStore.initialOpenMap(requireContext(), bodyRawForFingerprint)
@@ -444,7 +725,35 @@ class OrdoMissaeFragment : Fragment() {
 <script>
 (function(){
   var init = window.__ordoInitialOpen || {};
+  window.__ordoSavedOpen = {};
+  window.__ordoSearchActive = false;
+  window.__ordoSearchResults = [];
+  window.__ordoSearchIndex = -1;
+  window.__ordoSelectSearchResult = function(index, shouldScroll) {
+    var results = window.__ordoSearchResults || [];
+    if (!results.length || index < 0 || index >= results.length) return '0|-1';
+    for (var i = 0; i < results.length; i++) {
+      if (results[i] && results[i].classList) results[i].classList.remove('ordo-search-highlight-active');
+    }
+    var current = results[index];
+    if (!current) return '0|-1';
+    current.classList.add('ordo-search-highlight-active');
+    window.__ordoSearchIndex = index;
+    if (shouldScroll !== false && current.scrollIntoView) {
+      current.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+    }
+    return String(results.length) + '|' + String(index);
+  };
+  window.__ordoMoveSearchResult = function(delta) {
+    var results = window.__ordoSearchResults || [];
+    if (!results.length) return '0|-1';
+    var next = window.__ordoSearchIndex;
+    if (typeof next !== 'number' || next < 0) next = 0;
+    else next = (next + delta + results.length) % results.length;
+    return window.__ordoSelectSearchResult(next, true);
+  };
   Object.keys(init).forEach(function(k){
+    window.__ordoSavedOpen[String(k)] = !!init[k];
     var d = document.querySelector('details.ordo-missae-section[data-ordo-section="' + k + '"]');
     if (d) d.open = !!init[k];
   });
@@ -463,7 +772,11 @@ class OrdoMissaeFragment : Fragment() {
         d.open = !d.open;
         var k = d.getAttribute('data-ordo-section');
         if (k && window.OrdoFold) {
-          try { OrdoFold.save(String(k), d.open ? '1' : '0'); } catch (e1) {}
+          if (!window.__ordoSavedOpen) window.__ordoSavedOpen = {};
+          if (!window.__ordoSearchActive) {
+            window.__ordoSavedOpen[String(k)] = !!d.open;
+            try { OrdoFold.save(String(k), d.open ? '1' : '0'); } catch (e1) {}
+          }
         }
       }, true);
     }
@@ -482,6 +795,7 @@ class OrdoMissaeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        searchJob?.cancel()
         _binding?.webOrdoBody?.apply {
             removeJavascriptInterface("OrdoFold")
             stopLoading()

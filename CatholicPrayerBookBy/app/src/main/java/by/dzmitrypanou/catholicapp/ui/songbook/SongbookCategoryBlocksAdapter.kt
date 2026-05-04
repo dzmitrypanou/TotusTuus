@@ -56,7 +56,7 @@ class SongbookCategoryBlocksAdapter(
                 val pos = bindingAdapterPosition
                 if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
                 val s = section ?: return@setOnClickListener
-                val expanded = SongbookCategoryExpandStore.isExpanded(appContext, s.groupKey, defaultExpanded = true)
+                val expanded = SongbookCategoryExpandStore.isExpanded(appContext, s.groupKey, defaultExpanded = false)
                 SongbookCategoryExpandStore.setExpanded(appContext, s.groupKey, !expanded)
                 this@SongbookCategoryBlocksAdapter.notifyItemChanged(pos)
             }
@@ -73,7 +73,7 @@ class SongbookCategoryBlocksAdapter(
             )
             binding.textSongbookCategoryTitle.setTypeface(binding.textSongbookCategoryTitle.typeface, Typeface.BOLD)
 
-            val expanded = SongbookCategoryExpandStore.isExpanded(appContext, s.groupKey, defaultExpanded = true)
+            val expanded = SongbookCategoryExpandStore.isExpanded(appContext, s.groupKey, defaultExpanded = false)
             binding.recyclerSongbookSectionSongs.visibility = if (expanded) View.VISIBLE else View.GONE
             binding.imageSongbookCategoryExpand.setImageResource(
                 if (expanded) R.drawable.ic_expand_less_24 else R.drawable.ic_expand_more_24

@@ -318,6 +318,9 @@
     let songbookSearchQuery = '';
     let songbookSearchDebounceTimer = null;
 
+    let ordoMissaeSearchQuery = '';
+    let ordoMissaeSearchDebounceTimer = null;
+
     /** Спіс перакладаў, для якіх ёсць лакальныя JSON (bundled_translations.json + scripture_catalog.json). */
     let scriptureTranslationsList = null;
     /** id → { id, title, description } з scripture_catalog.json */
@@ -1471,7 +1474,7 @@
             const unavailableOverlay = c.available
                 ? ''
                 : `<div class="absolute inset-0 pointer-events-none" style="background-color: rgba(71, 85, 105, 0.46);"></div>
-                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div class="absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none">
                         <span class="rounded-md px-3 py-1 text-sm font-semibold" style="background-color: rgba(71, 85, 105, 0.86); color: #ffffff !important; -webkit-text-fill-color: #ffffff;">In progress</span>
                     </div>`;
             /** Фільтр толькі на медыя — інакш «In progress» атрымлівае той жа grayscale/brightness і выглядае шэрым. */
@@ -1479,10 +1482,10 @@
             const unavailableCardStyle = c.available
                 ? ''
                 : 'background-color: rgba(30, 41, 59, 0.72); border-color: rgba(71, 85, 105, 0.55);';
-            const unavailableTitleStyle = c.available ? '' : 'color: rgb(203, 213, 225);';
             const cardInteractionClasses = c.available ? 'active:scale-[0.98] cursor-pointer' : 'cursor-default';
             const infoHintBadge = c.infoHint
                 ? `<span
+                        class="absolute right-2 top-2 z-20"
                         style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;min-width:22px;min-height:22px;border-radius:9999px;background-color:#111827;color:#ffffff;font-size:12px;font-weight:700;line-height:1;font-family:system-ui,-apple-system,sans-serif;flex-shrink:0;"
                         title="${escapeHtml(c.infoHint)}"
                         aria-label="${escapeHtml(c.infoHint)}">i</span>`
@@ -1490,19 +1493,17 @@
             return `
             <div class="relative w-full min-h-0 ${colSpan}">
                 <button type="button" data-home-card="${c.target}" data-home-available="${c.available ? '1' : '0'}"
-                    class="text-left rounded-md border border-app-stroke bg-app-elevated overflow-hidden w-full min-h-0 transition-transform ${cardInteractionClasses}"
+                    class="text-left rounded-md border border-app-stroke bg-app-elevated overflow-hidden w-full min-h-0 p-0 transition-transform ${cardInteractionClasses}"
                     style="${unavailableCardStyle}">
                     <div class="home-card-head relative h-[132px] w-full overflow-hidden bg-app-surface">
                         <div class="absolute inset-0 overflow-hidden" style="${unavailableMediaFilterStyle}">
                             ${img}
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent pointer-events-none"></div>
+                            <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(180deg, rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.34) 45%, rgba(0,0,0,0.62) 100%);"></div>
                         </div>
                         ${unavailableOverlay}
-                    </div>
-                    <div class="p-[18px]">
-                        <div class="flex items-center gap-2">
-                            <div class="font-bold text-[18px] leading-snug text-app-text" style="${unavailableTitleStyle}">${escapeHtml(c.title)}</div>
-                            ${infoHintBadge}
+                        ${infoHintBadge}
+                        <div class="absolute inset-x-0 bottom-0 z-10 flex items-end justify-start px-1.5 pb-1.5 text-left pointer-events-none">
+                            <div class="font-medium text-[20px] leading-[1.2] text-white max-w-full" style="text-shadow: 0 2px 6px rgba(0,0,0,0.85); color: #ffffff !important; -webkit-text-fill-color: #ffffff; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${escapeHtml(c.title)}</div>
                         </div>
                     </div>
                 </button>
@@ -2589,6 +2590,17 @@
             }
             currentView = 'home';
         } else if (currentView === 'ordo-missae') {
+            if (ordoMissaeSearchQuery.trim()) {
+                if (ordoMissaeSearchDebounceTimer) {
+                    clearTimeout(ordoMissaeSearchDebounceTimer);
+                    ordoMissaeSearchDebounceTimer = null;
+                }
+                ordoMissaeSearchQuery = '';
+                const el = document.getElementById('ordo-missae-search-query');
+                if (el) el.value = '';
+                hydrateOrdoMissaeSearchState();
+                return;
+            }
             currentView = 'home';
         } else if (currentView === 'calendar') {
             currentView = 'home';
@@ -2910,7 +2922,14 @@
 
     function ordoMissaeShellHtml() {
         return `
-        <div class="w-full max-w-[480px] mx-auto px-2 pb-8 pt-2 min-h-[min(70dvh,640px)]">
+        <div class="w-full max-w-[480px] mx-auto px-2 pb-8 pt-2 min-h-[min(70dvh,640px)] flex flex-col gap-3">
+            <div class="${APP_SEARCH_BAR_CLASS}">
+                <i class="fas fa-search text-app-textTer text-sm shrink-0" aria-hidden="true"></i>
+                <input type="search" id="ordo-missae-search-query" autocomplete="off" placeholder="Слова або «словазлучэнне»…"
+                    value="${escapeHtml(ordoMissaeSearchQuery)}" class="${APP_SEARCH_INPUT_CLASS}" />
+                <button type="button" data-action="ordo-search-clear" id="ordo-missae-search-clear" class="${ordoMissaeSearchQuery.trim() ? '' : 'hidden '}w-8 h-8 shrink-0 flex items-center justify-center rounded-lg text-app-textTer hover:bg-white/[0.06] border-0 bg-transparent cursor-pointer" aria-label="Ачысціць пошук"><i class="fas fa-xmark text-sm" aria-hidden="true"></i></button>
+            </div>
+            <p id="ordo-missae-search-status" class="${ordoMissaeSearchQuery.trim() ? '' : 'hidden '}text-sm text-app-textSec leading-snug px-0.5"></p>
             <div id="ordo-missae-root" class="min-h-[min(70dvh,640px)] flex flex-col">
                 <div class="flex flex-1 flex-col items-center justify-center py-16 gap-3 text-app-textTer">
                     <i class="fas fa-circle-notch fa-spin text-3xl text-app-textSec" aria-hidden="true"></i>
@@ -2930,51 +2949,98 @@
         return h.toString(16) + '_' + s.length;
     }
 
-    /** Запамінае разгорнутыя/згорнутыя часткі Ordo Missae (localStorage, прывязка да зместу). */
-    function ordoMissaeApplyFoldMemory(hostEl, rawOriginal) {
-        const raw = String(rawOriginal || '');
-        if (!hostEl || raw.indexOf('data-ordo-section=') < 0) return;
-        const fp = ordoMissaeContentFp(raw);
-        const keys = ['intro', 'liturgy_word', 'eucharist', 'eucharist_prayer2', 'communion', 'closing'];
-        const lsKey = (k) => 'totus.ordo.fold.' + fp + '.' + k;
-        const prefsFpKey = 'totus.ordo.fold.content_fp';
-        /** Без open у HTML: першая загрузка — усё згорнута; далей толькі localStorage. */
-        function parseDefault() {
-            return false;
+    const ORDO_MISSAE_BUILT_IN_SECTION_KEYS = ['intro', 'liturgy_word', 'eucharist', 'eucharist_prayer2', 'communion', 'closing'];
+
+    function ordoMissaeSectionKeys(hostEl) {
+        const keys = [];
+        const seen = new Set();
+        if (hostEl) {
+            hostEl.querySelectorAll('details.ordo-missae-section[data-ordo-section]').forEach((det) => {
+                const k = String(det.getAttribute('data-ordo-section') || '').trim();
+                if (!k || seen.has(k)) return;
+                seen.add(k);
+                keys.push(k);
+            });
         }
+        return keys.length > 0 ? keys : ORDO_MISSAE_BUILT_IN_SECTION_KEYS;
+    }
+
+    function ordoMissaeFoldStorage(hostEl, rawOriginal) {
+        const raw = String(rawOriginal || '');
+        const fp = ordoMissaeContentFp(raw);
+        return {
+            fp,
+            keys: ordoMissaeSectionKeys(hostEl),
+            lsKey: (k) => 'totus.ordo.fold.' + fp + '.' + k,
+            prefsFpKey: 'totus.ordo.fold.content_fp',
+        };
+    }
+
+    function ordoMissaeEnsureFoldFingerprint(store) {
         try {
-            const old = localStorage.getItem(prefsFpKey);
-            if (old && old !== fp) {
-                keys.forEach((k) => localStorage.removeItem('totus.ordo.fold.' + old + '.' + k));
+            const old = localStorage.getItem(store.prefsFpKey);
+            if (old && old !== store.fp) {
+                const prefix = 'totus.ordo.fold.' + old + '.';
+                for (let i = localStorage.length - 1; i >= 0; i--) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith(prefix)) localStorage.removeItem(k);
+                }
             }
-            localStorage.setItem(prefsFpKey, fp);
+            localStorage.setItem(store.prefsFpKey, store.fp);
         } catch (e) {
             /* ignore */
         }
+    }
+
+    function ordoMissaeSavedOpen(store, sectionKey) {
+        let open = false;
+        try {
+            const v = localStorage.getItem(store.lsKey(sectionKey));
+            if (v === '1') open = true;
+            else if (v === '0') open = false;
+        } catch (e) {
+            /* ignore */
+        }
+        return open;
+    }
+
+    function ordoMissaeRestoreFoldState(hostEl, rawOriginal) {
+        if (!hostEl) return;
+        const store = ordoMissaeFoldStorage(hostEl, rawOriginal);
+        ordoMissaeEnsureFoldFingerprint(store);
+        hostEl.dataset.ordoFoldApplying = '1';
         hostEl.querySelectorAll('details.ordo-missae-section').forEach((det) => {
             det.open = false;
+            det.classList.remove('ordo-search-match');
         });
         hostEl.querySelectorAll('details.ordo-missae-section[data-ordo-section]').forEach((det) => {
             const k = det.getAttribute('data-ordo-section');
             if (!k) return;
-            let open = parseDefault();
-            try {
-                const v = localStorage.getItem(lsKey(k));
-                if (v === '1') open = true;
-                else if (v === '0') open = false;
-            } catch (e2) {
-                /* ignore */
-            }
-            det.open = open;
+            det.open = ordoMissaeSavedOpen(store, k);
         });
+        queueMicrotask(() => {
+            if (hostEl && hostEl.dataset) delete hostEl.dataset.ordoFoldApplying;
+        });
+    }
+
+    /** Запамінае разгорнутыя/згорнутыя часткі Ordo Missae (localStorage, прывязка да зместу). */
+    function ordoMissaeApplyFoldMemory(hostEl, rawOriginal) {
+        const raw = String(rawOriginal || '');
+        if (!hostEl || raw.indexOf('data-ordo-section=') < 0) return;
+        hostEl.__totusOrdoRaw = raw;
+        const store = ordoMissaeFoldStorage(hostEl, raw);
+        ordoMissaeRestoreFoldState(hostEl, raw);
         hostEl.querySelectorAll('details.ordo-missae-section[data-ordo-section]').forEach((det) => {
+            if (det.dataset.ordoFoldBound === '1') return;
+            det.dataset.ordoFoldBound = '1';
             det.addEventListener(
                 'toggle',
                 () => {
+                    if (hostEl.dataset.ordoFoldApplying === '1' || hostEl.classList.contains('ordo-search-active')) return;
                     const k = det.getAttribute('data-ordo-section');
                     if (!k) return;
                     try {
-                        localStorage.setItem(lsKey(k), det.open ? '1' : '0');
+                        localStorage.setItem(store.lsKey(k), det.open ? '1' : '0');
                     } catch (e3) {
                         /* ignore */
                     }
@@ -2982,6 +3048,88 @@
                 { passive: true },
             );
         });
+    }
+
+    function ordoMissaeNormalizeSearchText(value) {
+        return String(value || '')
+            .normalize('NFKD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[’‘ʼ`´]/g, "'")
+            .toLowerCase()
+            .replace(/[^\p{L}\p{N}'-]+/gu, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    function ordoMissaeSearchTerms(query) {
+        const terms = [];
+        const seen = new Set();
+        const re = /"([^"]+)"|'([^']+)'|«([^»]+)»|“([^”]+)”|(\S+)/g;
+        let m;
+        while ((m = re.exec(String(query || ''))) !== null) {
+            const raw = m[1] || m[2] || m[3] || m[4] || m[5] || '';
+            const n = ordoMissaeNormalizeSearchText(raw);
+            if (!n || seen.has(n)) continue;
+            seen.add(n);
+            terms.push(n);
+        }
+        const whole = ordoMissaeNormalizeSearchText(String(query || '').replace(/["'«»“”]/g, ' '));
+        return { terms, whole };
+    }
+
+    function ordoMissaeTextMatchesSmartQuery(normalizedText, parsedQuery) {
+        if (!normalizedText || !parsedQuery || parsedQuery.terms.length === 0) return false;
+        if (parsedQuery.whole && normalizedText.includes(parsedQuery.whole)) return true;
+        return parsedQuery.terms.every((term) => normalizedText.includes(term));
+    }
+
+    function syncOrdoSearchClearButton() {
+        const btn = document.getElementById('ordo-missae-search-clear');
+        if (btn) btn.classList.toggle('hidden', !ordoMissaeSearchQuery.trim());
+    }
+
+    function hydrateOrdoMissaeSearchState() {
+        const root = document.getElementById('ordo-missae-root');
+        const host = root ? root.querySelector('.prayer-detail-html') : null;
+        const statusEl = document.getElementById('ordo-missae-search-status');
+        const qInput = document.getElementById('ordo-missae-search-query');
+        const q = qInput ? qInput.value : ordoMissaeSearchQuery;
+        ordoMissaeSearchQuery = q;
+        syncOrdoSearchClearButton();
+        const trimmed = String(q || '').trim();
+        if (!host) {
+            if (statusEl) statusEl.classList.add('hidden');
+            return;
+        }
+        const raw = String(host.__totusOrdoRaw || '');
+        if (!trimmed) {
+            host.classList.remove('ordo-search-active');
+            ordoMissaeRestoreFoldState(host, raw);
+            if (statusEl) statusEl.classList.add('hidden');
+            return;
+        }
+        const parsed = ordoMissaeSearchTerms(trimmed);
+        host.classList.add('ordo-search-active');
+        host.dataset.ordoFoldApplying = '1';
+        let count = 0;
+        const details = Array.from(host.querySelectorAll('details.ordo-missae-section[data-ordo-section]'));
+        details.forEach((det) => {
+            const normalized = ordoMissaeNormalizeSearchText(det.textContent || '');
+            const matched = ordoMissaeTextMatchesSmartQuery(normalized, parsed);
+            det.open = matched;
+            det.classList.toggle('ordo-search-match', matched);
+            if (matched) count++;
+        });
+        queueMicrotask(() => {
+            if (host && host.dataset) delete host.dataset.ordoFoldApplying;
+        });
+        if (statusEl) {
+            statusEl.textContent =
+                count === 0
+                    ? 'Нічога не знойдзена. Паспрабуйце іншыя словы або словазлучэнне ў двукоссі.'
+                    : `Адкрыта раздзелаў: ${count}.`;
+            statusEl.classList.remove('hidden');
+        }
     }
 
     async function hydrateOrdoMissae() {
@@ -3023,6 +3171,9 @@
             const host = root.querySelector('.prayer-detail-html');
             if (host) ordoMissaeApplyFoldMemory(host, raw);
         }
+        const qInput = document.getElementById('ordo-missae-search-query');
+        if (qInput) qInput.value = ordoMissaeSearchQuery;
+        hydrateOrdoMissaeSearchState();
     }
 
     function scriptureTrPanelClose() {
@@ -3544,6 +3695,19 @@
                     if (currentView === 'scripture' && scPanel === 'compare') hydrateScriptureView();
                     return;
                 }
+                if (a === 'ordo-search-clear') {
+                    if (currentView !== 'ordo-missae') return;
+                    if (ordoMissaeSearchDebounceTimer) {
+                        clearTimeout(ordoMissaeSearchDebounceTimer);
+                        ordoMissaeSearchDebounceTimer = null;
+                    }
+                    ordoMissaeSearchQuery = '';
+                    const el = document.getElementById('ordo-missae-search-query');
+                    if (el) el.value = '';
+                    hydrateOrdoMissaeSearchState();
+                    el?.focus();
+                    return;
+                }
                 if (a === 'toolbar-prayer-bookmarks') {
                     prayerBeforeDetail = null;
                     prayerView = 'list';
@@ -3837,6 +4001,15 @@
                     hydrateSongbookSearchResults();
                 }, 200);
             }
+            if (e.target.id === 'ordo-missae-search-query') {
+                ordoMissaeSearchQuery = e.target.value;
+                syncOrdoSearchClearButton();
+                if (ordoMissaeSearchDebounceTimer) clearTimeout(ordoMissaeSearchDebounceTimer);
+                ordoMissaeSearchDebounceTimer = setTimeout(() => {
+                    ordoMissaeSearchDebounceTimer = null;
+                    hydrateOrdoMissaeSearchState();
+                }, 180);
+            }
         });
 
         app.addEventListener('change', (e) => {
@@ -3928,6 +4101,10 @@
             clearTimeout(prayerSearchDebounceTimer);
             prayerSearchDebounceTimer = null;
         }
+        if (view !== 'ordo-missae' && ordoMissaeSearchDebounceTimer) {
+            clearTimeout(ordoMissaeSearchDebounceTimer);
+            ordoMissaeSearchDebounceTimer = null;
+        }
         if (view === 'home') {
             prayerNav = { screen: 'categories' };
             prayerBeforeDetail = null;
@@ -3947,6 +4124,10 @@
             songbookSearchDebounceTimer = null;
             songbookDetailId = null;
             songbookStateBeforeDetail = null;
+        }
+        if (view === 'ordo-missae') {
+            ordoMissaeSearchQuery = '';
+            ordoMissaeSearchDebounceTimer = null;
         }
         if (view === 'scripture') {
             scBookIdx = null;
@@ -4125,7 +4306,7 @@
         } catch {
             /* ignore */
         }
-        return true;
+        return false;
     }
 
     function writeSongbookCategoryExpanded(storageKey, expanded) {
@@ -4721,7 +4902,7 @@
         } catch {
             /* ignore */
         }
-        return true;
+        return false;
     }
 
     function writeScriptureTestamentExpanded(sectionKey, expanded) {
