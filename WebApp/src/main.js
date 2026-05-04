@@ -48,6 +48,16 @@
             available: true,
             image: 'assets/home/scripture_header_bible.jpg',
         },
+        {
+            title: 'Спасылка на Telegram',
+            span: 2,
+            target: 'telegram',
+            available: true,
+            image: '',
+            height: 66,
+            centerLabelWithIcon: true,
+            url: 'https://t.me/totustuusapp',
+        },
     ];
 
     const SCRIPTURE_TR_KEY = 'totus_scripture_translation_id';
@@ -320,6 +330,8 @@
 
     let ordoMissaeSearchQuery = '';
     let ordoMissaeSearchDebounceTimer = null;
+    let ordoMissaeSearchResults = [];
+    let ordoMissaeSearchIndex = -1;
 
     /** Спіс перакладаў, для якіх ёсць лакальныя JSON (bundled_translations.json + scripture_catalog.json). */
     let scriptureTranslationsList = null;
@@ -1483,6 +1495,7 @@
                 ? ''
                 : 'background-color: rgba(30, 41, 59, 0.72); border-color: rgba(71, 85, 105, 0.55);';
             const cardInteractionClasses = c.available ? 'active:scale-[0.98] cursor-pointer' : 'cursor-default';
+            const cardHeight = Number.isFinite(c.height) ? Number(c.height) : 132;
             const infoHintBadge = c.infoHint
                 ? `<span
                         class="absolute right-2 top-2 z-20"
@@ -1490,21 +1503,29 @@
                         title="${escapeHtml(c.infoHint)}"
                         aria-label="${escapeHtml(c.infoHint)}">i</span>`
                 : '';
+            const telegramLabel = c.centerLabelWithIcon
+                ? `<div class="absolute inset-0 z-10 flex items-center justify-center px-3 pointer-events-none">
+                        <div class="inline-flex items-center justify-center gap-2.5 text-app-text">
+                            <i class="fas fa-paper-plane text-base" aria-hidden="true"></i>
+                            <span class="font-medium text-[20px] leading-[1.2] text-app-text">${escapeHtml(c.title)}</span>
+                        </div>
+                    </div>`
+                : '';
             return `
             <div class="relative w-full min-h-0 ${colSpan}">
                 <button type="button" data-home-card="${c.target}" data-home-available="${c.available ? '1' : '0'}"
                     class="text-left rounded-md border border-app-stroke bg-app-elevated overflow-hidden w-full min-h-0 p-0 transition-transform ${cardInteractionClasses}"
                     style="${unavailableCardStyle}">
-                    <div class="home-card-head relative h-[132px] w-full overflow-hidden bg-app-surface">
+                    <div class="home-card-head relative w-full overflow-hidden bg-app-surface" style="height:${cardHeight}px;">
                         <div class="absolute inset-0 overflow-hidden" style="${unavailableMediaFilterStyle}">
                             ${img}
-                            <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(180deg, rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.34) 45%, rgba(0,0,0,0.62) 100%);"></div>
+                            ${c.centerLabelWithIcon ? '' : '<div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 72%, rgba(0,0,0,0.8) 100%);"></div>'}
                         </div>
                         ${unavailableOverlay}
                         ${infoHintBadge}
-                        <div class="absolute inset-x-0 bottom-0 z-10 flex items-end justify-start px-1.5 pb-1.5 text-left pointer-events-none">
-                            <div class="font-medium text-[20px] leading-[1.2] text-white max-w-full" style="text-shadow: 0 2px 6px rgba(0,0,0,0.85); color: #ffffff !important; -webkit-text-fill-color: #ffffff; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${escapeHtml(c.title)}</div>
-                        </div>
+                        ${c.centerLabelWithIcon ? telegramLabel : `<div class="absolute inset-x-0 bottom-0 z-10 flex items-end justify-start px-1.5 pb-1.5 text-left pointer-events-none">
+                            <div class="font-medium text-[20px] leading-[1.2] text-white max-w-full" style="text-shadow: 0 2px 6px rgba(0,0,0,0.9); color: #ffffff !important; -webkit-text-fill-color: #ffffff; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${escapeHtml(c.title)}</div>
+                        </div>`}
                     </div>
                 </button>
             </div>`;
@@ -2924,12 +2945,13 @@
         return `
         <div class="w-full max-w-[480px] mx-auto px-2 pb-8 pt-2 min-h-[min(70dvh,640px)] flex flex-col gap-3">
             <div class="${APP_SEARCH_BAR_CLASS}">
-                <i class="fas fa-search text-app-textTer text-sm shrink-0" aria-hidden="true"></i>
                 <input type="search" id="ordo-missae-search-query" autocomplete="off" placeholder="Слова або «словазлучэнне»…"
                     value="${escapeHtml(ordoMissaeSearchQuery)}" class="${APP_SEARCH_INPUT_CLASS}" />
-                <button type="button" data-action="ordo-search-clear" id="ordo-missae-search-clear" class="${ordoMissaeSearchQuery.trim() ? '' : 'hidden '}w-8 h-8 shrink-0 flex items-center justify-center rounded-lg text-app-textTer hover:bg-white/[0.06] border-0 bg-transparent cursor-pointer" aria-label="Ачысціць пошук"><i class="fas fa-xmark text-sm" aria-hidden="true"></i></button>
+                <div id="ordo-missae-search-nav" class="${ordoMissaeSearchQuery.trim() ? '' : 'hidden '}flex items-center gap-0.5 shrink-0">
+                    <button type="button" data-action="ordo-search-prev" id="ordo-missae-search-prev" class="w-8 h-8 shrink-0 flex items-center justify-center rounded-lg text-app-text hover:bg-white/[0.06] border-0 bg-transparent cursor-pointer disabled:opacity-45 disabled:cursor-default" aria-label="Папярэдні вынік"><i class="fas fa-chevron-left text-sm" aria-hidden="true"></i></button>
+                    <button type="button" data-action="ordo-search-next" id="ordo-missae-search-next" class="w-8 h-8 shrink-0 flex items-center justify-center rounded-lg text-app-text hover:bg-white/[0.06] border-0 bg-transparent cursor-pointer disabled:opacity-45 disabled:cursor-default" aria-label="Наступны вынік"><i class="fas fa-chevron-right text-sm" aria-hidden="true"></i></button>
+                </div>
             </div>
-            <p id="ordo-missae-search-status" class="${ordoMissaeSearchQuery.trim() ? '' : 'hidden '}text-sm text-app-textSec leading-snug px-0.5"></p>
             <div id="ordo-missae-root" class="min-h-[min(70dvh,640px)] flex flex-col">
                 <div class="flex flex-1 flex-col items-center justify-center py-16 gap-3 text-app-textTer">
                     <i class="fas fa-circle-notch fa-spin text-3xl text-app-textSec" aria-hidden="true"></i>
@@ -3083,53 +3105,145 @@
         return parsedQuery.terms.every((term) => normalizedText.includes(term));
     }
 
-    function syncOrdoSearchClearButton() {
-        const btn = document.getElementById('ordo-missae-search-clear');
-        if (btn) btn.classList.toggle('hidden', !ordoMissaeSearchQuery.trim());
+    function syncOrdoSearchNav(query, count) {
+        const nav = document.getElementById('ordo-missae-search-nav');
+        const prev = document.getElementById('ordo-missae-search-prev');
+        const next = document.getElementById('ordo-missae-search-next');
+        const hasQuery = String(query || '').trim().length > 0;
+        if (nav) nav.classList.toggle('hidden', !hasQuery);
+        const canMove = count > 1;
+        if (prev) prev.disabled = !canMove;
+        if (next) next.disabled = !canMove;
+    }
+
+    function ordoMissaeClearHighlights(host) {
+        if (!host) return;
+        host.querySelectorAll('mark.ordo-search-highlight').forEach((mark) => {
+            const parent = mark.parentNode;
+            if (!parent) return;
+            parent.replaceChild(document.createTextNode(mark.textContent || ''), mark);
+            parent.normalize();
+        });
+        host.querySelectorAll('.ordo-search-match').forEach((el) => el.classList.remove('ordo-search-match'));
+        ordoMissaeSearchResults = [];
+        ordoMissaeSearchIndex = -1;
+    }
+
+    function ordoMissaeSelectResult(index, shouldScroll) {
+        if (!Array.isArray(ordoMissaeSearchResults) || ordoMissaeSearchResults.length === 0) return;
+        if (index < 0 || index >= ordoMissaeSearchResults.length) return;
+        ordoMissaeSearchResults.forEach((el) => el.classList.remove('ordo-search-highlight-active'));
+        const current = ordoMissaeSearchResults[index];
+        if (!current) return;
+        current.classList.add('ordo-search-highlight-active');
+        ordoMissaeSearchIndex = index;
+        if (shouldScroll !== false) {
+            current.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+        }
+    }
+
+    function moveOrdoSearchResult(delta) {
+        if (!Array.isArray(ordoMissaeSearchResults) || ordoMissaeSearchResults.length === 0) return;
+        let next = ordoMissaeSearchIndex;
+        if (!Number.isFinite(next) || next < 0) next = 0;
+        else next = (next + delta + ordoMissaeSearchResults.length) % ordoMissaeSearchResults.length;
+        ordoMissaeSelectResult(next, true);
     }
 
     function hydrateOrdoMissaeSearchState() {
         const root = document.getElementById('ordo-missae-root');
         const host = root ? root.querySelector('.prayer-detail-html') : null;
-        const statusEl = document.getElementById('ordo-missae-search-status');
         const qInput = document.getElementById('ordo-missae-search-query');
         const q = qInput ? qInput.value : ordoMissaeSearchQuery;
         ordoMissaeSearchQuery = q;
-        syncOrdoSearchClearButton();
         const trimmed = String(q || '').trim();
         if (!host) {
-            if (statusEl) statusEl.classList.add('hidden');
+            syncOrdoSearchNav(trimmed, 0);
             return;
         }
         const raw = String(host.__totusOrdoRaw || '');
+        ordoMissaeClearHighlights(host);
         if (!trimmed) {
             host.classList.remove('ordo-search-active');
             ordoMissaeRestoreFoldState(host, raw);
-            if (statusEl) statusEl.classList.add('hidden');
+            syncOrdoSearchNav(trimmed, 0);
             return;
         }
-        const parsed = ordoMissaeSearchTerms(trimmed);
+        const needle = String(trimmed).toLocaleLowerCase();
+        if (!needle) {
+            syncOrdoSearchNav(trimmed, 0);
+            return;
+        }
         host.classList.add('ordo-search-active');
         host.dataset.ordoFoldApplying = '1';
-        let count = 0;
-        const details = Array.from(host.querySelectorAll('details.ordo-missae-section[data-ordo-section]'));
-        details.forEach((det) => {
-            const normalized = ordoMissaeNormalizeSearchText(det.textContent || '');
-            const matched = ordoMissaeTextMatchesSmartQuery(normalized, parsed);
-            det.open = matched;
-            det.classList.toggle('ordo-search-match', matched);
-            if (matched) count++;
+        host.querySelectorAll('details.ordo-missae-section[data-ordo-section]').forEach((det) => {
+            det.open = false;
         });
+        const walker = document.createTreeWalker(host, NodeFilter.SHOW_TEXT, {
+            acceptNode(node) {
+                if (!node || !node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+                let el = node.parentElement;
+                while (el) {
+                    const tag = String(el.tagName || '').toLowerCase();
+                    if (
+                        tag === 'script' ||
+                        tag === 'style' ||
+                        tag === 'noscript' ||
+                        tag === 'textarea' ||
+                        tag === 'input' ||
+                        tag === 'select' ||
+                        tag === 'option'
+                    ) {
+                        return NodeFilter.FILTER_REJECT;
+                    }
+                    if (tag === 'mark' && el.classList.contains('ordo-search-highlight')) {
+                        return NodeFilter.FILTER_REJECT;
+                    }
+                    el = el.parentElement;
+                }
+                return NodeFilter.FILTER_ACCEPT;
+            },
+        });
+        const textNodes = [];
+        let node;
+        while ((node = walker.nextNode())) textNodes.push(node);
+        textNodes.forEach((textNode) => {
+            const text = String(textNode.nodeValue || '');
+            const hay = text.toLocaleLowerCase();
+            let pos = 0;
+            let hit = hay.indexOf(needle, pos);
+            if (hit < 0) return;
+            const frag = document.createDocumentFragment();
+            while (hit >= 0) {
+                if (hit > pos) frag.appendChild(document.createTextNode(text.slice(pos, hit)));
+                const mark = document.createElement('mark');
+                mark.className = 'ordo-search-highlight';
+                mark.textContent = text.slice(hit, hit + trimmed.length);
+                frag.appendChild(mark);
+                pos = hit + trimmed.length;
+                hit = hay.indexOf(needle, pos);
+            }
+            if (pos < text.length) frag.appendChild(document.createTextNode(text.slice(pos)));
+            textNode.parentNode.replaceChild(frag, textNode);
+        });
+        const marks = Array.from(host.querySelectorAll('mark.ordo-search-highlight'));
+        marks.forEach((mark) => {
+            let el = mark.parentElement;
+            while (el && el !== host) {
+                if (el.tagName && String(el.tagName).toLowerCase() === 'details' && el.classList.contains('ordo-missae-section')) {
+                    el.open = true;
+                    el.classList.add('ordo-search-match');
+                }
+                el = el.parentElement;
+            }
+        });
+        ordoMissaeSearchResults = marks;
+        ordoMissaeSearchIndex = marks.length > 0 ? 0 : -1;
+        if (marks.length > 0) ordoMissaeSelectResult(0, true);
         queueMicrotask(() => {
             if (host && host.dataset) delete host.dataset.ordoFoldApplying;
         });
-        if (statusEl) {
-            statusEl.textContent =
-                count === 0
-                    ? 'Нічога не знойдзена. Паспрабуйце іншыя словы або словазлучэнне ў двукоссі.'
-                    : `Адкрыта раздзелаў: ${count}.`;
-            statusEl.classList.remove('hidden');
-        }
+        syncOrdoSearchNav(trimmed, marks.length);
     }
 
     async function hydrateOrdoMissae() {
@@ -3695,17 +3809,14 @@
                     if (currentView === 'scripture' && scPanel === 'compare') hydrateScriptureView();
                     return;
                 }
-                if (a === 'ordo-search-clear') {
+                if (a === 'ordo-search-prev') {
                     if (currentView !== 'ordo-missae') return;
-                    if (ordoMissaeSearchDebounceTimer) {
-                        clearTimeout(ordoMissaeSearchDebounceTimer);
-                        ordoMissaeSearchDebounceTimer = null;
-                    }
-                    ordoMissaeSearchQuery = '';
-                    const el = document.getElementById('ordo-missae-search-query');
-                    if (el) el.value = '';
-                    hydrateOrdoMissaeSearchState();
-                    el?.focus();
+                    moveOrdoSearchResult(-1);
+                    return;
+                }
+                if (a === 'ordo-search-next') {
+                    if (currentView !== 'ordo-missae') return;
+                    moveOrdoSearchResult(1);
                     return;
                 }
                 if (a === 'toolbar-prayer-bookmarks') {
@@ -3919,6 +4030,10 @@
                 if (hc.dataset.homeAvailable === '0') {
                     return;
                 }
+                if (hc.dataset.homeCard === 'telegram') {
+                    openTelegramLink('https://t.me/totustuusapp');
+                    return;
+                }
                 switchView(hc.dataset.homeCard);
                 return;
             }
@@ -4003,7 +4118,6 @@
             }
             if (e.target.id === 'ordo-missae-search-query') {
                 ordoMissaeSearchQuery = e.target.value;
-                syncOrdoSearchClearButton();
                 if (ordoMissaeSearchDebounceTimer) clearTimeout(ordoMissaeSearchDebounceTimer);
                 ordoMissaeSearchDebounceTimer = setTimeout(() => {
                     ordoMissaeSearchDebounceTimer = null;
@@ -4090,6 +4204,35 @@
                 if (homeThemePanel && !homeThemePanel.classList.contains('hidden')) homeThemePanelClose();
             });
         }
+    }
+
+    function openTelegramLink(url) {
+        const raw = String(url || '').trim();
+        if (!raw) return;
+        let channel = '';
+        try {
+            const u = new URL(raw);
+            const host = String(u.host || '').toLowerCase();
+            if (host === 't.me' || host === 'telegram.me') {
+                channel = String((u.pathname || '').split('/').filter(Boolean)[0] || '').trim();
+            }
+        } catch {
+            /* ignore */
+        }
+        if (channel) {
+            const appUrl = `tg://resolve?domain=${encodeURIComponent(channel)}`;
+            const fallbackTimer = window.setTimeout(() => {
+                window.location.href = raw;
+            }, 700);
+            const onBlur = () => {
+                window.clearTimeout(fallbackTimer);
+                window.removeEventListener('blur', onBlur);
+            };
+            window.addEventListener('blur', onBlur, { once: true });
+            window.location.href = appUrl;
+            return;
+        }
+        window.location.href = raw;
     }
 
     function switchView(view) {

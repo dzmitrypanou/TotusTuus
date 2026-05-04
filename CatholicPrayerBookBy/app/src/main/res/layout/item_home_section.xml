@@ -18,7 +18,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="132dp">
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/image_home_item"
@@ -27,7 +27,51 @@
             android:contentDescription="@null"
             android:scaleType="centerCrop" />
 
+        <ImageView
+            android:id="@+id/image_home_item_left_icon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="start|center_vertical"
+            android:layout_marginStart="14dp"
+            android:contentDescription="@null"
+            android:visibility="gone"
+            app:tint="@android:color/white" />
+
+        <LinearLayout
+            android:id="@+id/layout_home_item_center_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/image_home_item_center_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="@null"
+                android:tint="@android:color/white" />
+
+            <by.dzmitrypanou.catholicapp.ui.TotusToolbarTitleTextView
+                android:id="@+id/text_home_item_center_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:ellipsize="end"
+                android:lineSpacingExtra="1dp"
+                android:maxLines="1"
+                android:shadowColor="#E0000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="6"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/text_home_card_title" />
+        </LinearLayout>
+
         <View
+            android:id="@+id/view_home_item_scrim"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/bg_home_card_image_scrim" />

@@ -8,9 +8,15 @@ import android.widget.Toast
 import android.graphics.Color
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.util.TypedValue
+import android.view.Gravity
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import android.widget.FrameLayout
 import by.dzmitrypanou.catholicapp.ui.scripture.ScriptureTextRepository
 import kotlinx.coroutines.launch
 import androidx.recyclerview.widget.DiffUtil
@@ -48,7 +54,17 @@ class HomeFragment : Fragment() {
             HomeSection(getString(R.string.home_item_prayerbook), true, R.drawable.prayerbook_header_image),
             HomeSection(getString(R.string.home_item_liturgy_calendar), true, R.drawable.liturgy_calendar_header_image, spanSize = 2),
             HomeSection(getString(R.string.home_item_songbook), true, R.drawable.songbook_header_image),
-            HomeSection(getString(R.string.home_item_scripture), true, R.drawable.scripture_header_bible)
+            HomeSection(getString(R.string.home_item_scripture), true, R.drawable.scripture_header_bible),
+            HomeSection(
+                title = getString(R.string.home_item_telegram_link),
+                isAvailable = true,
+                imageRes = R.drawable.bg_home_telegram_tile,
+                spanSize = 2,
+                tileHeightDp = 66,
+                leftIconRes = R.drawable.ic_telegram_24,
+                linkUrl = "https://t.me/totustuusapp",
+                centerTitle = true
+            )
         )
 
         val adapter = HomeSectionAdapter(
@@ -64,6 +80,13 @@ class HomeFragment : Fragment() {
                         findNavController().navigate(R.id.action_nav_home_to_nav_liturgy_calendar)
                     getString(R.string.home_item_ordo_missae) ->
                         findNavController().navigate(R.id.action_nav_home_to_nav_ordo_missae)
+                    getString(R.string.home_item_telegram_link) -> {
+                        if (section.linkUrl.isBlank()) {
+                            Toast.makeText(requireContext(), getString(R.string.home_item_telegram_link_missing), Toast.LENGTH_SHORT).show()
+                        } else {
+                            openExternalLink(section.linkUrl)
+                        }
+                    }
                 }
             },
             onUnavailableClick = {
@@ -97,6 +120,29 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun openExternalLink(url: String) {
+        val normalized = url.trim()
+        val tgDeepLink = buildTelegramDeepLink(normalized)
+        if (tgDeepLink != null) {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(tgDeepLink)))
+                return
+            } catch (_: ActivityNotFoundException) {
+                // Telegram app is not installed; open regular web link below.
+            }
+        }
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(normalized)))
+    }
+
+    private fun buildTelegramDeepLink(url: String): String? {
+        val uri = Uri.parse(url)
+        val host = uri.host?.lowercase().orEmpty()
+        if (host != "t.me" && host != "telegram.me") return null
+        val channel = uri.pathSegments.firstOrNull()?.trim().orEmpty()
+        if (channel.isBlank()) return null
+        return "tg://resolve?domain=$channel"
+    }
 }
 
 data class HomeSection(
@@ -105,7 +151,11 @@ data class HomeSection(
     val imageRes: Int,
     /** 1 — палова шырыні сеткі, 2 — на ўсю шырыню (як два звычайныя). */
     val spanSize: Int = 1,
-    val infoHint: String? = null
+    val infoHint: String? = null,
+    val tileHeightDp: Int = 132,
+    val leftIconRes: Int? = null,
+    val linkUrl: String = "",
+    val centerTitle: Boolean = false,
 )
 
 private class HomeSectionAdapter(
@@ -135,10 +185,85 @@ private class HomeSectionAdapter(
         ) {
             val ctx = binding.root.context
             PrayerBookUiTypography.applyUiSp(binding.textHomeItemTitle, R.dimen.text_home_card_title, ctx)
+            PrayerBookUiTypography.applyUiSp(binding.textHomeItemCenterTitle, R.dimen.text_home_card_title, ctx)
             PrayerBookUiTypography.applyUiSp(binding.textHomeItemStatus, R.dimen.text_home_card_caption, ctx)
             binding.textHomeItemTitle.text = item.title
+            binding.textHomeItemCenterTitle.text = item.title
             binding.textHomeItemTitle.setTextColor(Color.WHITE)
+            binding.textHomeItemCenterTitle.setTextColor(Color.WHITE)
             binding.imageHomeItem.setImageResource(item.imageRes)
+            binding.viewHomeItemScrim.visibility = if (item.centerTitle) View.GONE else View.VISIBLE
+            binding.imageHomeItem.layoutParams = binding.imageHomeItem.layoutParams.apply {
+                height = ViewGroup.LayoutParams.MATCH_PARENT
+            }
+            binding.root.layoutParams = binding.root.layoutParams.apply {
+                val hPx = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    item.tileHeightDp.toFloat(),
+                    ctx.resources.displayMetrics
+                ).toInt()
+                height = hPx
+            }
+            if (item.leftIconRes != null) {
+                binding.textHomeItemTitle.layoutParams =
+                    (binding.textHomeItemTitle.layoutParams as FrameLayout.LayoutParams).apply {
+                        gravity = if (item.centerTitle) {
+                            Gravity.CENTER
+                        } else {
+                            Gravity.CENTER_VERTICAL or Gravity.START
+                        }
+                    }
+                binding.textHomeItemTitle.maxLines = 1
+                if (item.centerTitle) {
+                    binding.imageHomeItemLeftIcon.visibility = View.GONE
+                    binding.layoutHomeItemCenterLabel.visibility = View.VISIBLE
+                    binding.imageHomeItemCenterIcon.setImageResource(item.leftIconRes)
+                    binding.textHomeItemTitle.visibility = View.GONE
+                    binding.textHomeItemTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
+                    binding.textHomeItemTitle.compoundDrawablePadding = 0
+                } else {
+                    binding.imageHomeItemLeftIcon.visibility = View.VISIBLE
+                    binding.imageHomeItemLeftIcon.setImageResource(item.leftIconRes)
+                    binding.layoutHomeItemCenterLabel.visibility = View.GONE
+                    binding.textHomeItemTitle.visibility = View.VISIBLE
+                    binding.textHomeItemTitle.gravity = Gravity.START or Gravity.CENTER_VERTICAL
+                    binding.textHomeItemTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
+                    binding.textHomeItemTitle.compoundDrawablePadding = 0
+                    val start = TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        46f,
+                        ctx.resources.displayMetrics
+                    ).toInt()
+                    val end = TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        8f,
+                        ctx.resources.displayMetrics
+                    ).toInt()
+                    binding.textHomeItemTitle.setPadding(start, 0, end, 0)
+                }
+            } else {
+                binding.imageHomeItemLeftIcon.visibility = View.GONE
+                binding.layoutHomeItemCenterLabel.visibility = View.GONE
+                binding.textHomeItemTitle.visibility = View.VISIBLE
+                binding.textHomeItemTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0)
+                binding.textHomeItemTitle.compoundDrawablePadding = 0
+                binding.textHomeItemTitle.layoutParams =
+                    (binding.textHomeItemTitle.layoutParams as FrameLayout.LayoutParams).apply {
+                        gravity = Gravity.BOTTOM or Gravity.START
+                    }
+                binding.textHomeItemTitle.maxLines = 2
+                val horizontal = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    6f,
+                    ctx.resources.displayMetrics
+                ).toInt()
+                val bottom = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    6f,
+                    ctx.resources.displayMetrics
+                ).toInt()
+                binding.textHomeItemTitle.setPadding(horizontal, 0, horizontal, bottom)
+            }
             val hint = item.infoHint
             if (hint.isNullOrBlank()) {
                 binding.buttonHomeItemInfo.visibility = View.GONE
