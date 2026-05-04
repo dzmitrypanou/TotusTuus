@@ -48,16 +48,6 @@
             available: true,
             image: 'assets/home/scripture_header_bible.jpg',
         },
-        {
-            title: 'Спасылка на Telegram',
-            span: 2,
-            target: 'telegram',
-            available: true,
-            image: '',
-            height: 66,
-            centerLabelWithIcon: true,
-            url: 'https://t.me/totustuusapp',
-        },
     ];
 
     const SCRIPTURE_TR_KEY = 'totus_scripture_translation_id';
@@ -1468,6 +1458,23 @@
         </header>`;
     }
 
+    function ordoMissaeSearchChromeHtml() {
+        if (currentView !== 'ordo-missae') return '';
+        return `
+        <div class="shrink-0 z-40" style="background: linear-gradient(315deg, #0E1020 0%, #171A2A 100%);">
+            <div class="w-full max-w-[480px] mx-auto" style="padding:8px;box-sizing:border-box;">
+                <div class="relative w-full box-border rounded-md border border-app-stroke border-solid bg-app-elevated focus-within:border-app-stroke/80" style="height:56px;min-height:56px;">
+                    <input type="search" id="ordo-missae-search-query" autocomplete="off" placeholder="Слова або «словазлучэнне»…"
+                        value="${escapeHtml(ordoMissaeSearchQuery)}" class="absolute w-full box-border bg-transparent border-0 outline-none text-app-text placeholder:text-app-textSec text-[17px]" style="left:0;top:0;height:56px;padding:0 96px 0 12px;line-height:56px;" />
+                    <div id="ordo-missae-search-nav" class="absolute flex items-center gap-0 shrink-0" style="right:8px;top:10px;height:36px;visibility:${ordoMissaeSearchQuery.trim() ? 'visible' : 'hidden'}">
+                        <button type="button" data-action="ordo-search-prev" id="ordo-missae-search-prev" class="shrink-0 flex items-center justify-center rounded-full text-app-text hover:bg-white/[0.06] border-0 bg-transparent cursor-pointer disabled:opacity-45 disabled:cursor-default p-0" style="width:36px;height:36px;" aria-label="Папярэдні вынік"><i class="fas fa-chevron-left text-sm" aria-hidden="true"></i></button>
+                        <button type="button" data-action="ordo-search-next" id="ordo-missae-search-next" class="shrink-0 flex items-center justify-center rounded-full text-app-text hover:bg-white/[0.06] border-0 bg-transparent cursor-pointer disabled:opacity-45 disabled:cursor-default p-0" style="width:36px;height:36px;" aria-label="Наступны вынік"><i class="fas fa-chevron-right text-sm" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+
     /** Пасля hydrateScriptureView (без поўнага renderApp) — абнавіць А± і шасцярэнку ў шапцы. */
     function refreshToolbarRightActions() {
         const el = document.getElementById('totus-toolbar-right');
@@ -1503,14 +1510,6 @@
                         title="${escapeHtml(c.infoHint)}"
                         aria-label="${escapeHtml(c.infoHint)}">i</span>`
                 : '';
-            const telegramLabel = c.centerLabelWithIcon
-                ? `<div class="absolute inset-0 z-10 flex items-center justify-center px-3 pointer-events-none">
-                        <div class="inline-flex items-center justify-center gap-2.5 text-app-text">
-                            <i class="fas fa-paper-plane text-base" aria-hidden="true"></i>
-                            <span class="font-medium text-[20px] leading-[1.2] text-app-text">${escapeHtml(c.title)}</span>
-                        </div>
-                    </div>`
-                : '';
             return `
             <div class="relative w-full min-h-0 ${colSpan}">
                 <button type="button" data-home-card="${c.target}" data-home-available="${c.available ? '1' : '0'}"
@@ -1519,13 +1518,13 @@
                     <div class="home-card-head relative w-full overflow-hidden bg-app-surface" style="height:${cardHeight}px;">
                         <div class="absolute inset-0 overflow-hidden" style="${unavailableMediaFilterStyle}">
                             ${img}
-                            ${c.centerLabelWithIcon ? '' : '<div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 72%, rgba(0,0,0,0.8) 100%);"></div>'}
+                            <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 72%, rgba(0,0,0,0.8) 100%);"></div>
                         </div>
                         ${unavailableOverlay}
                         ${infoHintBadge}
-                        ${c.centerLabelWithIcon ? telegramLabel : `<div class="absolute inset-x-0 bottom-0 z-10 flex items-end justify-start px-1.5 pb-1.5 text-left pointer-events-none">
+                        <div class="absolute z-10 text-left pointer-events-none" style="left:6px;right:6px;bottom:6px;">
                             <div class="font-medium text-[20px] leading-[1.2] text-white max-w-full" style="text-shadow: 0 2px 6px rgba(0,0,0,0.9); color: #ffffff !important; -webkit-text-fill-color: #ffffff; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${escapeHtml(c.title)}</div>
-                        </div>`}
+                        </div>
                     </div>
                 </button>
             </div>`;
@@ -2611,17 +2610,6 @@
             }
             currentView = 'home';
         } else if (currentView === 'ordo-missae') {
-            if (ordoMissaeSearchQuery.trim()) {
-                if (ordoMissaeSearchDebounceTimer) {
-                    clearTimeout(ordoMissaeSearchDebounceTimer);
-                    ordoMissaeSearchDebounceTimer = null;
-                }
-                ordoMissaeSearchQuery = '';
-                const el = document.getElementById('ordo-missae-search-query');
-                if (el) el.value = '';
-                hydrateOrdoMissaeSearchState();
-                return;
-            }
             currentView = 'home';
         } else if (currentView === 'calendar') {
             currentView = 'home';
@@ -2943,15 +2931,7 @@
 
     function ordoMissaeShellHtml() {
         return `
-        <div class="w-full max-w-[480px] mx-auto px-2 pb-8 pt-2 min-h-[min(70dvh,640px)] flex flex-col gap-3">
-            <div class="${APP_SEARCH_BAR_CLASS}">
-                <input type="search" id="ordo-missae-search-query" autocomplete="off" placeholder="Слова або «словазлучэнне»…"
-                    value="${escapeHtml(ordoMissaeSearchQuery)}" class="${APP_SEARCH_INPUT_CLASS}" />
-                <div id="ordo-missae-search-nav" class="${ordoMissaeSearchQuery.trim() ? '' : 'hidden '}flex items-center gap-0.5 shrink-0">
-                    <button type="button" data-action="ordo-search-prev" id="ordo-missae-search-prev" class="w-8 h-8 shrink-0 flex items-center justify-center rounded-lg text-app-text hover:bg-white/[0.06] border-0 bg-transparent cursor-pointer disabled:opacity-45 disabled:cursor-default" aria-label="Папярэдні вынік"><i class="fas fa-chevron-left text-sm" aria-hidden="true"></i></button>
-                    <button type="button" data-action="ordo-search-next" id="ordo-missae-search-next" class="w-8 h-8 shrink-0 flex items-center justify-center rounded-lg text-app-text hover:bg-white/[0.06] border-0 bg-transparent cursor-pointer disabled:opacity-45 disabled:cursor-default" aria-label="Наступны вынік"><i class="fas fa-chevron-right text-sm" aria-hidden="true"></i></button>
-                </div>
-            </div>
+        <div class="w-full max-w-[480px] mx-auto px-2 pb-8 min-h-[min(70dvh,640px)] flex flex-col gap-3">
             <div id="ordo-missae-root" class="min-h-[min(70dvh,640px)] flex flex-col">
                 <div class="flex flex-1 flex-col items-center justify-center py-16 gap-3 text-app-textTer">
                     <i class="fas fa-circle-notch fa-spin text-3xl text-app-textSec" aria-hidden="true"></i>
@@ -3110,7 +3090,7 @@
         const prev = document.getElementById('ordo-missae-search-prev');
         const next = document.getElementById('ordo-missae-search-next');
         const hasQuery = String(query || '').trim().length > 0;
-        if (nav) nav.classList.toggle('hidden', !hasQuery);
+        if (nav) nav.style.visibility = hasQuery ? 'visible' : 'hidden';
         const canMove = count > 1;
         if (prev) prev.disabled = !canMove;
         if (next) next.disabled = !canMove;
@@ -3251,7 +3231,7 @@
         if (!root || currentView !== 'ordo-missae') return;
         const shellMin = 'min-h-[min(70dvh,640px)]';
         if (!isApiConfigured()) {
-            root.innerHTML = `<div class="p-4 ${shellMin}">${configBannerHtml()}</div>`;
+            root.innerHTML = `<div class="${shellMin}">${configBannerHtml()}</div>`;
             return;
         }
         const res = await apiFetch('ordo_missae.php', { _: Date.now() });
@@ -3260,7 +3240,7 @@
             const isNet = res.status === 0 || res.data.error === 'network_error';
             const hint = isNet ? apiNetworkFailureHint(apiBaseUrl) : '';
             const msg = res.data.message || res.data.error || 'Памылка загрузкі';
-            root.innerHTML = `<div class="p-4 ${shellMin} bg-red-950/40 border border-red-500/30 text-app-error rounded-md text-sm">${escapeHtml(msg)}${hint}</div>`;
+            root.innerHTML = `<div class="${shellMin} bg-red-950/40 border border-red-500/30 text-app-error rounded-md text-sm p-4">${escapeHtml(msg)}${hint}</div>`;
             return;
         }
         let raw = String(res.data.html ?? '').trim();
@@ -4030,10 +4010,6 @@
                 if (hc.dataset.homeAvailable === '0') {
                     return;
                 }
-                if (hc.dataset.homeCard === 'telegram') {
-                    openTelegramLink('https://t.me/totustuusapp');
-                    return;
-                }
                 switchView(hc.dataset.homeCard);
                 return;
             }
@@ -4126,6 +4102,18 @@
             }
         });
 
+        app.addEventListener('keydown', (e) => {
+            if (e.target.id !== 'ordo-missae-search-query') return;
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            if (ordoMissaeSearchDebounceTimer) {
+                clearTimeout(ordoMissaeSearchDebounceTimer);
+                ordoMissaeSearchDebounceTimer = null;
+            }
+            ordoMissaeSearchQuery = e.target.value;
+            hydrateOrdoMissaeSearchState();
+        });
+
         app.addEventListener('change', (e) => {
             if (e.target.id === 'settings-font-select') {
                 const v = e.target.value;
@@ -4204,35 +4192,6 @@
                 if (homeThemePanel && !homeThemePanel.classList.contains('hidden')) homeThemePanelClose();
             });
         }
-    }
-
-    function openTelegramLink(url) {
-        const raw = String(url || '').trim();
-        if (!raw) return;
-        let channel = '';
-        try {
-            const u = new URL(raw);
-            const host = String(u.host || '').toLowerCase();
-            if (host === 't.me' || host === 'telegram.me') {
-                channel = String((u.pathname || '').split('/').filter(Boolean)[0] || '').trim();
-            }
-        } catch {
-            /* ignore */
-        }
-        if (channel) {
-            const appUrl = `tg://resolve?domain=${encodeURIComponent(channel)}`;
-            const fallbackTimer = window.setTimeout(() => {
-                window.location.href = raw;
-            }, 700);
-            const onBlur = () => {
-                window.clearTimeout(fallbackTimer);
-                window.removeEventListener('blur', onBlur);
-            };
-            window.addEventListener('blur', onBlur, { once: true });
-            window.location.href = appUrl;
-            return;
-        }
-        window.location.href = raw;
     }
 
     function switchView(view) {
@@ -6022,6 +5981,7 @@
         app.innerHTML = `
         <div class="flex flex-1 flex-col min-h-0 h-full max-h-full overflow-hidden">
             ${renderChrome()}
+            ${ordoMissaeSearchChromeHtml()}
             <main class="app-main-scroll flex-1 w-full min-h-0">${content}</main>
         </div>`;
 

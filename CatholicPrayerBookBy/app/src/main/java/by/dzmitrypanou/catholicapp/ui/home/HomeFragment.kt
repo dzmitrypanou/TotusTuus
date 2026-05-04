@@ -10,9 +10,6 @@ import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.util.TypedValue
 import android.view.Gravity
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -54,17 +51,7 @@ class HomeFragment : Fragment() {
             HomeSection(getString(R.string.home_item_prayerbook), true, R.drawable.prayerbook_header_image),
             HomeSection(getString(R.string.home_item_liturgy_calendar), true, R.drawable.liturgy_calendar_header_image, spanSize = 2),
             HomeSection(getString(R.string.home_item_songbook), true, R.drawable.songbook_header_image),
-            HomeSection(getString(R.string.home_item_scripture), true, R.drawable.scripture_header_bible),
-            HomeSection(
-                title = getString(R.string.home_item_telegram_link),
-                isAvailable = true,
-                imageRes = R.drawable.bg_home_telegram_tile,
-                spanSize = 2,
-                tileHeightDp = 66,
-                leftIconRes = R.drawable.ic_telegram_24,
-                linkUrl = "https://t.me/totustuusapp",
-                centerTitle = true
-            )
+            HomeSection(getString(R.string.home_item_scripture), true, R.drawable.scripture_header_bible)
         )
 
         val adapter = HomeSectionAdapter(
@@ -80,13 +67,6 @@ class HomeFragment : Fragment() {
                         findNavController().navigate(R.id.action_nav_home_to_nav_liturgy_calendar)
                     getString(R.string.home_item_ordo_missae) ->
                         findNavController().navigate(R.id.action_nav_home_to_nav_ordo_missae)
-                    getString(R.string.home_item_telegram_link) -> {
-                        if (section.linkUrl.isBlank()) {
-                            Toast.makeText(requireContext(), getString(R.string.home_item_telegram_link_missing), Toast.LENGTH_SHORT).show()
-                        } else {
-                            openExternalLink(section.linkUrl)
-                        }
-                    }
                 }
             },
             onUnavailableClick = {
@@ -121,28 +101,6 @@ class HomeFragment : Fragment() {
         _binding = null
     }
 
-    private fun openExternalLink(url: String) {
-        val normalized = url.trim()
-        val tgDeepLink = buildTelegramDeepLink(normalized)
-        if (tgDeepLink != null) {
-            try {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(tgDeepLink)))
-                return
-            } catch (_: ActivityNotFoundException) {
-                // Telegram app is not installed; open regular web link below.
-            }
-        }
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(normalized)))
-    }
-
-    private fun buildTelegramDeepLink(url: String): String? {
-        val uri = Uri.parse(url)
-        val host = uri.host?.lowercase().orEmpty()
-        if (host != "t.me" && host != "telegram.me") return null
-        val channel = uri.pathSegments.firstOrNull()?.trim().orEmpty()
-        if (channel.isBlank()) return null
-        return "tg://resolve?domain=$channel"
-    }
 }
 
 data class HomeSection(
@@ -154,7 +112,6 @@ data class HomeSection(
     val infoHint: String? = null,
     val tileHeightDp: Int = 132,
     val leftIconRes: Int? = null,
-    val linkUrl: String = "",
     val centerTitle: Boolean = false,
 )
 
