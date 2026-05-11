@@ -4,7 +4,7 @@ declare(strict_types=1);
 /** @return list<string> */
 function panel_content_section_keys(): array
 {
-    return ['prayers', 'songbook', 'scripture', 'liturgy', 'lectionary', 'announcements'];
+    return ['prayers', 'songbook', 'scripture', 'liturgy', 'lectionary', 'solemnities', 'announcements'];
 }
 
 /** @return array<string, string> */
@@ -16,6 +16,7 @@ function panel_section_labels_be(): array
         'scripture' => 'Біблія (пераклады)',
         'liturgy' => 'Літургія (каляндар, святы, пустыя дні)',
         'lectionary' => 'Лекцыянарый',
+        'solemnities' => 'Урачыстасці і святы',
         'announcements' => 'Аб’явы',
     ];
 }

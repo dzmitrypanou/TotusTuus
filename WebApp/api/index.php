@@ -24,6 +24,7 @@ const TOTUS_PROXY_ALLOWED = [
     'songbook.php',
     'liturgy_calendar_month.php',
     'liturgy_day.php',
+    'solemnities.php',
     'ordo_missae.php',
     'ordo_missae_version.php',
 ];

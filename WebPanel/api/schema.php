@@ -272,6 +272,112 @@ function ensureLiturgyLectionaryEntriesTable(): void
     );
 }
 
+function ensureSolemnitiesEntriesTable(): void
+{
+    db()->exec(
+        'CREATE TABLE IF NOT EXISTS solemnities_entries (
+            id BIGINT PRIMARY KEY AUTO_INCREMENT,
+            date_label VARCHAR(128) NOT NULL,
+            date_kind VARCHAR(16) NOT NULL DEFAULT \'fixed\',
+            movable_key VARCHAR(64) NOT NULL DEFAULT \'\',
+            title VARCHAR(512) NOT NULL,
+            section_title VARCHAR(255) NOT NULL DEFAULT \'\',
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            sort_order INT NOT NULL DEFAULT 0,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            KEY idx_solemnities_active_sort (is_active, sort_order, id),
+            KEY idx_solemnities_section_sort (section_title, sort_order, id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+    );
+    ensureTableColumnExists(
+        'solemnities_entries',
+        'date_kind',
+        'ALTER TABLE solemnities_entries ADD COLUMN date_kind VARCHAR(16) NOT NULL DEFAULT \'fixed\' AFTER date_label'
+    );
+    ensureTableColumnExists(
+        'solemnities_entries',
+        'movable_key',
+        'ALTER TABLE solemnities_entries ADD COLUMN movable_key VARCHAR(64) NOT NULL DEFAULT \'\' AFTER date_kind'
+    );
+}
+
+function seedSolemnitiesEntriesIfEmpty(): void
+{
+    $stmt = db()->query('SELECT COUNT(*) AS c FROM solemnities_entries');
+    $row = $stmt->fetch();
+    if (is_array($row) && (int)($row['c'] ?? 0) > 0) {
+        return;
+    }
+
+    $sections = [
+        'Абавязковыя святы і ўрачыстасці' => [
+            ['1 студзеня', 'Святой Багародзіцы Марыі', 'fixed', ''],
+            ['6 студзеня', 'Аб’яўлення Пана (Тры Каралі)', 'fixed', ''],
+            ['19 сакавіка', 'Святога Юзафа', 'fixed', ''],
+            ['', 'Унебаўшэсця Пана', 'movable', 'ascension'],
+            ['', 'Цела і Крыві Хрыста (Божага Цела)', 'movable', 'corpus_christi'],
+            ['29 чэрвеня', 'Святых апосталаў Пятра і Паўла', 'fixed', ''],
+            ['15 жніўня', 'Унебаўзяцце Найсвяцейшай Панны Марыі', 'fixed', ''],
+            ['1 лістапада', 'Усіх Святых', 'fixed', ''],
+            ['8 снежня', 'Беззаганнага Зачацця Найсвяцейшай Панны Марыі', 'fixed', ''],
+            ['25 снежня', 'Нараджэнне Пана', 'fixed', ''],
+        ],
+        'Важнейшыя рухомыя святы і ўрачыстасці' => [
+            ['', 'Папялец', 'movable', 'ash_wednesday'],
+            ['', 'Вялікдзень', 'movable', 'easter'],
+            ['', 'Унебаўшэсце', 'movable', 'ascension'],
+            ['', 'Спасланне Духа Святога', 'movable', 'pentecost'],
+            ['', 'Цела і Крыві Пана', 'movable', 'corpus_christi'],
+            ['', 'Першая нядзеля Адвэнту', 'movable', 'first_advent_sunday'],
+        ],
+        'Урачыстасці і святы (па агульным парадку)' => [
+            ['1 студзеня', 'Урачыстасць Святой Багародзіцы Марыі', 'fixed', ''],
+            ['6 студзеня', 'Аб’яўленне Пана, Тры Каралі', 'fixed', ''],
+            ['2 лютага', 'Ахвяраванне Пана', 'fixed', ''],
+            ['', 'Папяльцовая серада – пачатак Вялікага посту', 'movable', 'ash_wednesday'],
+            ['22 лютага', 'Свята Катэдры святога Пятра', 'fixed', ''],
+            ['19 сакавіка', 'Урачыстасць святога Юзафа', 'fixed', ''],
+            ['25 сакавіка', 'Звеставанне Пана', 'fixed', ''],
+            ['', 'Пальмовая нядзеля', 'movable', 'palm_sunday'],
+            ['', 'Уваскрасенне Пана', 'movable', 'easter'],
+            ['', 'Унебаўшэсце Пана, урачыстасць', 'movable', 'ascension'],
+            ['', 'Спасланне Духа Святога', 'movable', 'pentecost'],
+            ['', 'Урачыстасць Найсвяцейшага Цела і Крыві Хрыста', 'movable', 'corpus_christi'],
+            ['', 'Урачыстасць Найсвяцейшага Сэрца Пана Езуса', 'movable', 'sacred_heart'],
+            ['24 чэрвеня', 'Нараджэнне святога Яна Хрысціцеля', 'fixed', ''],
+            ['29 чэрвеня', 'Урачыстасць святых апосталаў Пятра і Паўла', 'fixed', ''],
+            ['2 ліпеня', 'Урачыстасць Найсвяцейшай Панны Марыі Будслаўскай', 'fixed', ''],
+            ['6 жніўня', 'Перамяненне Пана', 'fixed', ''],
+            ['15 жніўня', 'Унебаўзяцце Найсвяцейшай Панны Марыі', 'fixed', ''],
+            ['14 верасня', 'Свята Узвышэння Святога Крыжа', 'fixed', ''],
+            ['1 лістапада', 'Урачыстасць Усіх Святых', 'fixed', ''],
+            ['2 лістапада', 'Успамін усіх памерлых вернікаў', 'fixed', ''],
+            ['', 'Урачыстасць Пана Нашага Езуса Хрыста, Валадара Сусвету', 'movable', 'christ_king'],
+            ['8 снежня', 'Беззаганнае Зачацце Найсвяцейшай Панны Марыі', 'fixed', ''],
+            ['25 снежня', 'Нараджэнне Пана', 'fixed', ''],
+        ],
+    ];
+
+    $insert = db()->prepare(
+        'INSERT INTO solemnities_entries (date_label, date_kind, movable_key, title, section_title, sort_order, is_active)
+         VALUES (:date_label, :date_kind, :movable_key, :title, :section_title, :sort_order, 1)'
+    );
+    $order = 10;
+    foreach ($sections as $sectionTitle => $items) {
+        foreach ($items as $item) {
+            $insert->execute([
+                ':date_label' => $item[0],
+                ':date_kind' => $item[2],
+                ':movable_key' => $item[3],
+                ':title' => $item[1],
+                ':section_title' => $sectionTitle,
+                ':sort_order' => $order,
+            ]);
+            $order += 10;
+        }
+    }
+}
+
 function ensureTableColumnExists(string $tableName, string $columnName, string $alterSql): void
 {
     $stmt = db()->prepare(
@@ -558,6 +664,8 @@ function ensureSchemaAndSeed(): void
     ensureLiturgyCalendarEntriesTable();
     ensureLiturgyObservancesTable();
     ensureLiturgyLectionaryEntriesTable();
+    ensureSolemnitiesEntriesTable();
+    seedSolemnitiesEntriesIfEmpty();
     ensurePanelAnnouncementsSettingsTable();
     ensurePanelOrdoMissaeTable();
     scriptureEnsureSchema();

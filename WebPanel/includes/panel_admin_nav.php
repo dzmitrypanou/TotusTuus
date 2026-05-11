@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 /**
  * Агульная навігацыя адмін-панэлі (пасля ўваходу).
- * Перад include: $panelNavPage — 'index'|'liturgy'|'liturgy_observances'|'lectionary'|'lectionary_gap'|'liturgy_empty'|'ordo_missae'|'announcements'|'users';
+ * Перад include: $panelNavPage — 'index'|'liturgy'|'liturgy_observances'|'lectionary'|'lectionary_gap'|'liturgy_empty'|'ordo_missae'|'solemnities'|'solemnities_edit'|'announcements'|'users';
  * для index: $panelNavView — бягучы ?view=; для liturgy*: $panelNavCalYear — год у спасылцы «Пустыя дні».
  */
 if (!function_exists('panel_can_access_section')) {
@@ -275,6 +275,14 @@ if (!defined('PANEL_ADMIN_NAV_STYLE_EMITTED')) {
           <a href="/admin/lectionary.php" class="panel-nav-link<?= panel_admin_nav_active_page('lectionary', $panelNavPage) ?>">Лекцыянарый</a>
           <a href="/admin/lectionary_observances_gap.php" class="panel-nav-link<?= panel_admin_nav_active_page('lectionary_gap', $panelNavPage) ?>">Без чытанняў</a>
           <?php endif; ?>
+        </div>
+      </div>
+    <?php endif; ?>
+    <?php if (panel_can_access_section('solemnities')): ?>
+      <div class="panel-nav-block">
+        <span class="panel-nav-block__label" id="panel-nav-lbl-solemnities">Урачыстасці</span>
+        <div class="panel-nav-block__links" role="group" aria-labelledby="panel-nav-lbl-solemnities">
+          <a href="/admin/solemnities.php" class="panel-nav-link<?= in_array($panelNavPage, ['solemnities', 'solemnities_edit'], true) ? ' active' : '' ?>">Урачыстасці і святы</a>
         </div>
       </div>
     <?php endif; ?>

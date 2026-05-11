@@ -1072,6 +1072,13 @@
     let calendarHydrateGeneration = 0;
     /** In-memory кэш месяца календара, каб не было «скачка» колераў пры адкрыцці. */
     const calendarMonthCache = new Map();
+    /** In-memory кэш даведніка «Урачыстасці і святы». */
+    const solemnitiesApiItemsByYear = new Map();
+    let solemnitiesHydrateGeneration = 0;
+    let solemnitiesApiLoadingYear = null;
+    let solemnitiesApiErrorYear = null;
+    let solemnitiesApiErrorMessage = '';
+    let solemnitiesSettingsOpen = false;
     /** Адкуль адкрылі налады: 'calendar' | 'day'. */
     let calendarSettingsReturnView = null;
 
@@ -1461,7 +1468,7 @@
         }
         if (currentView === 'solemnities') {
             if (solemnitiesSettingsOpen) return '';
-            return `${toolbarReadingTextScaleGroupHtml()}<button type="button" data-action="open-solemnities-settings" class="${TOOLBAR_ICON_BTN}" aria-label="Налады ўрачыстасцяў і свят"><i class="fas fa-gear text-lg" aria-hidden="true"></i></button>`;
+            return toolbarReadingTextScaleGroupHtml();
         }
         if (currentView === 'ordo-missae') {
             return toolbarReadingTextScaleGroupHtml();
@@ -1575,51 +1582,25 @@
     }
 
     function solemnitiesCacheKey(year) {
-        return `${year}|${calendarDiocesesApiParam()}`;
+        return `solemnities|${year}`;
     }
 
-    function dateLabelFromIso(iso) {
-        const dt = luxon.DateTime.fromISO(String(iso || '').slice(0, 10));
-        if (!dt.isValid) return '';
-        return `${dt.day} ${BE_MONTH_GEN[dt.month] || ''}`.trim();
-    }
-
-    function solemnitiesFixedMissalDateSet() {
-        return new Set(['01-01', '01-06', '02-02', '02-22', '03-19', '03-25', '06-24', '06-29', '08-06', '08-15', '09-14', '11-01', '11-02', '12-08', '12-25']);
-    }
-
-    function solemnitiesMergeApiItems(year, baseItems) {
+    function solemnitiesApiRowsAsItems(year) {
         const apiItems = solemnitiesApiItemsByYear.get(solemnitiesCacheKey(year));
-        if (!Array.isArray(apiItems)) return baseItems;
-        const fixedMissal = solemnitiesFixedMissalDateSet();
-        const seen = new Set();
+        if (!Array.isArray(apiItems)) return null;
         const out = [];
-        for (const item of baseItems) {
-            out.push(item);
-            if (item && item.sourceKey) seen.add(item.sourceKey);
-        }
-        const localRows = [];
+        let lastSection = null;
         for (const row of apiItems) {
-            if (!row || row.type !== 'observance') continue;
-            const source = String(row.source || '');
-            const md = String(row.month_day || '');
-            const rule = String(row.rule_type || '');
+            if (!row) continue;
+            const date = String(row.date_label || '').trim();
             const title = String(row.title || '').trim();
-            const date = String(row.date || '').slice(0, 10);
-            if (!title || !date) continue;
-            if (source !== 'regional' && source !== 'particular') continue;
-            if (rule === 'fixed_md' && fixedMissal.has(md)) continue;
-            const itemKey = `${date}|${title}`;
-            if (seen.has(itemKey)) continue;
-            seen.add(itemKey);
-            localRows.push({ dateIso: date, sort: date.slice(5), label: dateLabelFromIso(date), title });
-        }
-        if (localRows.length > 0) {
-            localRows.sort((a, b) => a.sort.localeCompare(b.sort) || a.title.localeCompare(b.title));
-            out.push({ type: 'header', title: 'Мясцовыя ўрачыстасці і святы' });
-            for (const row of localRows) {
-                out.push({ date: row.label, title: row.title, sourceKey: `${row.dateIso}|${row.title}` });
+            const section = String(row.section_title || '').trim();
+            if (!date || !title) continue;
+            if (section && section !== lastSection) {
+                out.push({ type: 'header', title: section });
+                lastSection = section;
             }
+            out.push({ date, title });
         }
         return out;
     }
@@ -1644,17 +1625,14 @@
         solemnitiesApiErrorYear = null;
         solemnitiesApiErrorMessage = '';
         refreshSolemnitiesContent();
-        const params = { year };
-        const dio = calendarDiocesesApiParam();
-        if (dio) params.dioceses = dio;
-        const { ok, data } = await apiFetch('liturgy_observances_year.php', params);
+        const { ok, data } = await apiFetch('solemnities.php', { year });
         if (gen !== solemnitiesHydrateGeneration) return;
         solemnitiesApiLoadingYear = null;
-        if (ok && !data?.error && Array.isArray(data?.items)) {
-            solemnitiesApiItemsByYear.set(key, data.items);
+        if (ok && Array.isArray(data)) {
+            solemnitiesApiItemsByYear.set(key, data);
         } else {
             solemnitiesApiErrorYear = key;
-            solemnitiesApiErrorMessage = String(data?.message || data?.error || 'Не ўдалося загрузіць мясцовыя святы.');
+            solemnitiesApiErrorMessage = String(data?.message || data?.error || 'Не ўдалося загрузіць урачыстасці і святы.');
         }
         refreshSolemnitiesContent();
     }
@@ -1694,8 +1672,12 @@
     }
 
     function solemnitiesItems(year) {
+        const apiRows = solemnitiesApiRowsAsItems(year);
+        if (apiRows !== null) {
+            return apiRows;
+        }
         const d = solemnitiesMovableDates(year);
-        const base = [
+        return [
             { type: 'header', title: 'Абавязковыя святы і ўрачыстасці' },
             { date: '1 студзеня', title: 'Святой Багародзіцы Марыі' },
             { date: '6 студзеня', title: 'Аб’яўлення Пана (Тры Каралі)' },
@@ -1740,8 +1722,6 @@
             { date: '8 снежня', title: 'Беззаганнае Зачацце Найсвяцейшай Панны Марыі' },
             { date: '25 снежня', title: 'Нараджэнне Пана' },
         ];
-
-        return solemnitiesMergeApiItems(year, base);
     }
 
     function solemnitiesRowsHtml(year) {
@@ -1756,7 +1736,7 @@
             </article>`;
         }).join('');
         const status = solemnitiesApiLoadingYear === key
-            ? '<p class="px-1 text-[13px] text-app-textSec leading-relaxed">Загрузка мясцовых свят…</p>'
+            ? '<p class="px-1 text-[13px] text-app-textSec leading-relaxed">Загрузка ўрачыстасцяў і свят…</p>'
             : (solemnitiesApiErrorYear === key && solemnitiesApiErrorMessage
                 ? `<p class="px-1 text-[13px] text-red-300 leading-relaxed">${escapeHtml(solemnitiesApiErrorMessage)}</p>`
                 : '');
@@ -1773,7 +1753,6 @@
                 <div class="min-w-[56px] px-1 text-center font-bold text-app-text leading-none" style="font-size:calc(17px * var(--totus-read-scale));">${year}</div>
                 <button type="button" data-action="solemnities-year-next" class="w-8 h-10 shrink-0 flex items-center justify-center rounded-lg border-0 bg-transparent text-app-text hover:bg-white/10 disabled:opacity-40" aria-label="Наступны год" ${year >= 2199 ? 'disabled' : ''}><i class="fas fa-chevron-right text-sm" aria-hidden="true"></i></button>
             </section>
-            <p class="mt-2 px-1 text-[12px] text-app-textSec leading-relaxed">Дыяцэзіі: ${escapeHtml(calendarDiocesesTitleSuffix())}</p>
             <div id="solemnities-list" class="mt-3 space-y-2">${solemnitiesRowsHtml(year)}</div>
         </div>`;
     }

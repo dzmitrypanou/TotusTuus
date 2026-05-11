@@ -233,6 +233,7 @@ $labelsShort = [
     'scripture' => 'Біблія',
     'liturgy' => 'Літургія',
     'lectionary' => 'Лекц.',
+    'solemnities' => 'Святы',
     'announcements' => 'Аб’явы',
 ];
 
