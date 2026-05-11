@@ -1736,7 +1736,7 @@
             </article>`;
         }).join('');
         const status = solemnitiesApiLoadingYear === key
-            ? '<p class="px-1 text-[13px] text-app-textSec leading-relaxed">Загрузка ўрачыстасцяў і свят…</p>'
+            ? ''
             : (solemnitiesApiErrorYear === key && solemnitiesApiErrorMessage
                 ? `<p class="px-1 text-[13px] text-red-300 leading-relaxed">${escapeHtml(solemnitiesApiErrorMessage)}</p>`
                 : '');

@@ -109,14 +109,16 @@ if (!is_array($rows)) {
     .card { background:#111827; border:1px solid #334155; border-radius:14px; padding:16px; overflow:hidden; }
     label { display:block; margin:10px 0 4px; font-size:13px; color:#cbd5e1; font-weight:600; }
     input[type="text"], select { width:100%; border:1px solid #334155; background:#0f172a; color:#e2e8f0; border-radius:10px; padding:10px 11px; font:inherit; }
-    a.btn-pill, button.btn-pill { display:inline-flex; align-items:center; justify-content:center; color:var(--text); text-decoration:none; font-weight:600; font-size:.875rem; padding:8px 12px; border-radius:var(--radius-sm); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); line-height:1.2; cursor:pointer; }
+    a.btn-pill, button.btn-pill { display:inline-flex; align-items:center; justify-content:center; min-height:36px; color:var(--text); text-decoration:none; font-weight:600; font-size:.875rem; padding:8px 12px; border-radius:var(--radius-sm); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); line-height:1.2; cursor:pointer; box-sizing:border-box; }
     a.btn-pill.active, button.btn-pill.active { background:linear-gradient(135deg, rgba(124,108,240,.35), rgba(196,163,90,.18)); border-color:rgba(196,163,90,.35); color:#fff; }
     button.btn-pill { margin-top:0; font-family:inherit; font-weight:600; padding:8px 12px; border-radius:var(--radius-sm); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); color:var(--text); box-shadow:none; filter:none; }
     button.btn-pill:hover:not(:disabled) { filter:brightness(1.08); box-shadow:none; }
     button.btn-pill:active:not(:disabled) { transform:none; }
     .btn-pill--muted { background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.08); color:var(--text); }
     button { border:1px solid #334155; background:#7c6cf0; color:#fff; font-weight:700; border-radius:10px; padding:10px 12px; cursor:pointer; }
-    button.danger { background:#7f1d1d; border-color:#b91c1c; color:#fecaca; padding:6px 10px; font-size:12px; }
+    .row-actions a.btn-pill,
+    .row-actions button.danger { min-width:74px; min-height:36px; padding:8px 12px; font-size:.875rem; line-height:1.2; border-radius:10px; box-sizing:border-box; }
+    .row-actions button.danger { display:inline-flex; align-items:center; justify-content:center; background:#7f1d1d; border-color:#b91c1c; color:#fecaca; font-weight:600; }
     .toolbar-row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px; }
     .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
     .filter-row { display:grid; grid-template-columns:minmax(0,1fr) 150px auto; gap:8px; align-items:end; margin-bottom:14px; }
