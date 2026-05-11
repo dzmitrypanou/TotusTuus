@@ -93,6 +93,9 @@
             android:id="@+id/action_nav_home_to_nav_liturgy_calendar"
             app:destination="@id/nav_liturgy_calendar" />
         <action
+            android:id="@+id/action_nav_home_to_nav_solemnities"
+            app:destination="@id/nav_solemnities" />
+        <action
             android:id="@+id/action_nav_home_to_nav_ordo_missae"
             app:destination="@id/nav_ordo_missae"
             app:enterAnim="@anim/nav_noop"
@@ -133,6 +136,12 @@
         android:name="by.dzmitrypanou.catholicapp.ui.liturgy.LiturgyCalendarSettingsFragment"
         tools:label="@string/liturgy_diocese_settings_title"
         tools:layout="@layout/fragment_liturgy_calendar_settings" />
+
+    <fragment
+        android:id="@+id/nav_solemnities"
+        android:name="by.dzmitrypanou.catholicapp.ui.solemnities.SolemnitiesFragment"
+        tools:label="@string/home_item_solemnities"
+        tools:layout="@layout/fragment_solemnities" />
 
     <fragment
         android:id="@+id/nav_songbook"

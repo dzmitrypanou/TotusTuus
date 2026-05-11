@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient_dark"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/prayer_book_screen_padding_top"
+    android:paddingBottom="@dimen/prayer_book_screen_padding_bottom"
+    tools:context=".ui.solemnities.SolemnitiesFragment">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/prayer_book_block_gap"
+        android:layout_marginTop="@dimen/prayer_book_block_gap"
+        android:layout_marginEnd="@dimen/prayer_book_block_gap"
+        app:cardBackgroundColor="?attr/totusColorSurfaceElevated"
+        app:cardCornerRadius="@dimen/prayer_card_corner"
+        app:cardElevation="0dp"
+        app:strokeColor="?attr/totusColorSurfaceStroke"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:id="@+id/text_solemnities_year_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/solemnities_year_label"
+                android:textColor="?attr/totusColorTextSecondary"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/button_solemnities_prev_year"
+                android:layout_width="32dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/solemnities_year_previous"
+                android:padding="4dp"
+                android:scaleType="center"
+                android:src="@drawable/ic_chevron_left_24"
+                app:tint="?attr/totusColorTextPrimary" />
+
+            <TextView
+                android:id="@+id/text_solemnities_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minWidth="56dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:textColor="?attr/totusColorTextPrimary"
+                android:textStyle="bold"
+                tools:text="2026" />
+
+            <ImageButton
+                android:id="@+id/button_solemnities_next_year"
+                android:layout_width="32dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/solemnities_year_next"
+                android:padding="4dp"
+                android:scaleType="center"
+                android:src="@drawable/ic_chevron_right_24"
+                app:tint="?attr/totusColorTextPrimary" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview_solemnities"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="@dimen/prayer_book_block_gap"
+        android:paddingTop="@dimen/prayer_book_recycler_padding_top"
+        android:paddingEnd="@dimen/prayer_book_block_gap"
+        android:paddingBottom="@dimen/prayer_book_recycler_padding_bottom"
+        android:scrollbars="none" />
+</LinearLayout>

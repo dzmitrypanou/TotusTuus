@@ -18,10 +18,12 @@
     <string name="home_item_scripture">Святое Пісанне</string>
     <string name="home_item_songbook">Спеўнік</string>
     <string name="home_item_liturgy_calendar">Літургічны каляндар</string>
+    <string name="home_item_solemnities">Урачыстасці і святы</string>
+    <string name="home_item_kantaral">Кантарал</string>
     <string name="home_item_telegram_link">Спасылка на Telegram</string>
     <string name="home_item_telegram_link_missing">Дадайце Telegram-спасылку ў HomeFragment</string>
     <string name="home_in_development">у распрацоўцы</string>
-    <string name="home_in_progress">In progress</string>
+    <string name="home_in_progress">У распрацоўцы</string>
     <string name="home_info_content_description">Інфармацыя пра раздзел</string>
     <string name="ordo_missae_load_error">Не ўдалося загрузіць Ordo Missae</string>
     <string name="ordo_missae_empty">Тэкст пакуль не дададзены ў панэлі кіравання.</string>
@@ -206,6 +208,12 @@
     <string name="liturgy_diocese_minsk">Паказваць святы: Мінска-магілёўская архідыяцэзія</string>
     <string name="liturgy_diocese_vitebsk">Паказваць святы: Віцебская дыяцэзія</string>
     <string name="liturgy_diocese_grodno">Паказваць святы: Гродзенская дыяцэзія</string>
+    <string name="solemnities_section_required">Абавязковыя святы і ўрачыстасці</string>
+    <string name="solemnities_section_movable">Важнейшыя рухомыя святы і ўрачыстасці</string>
+    <string name="solemnities_section_general_order">Урачыстасці і святы (па агульным парадку)</string>
+    <string name="solemnities_year_label">Год</string>
+    <string name="solemnities_year_previous">Папярэдні год</string>
+    <string name="solemnities_year_next">Наступны год</string>
     <string name="liturgy_colors_legend_title">Колеры літургічных адзенняў</string>
     <string name="liturgy_day_subtitle">%1$s • колер: %2$s</string>
     <string name="liturgy_color_gray">шэры</string>

@@ -35,6 +35,20 @@
             image: 'assets/home/liturgy_calendar_header_image.jpg',
         },
         {
+            title: 'Урачыстасці і святы',
+            span: 1,
+            target: 'solemnities',
+            available: true,
+            image: 'assets/home/solemnities_header_image.jpg',
+        },
+        {
+            title: 'Кантарал',
+            span: 1,
+            target: 'kantaral',
+            available: false,
+            image: 'assets/home/kantaral_header_image.png',
+        },
+        {
             title: 'Спеўнік',
             span: 1,
             target: 'songbook',
@@ -76,6 +90,7 @@
         'synodal_ru',
     ];
     const TEXT_STEP_KEY = 'totus_web_text_step';
+    let solemnitiesSelectedYear = null;
     /** sans | serif | mono — як ключы AppFontFamilyStore.Family у Android */
     const FONT_FAMILY_KEY = 'totus_web_font_family';
     /** current | white | dark | beige */
@@ -91,12 +106,14 @@
     /** Дзве выявы WebP для шырокіх картак (span 2): *-640.webp і *-928.webp. */
     function homeCardWebpSrcset(rasterPath, span) {
         if (!rasterPath) return '';
+        const s = String(rasterPath);
         const base = String(rasterPath).replace(/\.(jpe?g|png)$/i, '');
         if (span === 2) {
             const u640 = escapeHtml(totusAssetUrl(`${base}-640.webp`));
             const u928 = escapeHtml(totusAssetUrl(`${base}-928.webp`));
             return `${u640} 640w, ${u928} 928w`;
         }
+        if (s === 'assets/home/solemnities_header_image.jpg') return '';
         const u = escapeHtml(totusAssetUrl(totusHomeCardWebpPath(rasterPath)));
         return `${u} 480w`;
     }
@@ -123,6 +140,9 @@
             return `<img src="${src}" alt="" class="absolute inset-0 h-full w-full object-cover pointer-events-none" loading="eager" decoding="async" sizes="${sizes}"${fetchPri} />`;
         }
         const webpSrcset = homeCardWebpSrcset(rasterPath, span);
+        if (!webpSrcset) {
+            return `<img src="${src}" alt="" class="absolute inset-0 h-full w-full object-cover pointer-events-none" loading="eager" decoding="async" sizes="${sizes}"${fetchPri} />`;
+        }
         return `<picture class="absolute inset-0 h-full w-full pointer-events-none">
             <source type="image/webp" srcset="${webpSrcset}" sizes="${sizes}" />
             <img src="${src}" alt="" class="absolute inset-0 h-full w-full object-cover pointer-events-none" loading="eager" decoding="async" sizes="${sizes}"${fetchPri} />
@@ -242,25 +262,29 @@
     /** Поўнаэкранная старонка наладаў (як settings), не модальнае акно. */
     function calendarSettingsShellHtml() {
         const t = readCalendarDioceseToggles();
-        const row = (id, label) => {
-            const c = t[id] ? ' checked' : '';
-            return `<label class="flex items-start gap-3 py-2.5 cursor-pointer">
-                <input type="checkbox" data-calendar-diocese-toggle="${id}" class="mt-1 rounded border-app-stroke"${c} />
-                <span class="text-[15px] text-app-text leading-snug">${label}</span>
-            </label>`;
-        };
         return `
     <div id="calendar-settings-root" class="max-w-[480px] mx-auto px-2 pb-8 pt-2">
         <section class="rounded-md border border-app-stroke bg-app-elevated p-[18px] space-y-3">
             <p class="text-[13px] text-app-textSec leading-relaxed">Калі не паставіць галачкі, то паказваецца агульны Рымскі каляндар. Абярыце дыяцэзіі, каб бачыць іх мясцовыя святы.</p>
-            <div class="rounded-lg border border-app-stroke/80 bg-app-bg2/40 px-3 divide-y divide-app-stroke/50">
+            ${dioceseSettingsCheckboxListHtml(t, 'calendar')}
+        </section>
+    </div>`;
+    }
+
+    function dioceseSettingsCheckboxListHtml(t, scope) {
+        const row = (id, label) => {
+            const c = t[id] ? ' checked' : '';
+            return `<label class="flex items-start gap-3 py-2.5 cursor-pointer">
+                <input type="checkbox" data-${scope}-diocese-toggle="${id}" class="mt-1 rounded border-app-stroke"${c} />
+                <span class="text-[15px] text-app-text leading-snug">${label}</span>
+            </label>`;
+        };
+        return `<div class="rounded-lg border border-app-stroke/80 bg-app-bg2/40 px-3 divide-y divide-app-stroke/50">
                 ${row('pinskaya', 'Паказваць святы: Пінская дыяцэзія')}
                 ${row('minsk_mogilev', 'Паказваць святы: Мінска-магілёўская архідыяцэзія')}
                 ${row('vitebskaya', 'Паказваць святы: Віцебская дыяцэзія')}
                 ${row('grodzenskaya', 'Паказваць святы: Гродзенская дыяцэзія')}
-            </div>
-        </section>
-    </div>`;
+            </div>`;
     }
 
     function formatCalendarMonthYearBe(dt) {
@@ -1321,6 +1345,7 @@
         const titles = {
             calendar: `Літургічны каляндар: ${calendarDiocesesTitleSuffix()}`,
             day: 'Лекцыянарый дня',
+            solemnities: 'Урачыстасці і святы',
             'calendar-settings': 'Налады календара',
             settings: 'Налады',
             about: 'Інфармацыя',
@@ -1434,6 +1459,10 @@
         if (currentView === 'calendar') {
             return `<button type="button" data-action="open-calendar-settings" class="${TOOLBAR_ICON_BTN}" aria-label="Налады календара"><i class="fas fa-gear text-lg" aria-hidden="true"></i></button>`;
         }
+        if (currentView === 'solemnities') {
+            if (solemnitiesSettingsOpen) return '';
+            return `${toolbarReadingTextScaleGroupHtml()}<button type="button" data-action="open-solemnities-settings" class="${TOOLBAR_ICON_BTN}" aria-label="Налады ўрачыстасцяў і свят"><i class="fas fa-gear text-lg" aria-hidden="true"></i></button>`;
+        }
         if (currentView === 'ordo-missae') {
             return toolbarReadingTextScaleGroupHtml();
         }
@@ -1493,8 +1522,8 @@
             const unavailableOverlay = c.available
                 ? ''
                 : `<div class="absolute inset-0 pointer-events-none" style="background-color: rgba(71, 85, 105, 0.46);"></div>
-                    <div class="absolute inset-x-0 bottom-2 flex items-center justify-center px-2 pointer-events-none">
-                        <span class="rounded-md px-3 py-1 text-sm font-semibold" style="background-color: rgba(71, 85, 105, 0.86); color: #ffffff !important; -webkit-text-fill-color: #ffffff;">In progress</span>
+                    <div class="absolute inset-0 flex items-center justify-center px-2 pointer-events-none">
+                        <span class="rounded-md px-3 py-1 text-sm font-semibold" style="background-color: rgba(71, 85, 105, 0.86); color: #ffffff !important; -webkit-text-fill-color: #ffffff;">У распрацоўцы</span>
                     </div>`;
             /** Фільтр толькі на медыя — інакш «In progress» атрымлівае той жа grayscale/brightness і выглядае шэрым. */
             const unavailableMediaFilterStyle = c.available ? '' : 'filter: grayscale(1) brightness(0.5) saturate(0);';
@@ -1532,6 +1561,220 @@
         return `
         <div class="w-full max-w-[480px] mx-auto px-2 pb-8 pt-2">
             <div class="grid grid-cols-2 gap-2 w-full">${cards}</div>
+        </div>`;
+    }
+
+    function readSolemnitiesYear() {
+        return Number.isFinite(solemnitiesSelectedYear) ? solemnitiesSelectedYear : luxon.DateTime.now().year;
+    }
+
+    function writeSolemnitiesYear(year) {
+        const y = Math.max(1900, Math.min(2199, Math.trunc(Number(year) || luxon.DateTime.now().year)));
+        solemnitiesSelectedYear = y;
+        return y;
+    }
+
+    function solemnitiesCacheKey(year) {
+        return `${year}|${calendarDiocesesApiParam()}`;
+    }
+
+    function dateLabelFromIso(iso) {
+        const dt = luxon.DateTime.fromISO(String(iso || '').slice(0, 10));
+        if (!dt.isValid) return '';
+        return `${dt.day} ${BE_MONTH_GEN[dt.month] || ''}`.trim();
+    }
+
+    function solemnitiesFixedMissalDateSet() {
+        return new Set(['01-01', '01-06', '02-02', '02-22', '03-19', '03-25', '06-24', '06-29', '08-06', '08-15', '09-14', '11-01', '11-02', '12-08', '12-25']);
+    }
+
+    function solemnitiesMergeApiItems(year, baseItems) {
+        const apiItems = solemnitiesApiItemsByYear.get(solemnitiesCacheKey(year));
+        if (!Array.isArray(apiItems)) return baseItems;
+        const fixedMissal = solemnitiesFixedMissalDateSet();
+        const seen = new Set();
+        const out = [];
+        for (const item of baseItems) {
+            out.push(item);
+            if (item && item.sourceKey) seen.add(item.sourceKey);
+        }
+        const localRows = [];
+        for (const row of apiItems) {
+            if (!row || row.type !== 'observance') continue;
+            const source = String(row.source || '');
+            const md = String(row.month_day || '');
+            const rule = String(row.rule_type || '');
+            const title = String(row.title || '').trim();
+            const date = String(row.date || '').slice(0, 10);
+            if (!title || !date) continue;
+            if (source !== 'regional' && source !== 'particular') continue;
+            if (rule === 'fixed_md' && fixedMissal.has(md)) continue;
+            const itemKey = `${date}|${title}`;
+            if (seen.has(itemKey)) continue;
+            seen.add(itemKey);
+            localRows.push({ dateIso: date, sort: date.slice(5), label: dateLabelFromIso(date), title });
+        }
+        if (localRows.length > 0) {
+            localRows.sort((a, b) => a.sort.localeCompare(b.sort) || a.title.localeCompare(b.title));
+            out.push({ type: 'header', title: 'Мясцовыя ўрачыстасці і святы' });
+            for (const row of localRows) {
+                out.push({ date: row.label, title: row.title, sourceKey: `${row.dateIso}|${row.title}` });
+            }
+        }
+        return out;
+    }
+
+    function solemnitiesSettingsShellHtml() {
+        const t = readCalendarDioceseToggles();
+        return `<div id="solemnities-settings-root" class="max-w-[480px] mx-auto px-2 pb-8 pt-2">
+            <section class="rounded-md border border-app-stroke bg-app-elevated p-[18px] space-y-3">
+                <p class="text-[13px] text-app-textSec leading-relaxed">Гэтыя налады ўплываюць на раздзел «Урачыстасці і святы»: рухомыя і асноўныя святы па Імшале застаюцца заўсёды, а мясцовыя святы паказваюцца для абраных дыяцэзій.</p>
+                ${dioceseSettingsCheckboxListHtml(t, 'solemnities')}
+            </section>
+        </div>`;
+    }
+
+    async function hydrateSolemnities() {
+        if (currentView !== 'solemnities' || solemnitiesSettingsOpen) return;
+        const year = readSolemnitiesYear();
+        const key = solemnitiesCacheKey(year);
+        if (solemnitiesApiItemsByYear.has(key)) return;
+        const gen = ++solemnitiesHydrateGeneration;
+        solemnitiesApiLoadingYear = key;
+        solemnitiesApiErrorYear = null;
+        solemnitiesApiErrorMessage = '';
+        refreshSolemnitiesContent();
+        const params = { year };
+        const dio = calendarDiocesesApiParam();
+        if (dio) params.dioceses = dio;
+        const { ok, data } = await apiFetch('liturgy_observances_year.php', params);
+        if (gen !== solemnitiesHydrateGeneration) return;
+        solemnitiesApiLoadingYear = null;
+        if (ok && !data?.error && Array.isArray(data?.items)) {
+            solemnitiesApiItemsByYear.set(key, data.items);
+        } else {
+            solemnitiesApiErrorYear = key;
+            solemnitiesApiErrorMessage = String(data?.message || data?.error || 'Не ўдалося загрузіць мясцовыя святы.');
+        }
+        refreshSolemnitiesContent();
+    }
+
+    function refreshSolemnitiesContent() {
+        const root = document.getElementById('solemnities-root');
+        const list = document.getElementById('solemnities-list');
+        if (!root || !list || currentView !== 'solemnities' || solemnitiesSettingsOpen) return;
+        const year = Number(root.dataset.solemnitiesYear) || readSolemnitiesYear();
+        list.innerHTML = solemnitiesRowsHtml(year);
+    }
+
+    function solemnityDateLabel(dt) {
+        return `${dt.day} ${BE_MONTH_GEN[dt.month]}*`;
+    }
+
+    function firstAdventSunday(year) {
+        let dt = luxon.DateTime.local(year, 11, 27).startOf('day');
+        while (dt.weekday !== 7) dt = dt.plus({ days: 1 });
+        return dt;
+    }
+
+    function solemnitiesMovableDates(year) {
+        const easter = gregorianEasterSundayUtc(year).setZone('local').startOf('day');
+        const advent = firstAdventSunday(year);
+        return {
+            ashWednesday: solemnityDateLabel(easter.minus({ days: 46 })),
+            palmSunday: solemnityDateLabel(easter.minus({ days: 7 })),
+            easter: solemnityDateLabel(easter),
+            ascension: solemnityDateLabel(easter.plus({ days: 39 })),
+            pentecost: solemnityDateLabel(easter.plus({ days: 49 })),
+            corpusChristi: solemnityDateLabel(easter.plus({ days: 60 })),
+            sacredHeart: solemnityDateLabel(easter.plus({ days: 68 })),
+            christKing: solemnityDateLabel(advent.minus({ days: 7 })),
+            firstAdventSunday: solemnityDateLabel(advent),
+        };
+    }
+
+    function solemnitiesItems(year) {
+        const d = solemnitiesMovableDates(year);
+        const base = [
+            { type: 'header', title: 'Абавязковыя святы і ўрачыстасці' },
+            { date: '1 студзеня', title: 'Святой Багародзіцы Марыі' },
+            { date: '6 студзеня', title: 'Аб’яўлення Пана (Тры Каралі)' },
+            { date: '19 сакавіка', title: 'Святога Юзафа' },
+            { date: d.ascension, title: 'Унебаўшэсця Пана' },
+            { date: d.corpusChristi, title: 'Цела і Крыві Хрыста (Божага Цела)' },
+            { date: '29 чэрвеня', title: 'Святых апосталаў Пятра і Паўла' },
+            { date: '15 жніўня', title: 'Унебаўзяцце Найсвяцейшай Панны Марыі' },
+            { date: '1 лістапада', title: 'Усіх Святых' },
+            { date: '8 снежня', title: 'Беззаганнага Зачацця Найсвяцейшай Панны Марыі' },
+            { date: '25 снежня', title: 'Нараджэнне Пана' },
+            { type: 'header', title: 'Важнейшыя рухомыя святы і ўрачыстасці' },
+            { date: d.ashWednesday, title: 'Папялец' },
+            { date: d.easter, title: 'Вялікдзень' },
+            { date: d.ascension, title: 'Унебаўшэсце' },
+            { date: d.pentecost, title: 'Спасланне Духа Святога' },
+            { date: d.corpusChristi, title: 'Цела і Крыві Пана' },
+            { date: d.firstAdventSunday, title: 'Першая нядзеля Адвэнту' },
+            { type: 'header', title: 'Урачыстасці і святы (па агульным парадку)' },
+            { date: '1 студзеня', title: 'Урачыстасць Святой Багародзіцы Марыі' },
+            { date: '6 студзеня', title: 'Аб’яўленне Пана, Тры Каралі' },
+            { date: '2 лютага', title: 'Ахвяраванне Пана' },
+            { date: d.ashWednesday, title: 'Папяльцовая серада – пачатак Вялікага посту' },
+            { date: '22 лютага', title: 'Свята Катэдры святога Пятра' },
+            { date: '19 сакавіка', title: 'Урачыстасць святога Юзафа' },
+            { date: '25 сакавіка', title: 'Звеставанне Пана' },
+            { date: d.palmSunday, title: 'Пальмовая нядзеля' },
+            { date: d.easter, title: 'Уваскрасенне Пана' },
+            { date: d.ascension, title: 'Унебаўшэсце Пана, урачыстасць' },
+            { date: d.pentecost, title: 'Спасланне Духа Святога' },
+            { date: d.corpusChristi, title: 'Урачыстасць Найсвяцейшага Цела і Крыві Хрыста' },
+            { date: d.sacredHeart, title: 'Урачыстасць Найсвяцейшага Сэрца Пана Езуса' },
+            { date: '24 чэрвеня', title: 'Нараджэнне святога Яна Хрысціцеля' },
+            { date: '29 чэрвеня', title: 'Урачыстасць святых апосталаў Пятра і Паўла' },
+            { date: '2 ліпеня', title: 'Урачыстасць Найсвяцейшай Панны Марыі Будслаўскай' },
+            { date: '6 жніўня', title: 'Перамяненне Пана' },
+            { date: '15 жніўня', title: 'Унебаўзяцце Найсвяцейшай Панны Марыі' },
+            { date: '14 верасня', title: 'Свята Узвышэння Святога Крыжа' },
+            { date: '1 лістапада', title: 'Урачыстасць Усіх Святых' },
+            { date: '2 лістапада', title: 'Успамін усіх памерлых вернікаў' },
+            { date: d.christKing, title: 'Урачыстасць Пана Нашага Езуса Хрыста, Валадара Сусвету' },
+            { date: '8 снежня', title: 'Беззаганнае Зачацце Найсвяцейшай Панны Марыі' },
+            { date: '25 снежня', title: 'Нараджэнне Пана' },
+        ];
+
+        return solemnitiesMergeApiItems(year, base);
+    }
+
+    function solemnitiesRowsHtml(year) {
+        const key = solemnitiesCacheKey(year);
+        const rows = solemnitiesItems(year).map((item) => {
+            if (item.type === 'header') {
+                return `<h2 class="px-1 pt-3 pb-2 font-bold text-app-text leading-snug" style="font-size:calc(20px * var(--totus-read-scale));">${escapeHtml(item.title)}</h2>`;
+            }
+            return `<article class="rounded-md border border-app-stroke bg-app-elevated px-[18px] py-3 min-h-[56px] flex items-center gap-3">
+                <div class="w-[92px] shrink-0 font-bold text-app-textSec leading-snug" style="font-size:calc(15px * var(--totus-read-scale));">${escapeHtml(item.date)}</div>
+                <div class="flex-1 min-w-0 text-app-text leading-snug" style="font-size:calc(17px * var(--totus-read-scale));">${escapeHtml(item.title)}</div>
+            </article>`;
+        }).join('');
+        const status = solemnitiesApiLoadingYear === key
+            ? '<p class="px-1 text-[13px] text-app-textSec leading-relaxed">Загрузка мясцовых свят…</p>'
+            : (solemnitiesApiErrorYear === key && solemnitiesApiErrorMessage
+                ? `<p class="px-1 text-[13px] text-red-300 leading-relaxed">${escapeHtml(solemnitiesApiErrorMessage)}</p>`
+                : '');
+        return `${status}${rows}`;
+    }
+
+    function solemnitiesShellHtml() {
+        if (solemnitiesSettingsOpen) return solemnitiesSettingsShellHtml();
+        const year = readSolemnitiesYear();
+        return `<div id="solemnities-root" data-solemnities-year="${year}" class="max-w-[480px] mx-auto px-2 pb-8 pt-2">
+            <section class="rounded-md border border-app-stroke bg-app-elevated px-3 py-2 flex items-center gap-1">
+                <div class="flex-1 min-w-0 font-bold text-app-textSec" style="font-size:calc(15px * var(--totus-read-scale));">Год</div>
+                <button type="button" data-action="solemnities-year-prev" class="w-8 h-10 shrink-0 flex items-center justify-center rounded-lg border-0 bg-transparent text-app-text hover:bg-white/10 disabled:opacity-40" aria-label="Папярэдні год" ${year <= 1900 ? 'disabled' : ''}><i class="fas fa-chevron-left text-sm" aria-hidden="true"></i></button>
+                <div class="min-w-[56px] px-1 text-center font-bold text-app-text leading-none" style="font-size:calc(17px * var(--totus-read-scale));">${year}</div>
+                <button type="button" data-action="solemnities-year-next" class="w-8 h-10 shrink-0 flex items-center justify-center rounded-lg border-0 bg-transparent text-app-text hover:bg-white/10 disabled:opacity-40" aria-label="Наступны год" ${year >= 2199 ? 'disabled' : ''}><i class="fas fa-chevron-right text-sm" aria-hidden="true"></i></button>
+            </section>
+            <p class="mt-2 px-1 text-[12px] text-app-textSec leading-relaxed">Дыяцэзіі: ${escapeHtml(calendarDiocesesTitleSuffix())}</p>
+            <div id="solemnities-list" class="mt-3 space-y-2">${solemnitiesRowsHtml(year)}</div>
         </div>`;
     }
 
@@ -2499,6 +2742,12 @@
     function goBack() {
         if (currentView === 'calendar-settings') {
             exitCalendarSettings();
+            return;
+        }
+        if (currentView === 'solemnities' && solemnitiesSettingsOpen) {
+            solemnitiesSettingsOpen = false;
+            renderApp();
+            void hydrateSolemnities();
             return;
         }
         if (currentView === 'day') {
@@ -3731,6 +3980,14 @@
                     }
                     return;
                 }
+                if (a === 'open-solemnities-settings') {
+                    if (currentView === 'solemnities') {
+                        solemnitiesSettingsOpen = true;
+                        totusHistoryMarkForward();
+                        renderApp();
+                    }
+                    return;
+                }
                 if (a === 'open-scripture-translation-settings') {
                     if (currentView === 'scripture') {
                         scPanel = null;
@@ -3914,6 +4171,17 @@
                 }
                 if (a === 'nav-up') {
                     e.preventDefault();
+                    if (currentView === 'solemnities') {
+                        if (solemnitiesSettingsOpen) {
+                            solemnitiesSettingsOpen = false;
+                            renderApp();
+                            void hydrateSolemnities();
+                            return;
+                        }
+                        currentView = 'home';
+                        renderApp();
+                        return;
+                    }
                     goBack();
                     if (totusHistoryLen > 0) {
                         totusHistorySyncSkipPop = true;
@@ -3927,6 +4195,22 @@
                 }
                 if (a === 'next-month') {
                     shiftCalendarMonth(1);
+                    return;
+                }
+                if (a === 'solemnities-year-prev') {
+                    if (currentView !== 'solemnities' || solemnitiesSettingsOpen) return;
+                    const current = Number(document.getElementById('solemnities-root')?.dataset.solemnitiesYear) || readSolemnitiesYear();
+                    writeSolemnitiesYear(current - 1);
+                    renderApp();
+                    void hydrateSolemnities();
+                    return;
+                }
+                if (a === 'solemnities-year-next') {
+                    if (currentView !== 'solemnities' || solemnitiesSettingsOpen) return;
+                    const current = Number(document.getElementById('solemnities-root')?.dataset.solemnitiesYear) || readSolemnitiesYear();
+                    writeSolemnitiesYear(current + 1);
+                    renderApp();
+                    void hydrateSolemnities();
                     return;
                 }
                 if (a === 'font-text-smaller') {
@@ -4174,12 +4458,30 @@
                     })();
                 }
             }
+            const solemnDio = e.target.closest('[data-solemnities-diocese-toggle]');
+            if (solemnDio && solemnDio.matches('input[type="checkbox"]')) {
+                const key = String(solemnDio.getAttribute('data-solemnities-diocese-toggle') || '');
+                if (!key) return;
+                const t = readCalendarDioceseToggles();
+                t[key] = solemnDio.checked;
+                writeCalendarDioceseToggles(t);
+            }
         });
 
         if (!window.__totusScriptureTrEsc) {
             window.__totusScriptureTrEsc = true;
             document.addEventListener('keydown', (ev) => {
                 if (ev.key !== 'Escape') return;
+                if (currentView === 'solemnities' && solemnitiesSettingsOpen) {
+                    solemnitiesSettingsOpen = false;
+                    renderApp();
+                    void hydrateSolemnities();
+                    if (totusHistoryLen > 0) {
+                        totusHistorySyncSkipPop = true;
+                        history.back();
+                    }
+                    return;
+                }
                 if (currentView === 'calendar-settings') {
                     exitCalendarSettings();
                     if (totusHistoryLen > 0) {
@@ -4237,6 +4539,10 @@
             ordoMissaeSearchQuery = '';
             ordoMissaeSearchDebounceTimer = null;
         }
+        if (view === 'solemnities') {
+            solemnitiesSelectedYear = luxon.DateTime.now().year;
+            solemnitiesSettingsOpen = false;
+        }
         if (view === 'scripture') {
             scBookIdx = null;
             scChapterNum = null;
@@ -4252,6 +4558,9 @@
             scriptureWordSearchDebounceTimer = null;
         }
         renderApp();
+        if (view === 'solemnities') {
+            void hydrateSolemnities();
+        }
         if (view !== 'home') {
             totusHistoryMarkForward();
         }
@@ -5976,6 +6285,8 @@
             content = scriptureShellHtml();
         } else if (currentView === 'ordo-missae') {
             content = ordoMissaeShellHtml();
+        } else if (currentView === 'solemnities') {
+            content = solemnitiesShellHtml();
         } else if (currentView === 'settings') {
             content = settingsShellHtml();
         } else if (currentView === 'about') {
@@ -6004,6 +6315,8 @@
             hydrateScriptureView();
         } else if (currentView === 'ordo-missae') {
             void hydrateOrdoMissae();
+        } else if (currentView === 'solemnities' && !solemnitiesSettingsOpen) {
+            void hydrateSolemnities();
         }
         scheduleToolbarTitleFit();
         syncReadingTextToolbarButtons();

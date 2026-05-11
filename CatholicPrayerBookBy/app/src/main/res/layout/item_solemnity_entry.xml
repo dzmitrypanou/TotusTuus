@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/prayer_list_item_gap"
+    app:cardBackgroundColor="?attr/totusColorSurfaceElevated"
+    app:cardCornerRadius="@dimen/prayer_card_corner"
+    app:cardElevation="0dp"
+    app:strokeColor="?attr/totusColorSurfaceStroke"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="56dp"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/prayer_card_padding"
+        android:paddingTop="12dp"
+        android:paddingEnd="@dimen/prayer_card_padding"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/text_solemnity_date"
+            android:layout_width="92dp"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="2dp"
+            android:textColor="?attr/totusColorTextSecondary"
+            android:textStyle="bold"
+            tools:text="1 студзеня" />
+
+        <TextView
+            android:id="@+id/text_solemnity_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:lineSpacingExtra="2dp"
+            android:textColor="?attr/totusColorTextPrimary"
+            tools:text="Урачыстасць Святой Багародзіцы Марыі" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

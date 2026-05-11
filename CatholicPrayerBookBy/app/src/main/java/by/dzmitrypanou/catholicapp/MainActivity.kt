@@ -49,6 +49,7 @@ import by.dzmitrypanou.catholicapp.ui.scripture.ScriptureChapterTextFragment
 import by.dzmitrypanou.catholicapp.ui.scripture.ScriptureReadingPlanActivationStore
 import by.dzmitrypanou.catholicapp.ui.scripture.ScriptureReadingPlanKind
 import by.dzmitrypanou.catholicapp.ui.scripture.ScriptureTranslationStore
+import by.dzmitrypanou.catholicapp.ui.solemnities.SolemnitiesFragment
 import by.dzmitrypanou.catholicapp.ui.songbook.SongbookDetailFragment
 import by.dzmitrypanou.catholicapp.ui.songbook.SongbookToolbarActions
 import by.dzmitrypanou.catholicapp.ui.transform.PrayerBookToolbarActions
@@ -308,6 +309,13 @@ class MainActivity : AppCompatActivity() {
                 attachAutoSizedToolbarTitle(
                     getString(R.string.liturgy_diocese_settings_title),
                     getString(R.string.liturgy_diocese_settings_title)
+                )
+            }
+            R.id.nav_solemnities -> {
+                clearToolbarBrand()
+                attachAutoSizedToolbarTitle(
+                    getString(R.string.home_item_solemnities),
+                    getString(R.string.home_item_solemnities)
                 )
             }
             R.id.nav_scripture -> {
@@ -735,6 +743,13 @@ class MainActivity : AppCompatActivity() {
         return navHost.childFragmentManager.primaryNavigationFragment as? LiturgyDayFragment
     }
 
+    private fun currentSolemnitiesFragment(): SolemnitiesFragment? {
+        val navHost =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as? NavHostFragment
+                ?: return null
+        return navHost.childFragmentManager.primaryNavigationFragment as? SolemnitiesFragment
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         if (currentDestinationId == R.id.nav_prayer_detail) {
             menuInflater.inflate(R.menu.menu_prayer_detail, menu)
@@ -790,6 +805,10 @@ class MainActivity : AppCompatActivity() {
             menuInflater.inflate(R.menu.menu_liturgy_day, menu)
             return true
         }
+        if (currentDestinationId == R.id.nav_solemnities) {
+            menuInflater.inflate(R.menu.menu_solemnities, menu)
+            return true
+        }
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -835,6 +854,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             bindLiturgyCalendarSettingsToolbarAction(menu)
+        }
+        if (currentDestinationId == R.id.nav_solemnities) {
+            val actionView = menu.findItem(R.id.action_solemnities_reading_text_scale)?.actionView
+            if (actionView != null) {
+                currentSolemnitiesFragment()?.bindSolemnitiesToolbarActions(actionView)
+            }
         }
         val showPrayerBookTools =
             currentDestinationId == R.id.nav_transform ||
