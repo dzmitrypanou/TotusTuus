@@ -43,6 +43,11 @@ interface PrayerApiService {
         @Query("year") year: Int
     ): LiturgyCalendarRangeDto
 
+    @GET("solemnities.php")
+    suspend fun getSolemnities(
+        @Query("year") year: Int
+    ): List<SolemnityDto>
+
     @GET("ordo_missae_version.php")
     suspend fun getOrdoMissaeVersion(): OrdoMissaeVersionDto
 

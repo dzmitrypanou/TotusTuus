@@ -1079,6 +1079,8 @@
     let solemnitiesApiErrorYear = null;
     let solemnitiesApiErrorMessage = '';
     let solemnitiesSettingsOpen = false;
+    const SOLEMNITIES_SECTION_COLLAPSE_KEY = 'totus_solemnities_collapsed_sections';
+    let solemnitiesCollapsedSections = readSolemnitiesCollapsedSections();
     /** Адкуль адкрылі налады: 'calendar' | 'day'. */
     let calendarSettingsReturnView = null;
 
@@ -1585,11 +1587,30 @@
         return `solemnities|${year}`;
     }
 
+    function readSolemnitiesCollapsedSections() {
+        try {
+            const raw = localStorage.getItem(SOLEMNITIES_SECTION_COLLAPSE_KEY);
+            const arr = JSON.parse(raw || '[]');
+            return new Set(Array.isArray(arr) ? arr.map((x) => String(x || '').trim()).filter(Boolean) : []);
+        } catch {
+            return new Set();
+        }
+    }
+
+    function writeSolemnitiesCollapsedSections() {
+        try {
+            localStorage.setItem(SOLEMNITIES_SECTION_COLLAPSE_KEY, JSON.stringify([...solemnitiesCollapsedSections]));
+        } catch {
+            /* ignore */
+        }
+    }
+
     function solemnitiesApiRowsAsItems(year) {
         const apiItems = solemnitiesApiItemsByYear.get(solemnitiesCacheKey(year));
         if (!Array.isArray(apiItems)) return null;
         const out = [];
         let lastSection = null;
+        let currentCollapsed = false;
         for (const row of apiItems) {
             if (!row) continue;
             const date = String(row.date_label || '').trim();
@@ -1597,10 +1618,11 @@
             const section = String(row.section_title || '').trim();
             if (!date || !title) continue;
             if (section && section !== lastSection) {
-                out.push({ type: 'header', title: section });
+                currentCollapsed = solemnitiesCollapsedSections.has(section);
+                out.push({ type: 'header', title: section, collapsed: currentCollapsed });
                 lastSection = section;
             }
-            out.push({ date, title });
+            if (!currentCollapsed) out.push({ date, title });
         }
         return out;
     }
@@ -1728,7 +1750,10 @@
         const key = solemnitiesCacheKey(year);
         const rows = solemnitiesItems(year).map((item) => {
             if (item.type === 'header') {
-                return `<h2 class="px-1 pt-3 pb-2 font-bold text-app-text leading-snug" style="font-size:calc(20px * var(--totus-read-scale));">${escapeHtml(item.title)}</h2>`;
+                return `<button type="button" data-action="toggle-solemnities-section" data-section-title="${escapeHtml(item.title)}" class="w-full px-1 pt-3 pb-2 border-0 bg-transparent text-left font-bold text-app-text leading-snug flex items-center justify-between gap-3 cursor-pointer" style="font-size:calc(20px * var(--totus-read-scale));">
+                    <span>${escapeHtml(item.title)}</span>
+                    <i class="fas ${item.collapsed ? 'fa-chevron-down' : 'fa-chevron-up'} text-sm text-app-textSec" aria-hidden="true"></i>
+                </button>`;
             }
             return `<article class="rounded-md border border-app-stroke bg-app-elevated px-[18px] py-3 min-h-[56px] flex items-center gap-3">
                 <div class="w-[92px] shrink-0 font-bold text-app-textSec leading-snug" style="font-size:calc(15px * var(--totus-read-scale));">${escapeHtml(item.date)}</div>
@@ -2838,6 +2863,8 @@
             }
             currentView = 'home';
         } else if (currentView === 'ordo-missae') {
+            currentView = 'home';
+        } else if (currentView === 'solemnities') {
             currentView = 'home';
         } else if (currentView === 'calendar') {
             currentView = 'home';
@@ -3965,6 +3992,19 @@
                         totusHistoryMarkForward();
                         renderApp();
                     }
+                    return;
+                }
+                if (a === 'toggle-solemnities-section') {
+                    if (currentView !== 'solemnities' || solemnitiesSettingsOpen) return;
+                    const title = String(action.dataset.sectionTitle || '').trim();
+                    if (!title) return;
+                    if (solemnitiesCollapsedSections.has(title)) {
+                        solemnitiesCollapsedSections.delete(title);
+                    } else {
+                        solemnitiesCollapsedSections.add(title);
+                    }
+                    writeSolemnitiesCollapsedSections();
+                    refreshSolemnitiesContent();
                     return;
                 }
                 if (a === 'open-scripture-translation-settings') {

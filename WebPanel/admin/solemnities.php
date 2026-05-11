@@ -109,7 +109,10 @@ if (!is_array($rows)) {
     .card { background:#111827; border:1px solid #334155; border-radius:14px; padding:16px; overflow:hidden; }
     label { display:block; margin:10px 0 4px; font-size:13px; color:#cbd5e1; font-weight:600; }
     input[type="text"], select { width:100%; border:1px solid #334155; background:#0f172a; color:#e2e8f0; border-radius:10px; padding:10px 11px; font:inherit; }
-    a.btn-pill, button.btn-pill { display:inline-flex; align-items:center; justify-content:center; min-height:36px; color:var(--text); text-decoration:none; font-weight:600; font-size:.875rem; padding:8px 12px; border-radius:var(--radius-sm); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); line-height:1.2; cursor:pointer; box-sizing:border-box; }
+    select:not([multiple]) { appearance:none; -webkit-appearance:none; -moz-appearance:none; padding:10px 40px 10px 11px; background-color:#0f172a; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; background-size:14px 14px; cursor:pointer; }
+    select:not([multiple]):hover { border-color:#475569; background-color:#111c2f; }
+    select:not([multiple]):focus { outline:none; border-color:rgba(124,108,240,.7); box-shadow:0 0 0 3px rgba(124,108,240,.18); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%23cbd5e1' d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E"); }
+    a.btn-pill, button.btn-pill { display:inline-flex; align-items:center; justify-content:center; min-height:36px; color:var(--text); text-decoration:none; font-weight:600; font-size:.875rem; padding:8px 12px; border-radius:var(--radius-sm); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); line-height:1.2; cursor:pointer; box-sizing:border-box; white-space:nowrap; }
     a.btn-pill.active, button.btn-pill.active { background:linear-gradient(135deg, rgba(124,108,240,.35), rgba(196,163,90,.18)); border-color:rgba(196,163,90,.35); color:#fff; }
     button.btn-pill { margin-top:0; font-family:inherit; font-weight:600; padding:8px 12px; border-radius:var(--radius-sm); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); color:var(--text); box-shadow:none; filter:none; }
     button.btn-pill:hover:not(:disabled) { filter:brightness(1.08); box-shadow:none; }
@@ -122,6 +125,8 @@ if (!is_array($rows)) {
     .toolbar-row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px; }
     .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
     .filter-row { display:grid; grid-template-columns:minmax(0,1fr) 150px auto; gap:8px; align-items:end; margin-bottom:14px; }
+    .filter-row input[type="text"], .filter-row select, .filter-row button, .filter-row .btn-pill { min-height:44px; }
+    .filter-row .actions { margin-top:0; align-items:flex-end; }
     .muted { color:#94a3b8; font-size:13px; }
     .msg { margin:0 0 12px; padding:10px 12px; border-radius:10px; font-size:.92rem; }
     .msg--ok { background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.35); color:#bbf7d0; }
@@ -131,7 +136,7 @@ if (!is_array($rows)) {
     .table th, .table td { border-bottom:1px solid #273449; padding:10px 8px; text-align:left; vertical-align:top; overflow-wrap:anywhere; }
     .table tr:last-child td { border-bottom:none; }
     .badge { display:inline-flex; align-items:center; padding:3px 7px; border-radius:999px; background:rgba(148,163,184,.12); color:#cbd5e1; font-size:.78rem; }
-    .row-actions { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; }
+    .row-actions { display:flex; flex-wrap:nowrap; gap:8px; justify-content:flex-end; align-items:center; }
     .row-actions form { margin:0; }
     @media (max-width:900px) { .filter-row { grid-template-columns:1fr; } }
     @media (max-width:1180px) { .header { flex-direction:column; align-items:flex-start; } .header-brand { align-self:center; } }
@@ -191,7 +196,7 @@ if (!is_array($rows)) {
               <th>Назва</th>
               <th style="width:220px;">Раздзел</th>
               <th style="width:95px;">Статус</th>
-              <th style="width:170px;">Дзеянні</th>
+              <th style="width:210px;">Дзеянні</th>
             </tr>
           </thead>
           <tbody>

@@ -12,12 +12,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import by.dzmitrypanou.catholicapp.R
+import by.dzmitrypanou.catholicapp.data.remote.PrayerApiClient
+import by.dzmitrypanou.catholicapp.data.remote.SolemnityDto
 import by.dzmitrypanou.catholicapp.databinding.FragmentSolemnitiesBinding
 import by.dzmitrypanou.catholicapp.databinding.ItemSolemnityEntryBinding
 import by.dzmitrypanou.catholicapp.databinding.ItemSolemnityGroupHeaderBinding
 import by.dzmitrypanou.catholicapp.ui.PrayerBookUiTypography
 import by.dzmitrypanou.catholicapp.ui.ReadingTextScaleToolbar
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class SolemnitiesFragment : Fragment() {
@@ -26,6 +31,8 @@ class SolemnitiesFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var solemnitiesAdapter: SolemnitiesAdapter
     private var selectedYear: Int = 2026
+    private var loadJob: Job? = null
+    private val remoteItemsByYear = mutableMapOf<Int, List<SolemnityListItem>>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,7 +48,10 @@ class SolemnitiesFragment : Fragment() {
         selectedYear = savedInstanceState?.getInt(KEY_SELECTED_YEAR) ?: LocalDate.now().year
         setupToolbarTextScaleMenu()
         bindTypography()
-        solemnitiesAdapter = SolemnitiesAdapter()
+        solemnitiesAdapter = SolemnitiesAdapter(
+            isSectionCollapsed = { title -> !SolemnitiesSectionExpandStore.isExpanded(requireContext(), title) },
+            onHeaderClick = { title -> toggleSection(title) }
+        )
         binding.recyclerviewSolemnities.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerviewSolemnities.adapter = solemnitiesAdapter
         binding.buttonSolemnitiesPrevYear.setOnClickListener { changeYear(-1) }
@@ -78,6 +88,8 @@ class SolemnitiesFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        loadJob?.cancel()
+        loadJob = null
         _binding = null
         super.onDestroyView()
     }
@@ -104,7 +116,63 @@ class SolemnitiesFragment : Fragment() {
         binding.textSolemnitiesYear.text = selectedYear.toString()
         binding.buttonSolemnitiesPrevYear.isEnabled = selectedYear > MIN_YEAR
         binding.buttonSolemnitiesNextYear.isEnabled = selectedYear < MAX_YEAR
-        solemnitiesAdapter.submitItems(buildItems(selectedYear))
+        solemnitiesAdapter.submitItems(visibleItems(remoteItemsByYear[selectedYear] ?: buildItems(selectedYear)))
+        loadRemoteItems(selectedYear)
+    }
+
+    private fun toggleSection(title: String) {
+        val nextExpanded = !SolemnitiesSectionExpandStore.isExpanded(requireContext(), title)
+        SolemnitiesSectionExpandStore.setExpanded(requireContext(), title, nextExpanded)
+        solemnitiesAdapter.submitItems(visibleItems(remoteItemsByYear[selectedYear] ?: buildItems(selectedYear)))
+    }
+
+    private fun visibleItems(source: List<SolemnityListItem>): List<SolemnityListItem> {
+        val out = mutableListOf<SolemnityListItem>()
+        var currentCollapsed = false
+        for (item in source) {
+            when (item) {
+                is SolemnityListItem.Header -> {
+                    currentCollapsed = !SolemnitiesSectionExpandStore.isExpanded(requireContext(), item.title)
+                    out.add(item)
+                }
+                is SolemnityListItem.Entry -> if (!currentCollapsed) out.add(item)
+            }
+        }
+        return out
+    }
+
+    private fun loadRemoteItems(year: Int) {
+        if (remoteItemsByYear.containsKey(year)) return
+        loadJob?.cancel()
+        loadJob = viewLifecycleOwner.lifecycleScope.launch {
+            val remoteItems = runCatching {
+                PrayerApiClient.service.getSolemnities(year)
+            }.getOrNull()
+                ?.toSolemnityListItems()
+                ?.takeIf { it.isNotEmpty() }
+                ?: return@launch
+            remoteItemsByYear[year] = remoteItems
+            if (_binding != null && selectedYear == year) {
+                solemnitiesAdapter.submitItems(visibleItems(remoteItems))
+            }
+        }
+    }
+
+    private fun List<SolemnityDto>.toSolemnityListItems(): List<SolemnityListItem> {
+        val out = mutableListOf<SolemnityListItem>()
+        var lastSection = ""
+        for (dto in this.sortedWith(compareBy<SolemnityDto> { it.sortOrder ?: 0 }.thenBy { it.id })) {
+            val date = dto.dateLabel.trim()
+            val title = dto.title.trim()
+            if (date.isBlank() || title.isBlank()) continue
+            val section = dto.sectionTitle.orEmpty().trim()
+            if (section.isNotBlank() && section != lastSection) {
+                out.add(SolemnityListItem.Header(section))
+                lastSection = section
+            }
+            out.add(SolemnityListItem.Entry(date, title))
+        }
+        return out
     }
 
     private fun bindTypography() {
@@ -177,6 +245,8 @@ private sealed class SolemnityListItem {
 }
 
 private class SolemnitiesAdapter(
+    private val isSectionCollapsed: (String) -> Boolean,
+    private val onHeaderClick: (String) -> Unit,
     private var items: List<SolemnityListItem> = emptyList()
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -194,7 +264,9 @@ private class SolemnitiesAdapter(
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
             VIEW_TYPE_HEADER -> HeaderViewHolder(
-                ItemSolemnityGroupHeaderBinding.inflate(inflater, parent, false)
+                ItemSolemnityGroupHeaderBinding.inflate(inflater, parent, false),
+                isSectionCollapsed,
+                onHeaderClick
             )
             else -> EntryViewHolder(
                 ItemSolemnityEntryBinding.inflate(inflater, parent, false)
@@ -212,7 +284,9 @@ private class SolemnitiesAdapter(
     override fun getItemCount(): Int = items.size
 
     private class HeaderViewHolder(
-        private val binding: ItemSolemnityGroupHeaderBinding
+        private val binding: ItemSolemnityGroupHeaderBinding,
+        private val isSectionCollapsed: (String) -> Boolean,
+        private val onHeaderClick: (String) -> Unit,
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: SolemnityListItem.Header) {
             val ctx = binding.root.context
@@ -221,6 +295,11 @@ private class SolemnitiesAdapter(
             binding.textSolemnityGroupTitle.text = item.title
             binding.textSolemnityGroupNote.text = item.note.orEmpty()
             binding.textSolemnityGroupNote.visibility = if (item.note.isNullOrBlank()) View.GONE else View.VISIBLE
+            val collapsed = isSectionCollapsed(item.title)
+            binding.imageSolemnityGroupExpand.setImageResource(
+                if (collapsed) R.drawable.ic_expand_more_24 else R.drawable.ic_expand_less_24
+            )
+            binding.root.setOnClickListener { onHeaderClick(item.title) }
         }
     }
 

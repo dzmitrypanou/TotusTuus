@@ -178,6 +178,9 @@ $formRow = $editRow ?: [
     .card { border:1px solid var(--line); border-radius:var(--radius); background:var(--card); box-shadow:0 18px 70px rgba(0,0,0,.35); padding:18px; backdrop-filter:blur(18px); max-width:720px; }
     label { display:block; margin:12px 0 6px; font-weight:700; font-size:.86rem; color:#cbd5e1; }
     input[type="text"], input[type="number"], select { width:100%; border:1px solid rgba(148,163,184,.28); border-radius:10px; background:rgba(15,23,42,.7); color:var(--text); padding:10px 12px; font:inherit; }
+    select:not([multiple]) { appearance:none; -webkit-appearance:none; -moz-appearance:none; padding:10px 40px 10px 12px; background-color:rgba(15,23,42,.82); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; background-size:14px 14px; cursor:pointer; }
+    select:not([multiple]):hover { border-color:rgba(148,163,184,.42); background-color:rgba(15,23,42,.95); }
+    select:not([multiple]):focus { outline:none; border-color:rgba(124,108,240,.7); box-shadow:0 0 0 3px rgba(124,108,240,.18); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%23cbd5e1' d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E"); }
     input[type="checkbox"] { width:auto; margin:0; }
     .checkbox-row { display:flex; align-items:center; gap:8px; margin-top:12px; }
     .checkbox-row label { margin:0; }
