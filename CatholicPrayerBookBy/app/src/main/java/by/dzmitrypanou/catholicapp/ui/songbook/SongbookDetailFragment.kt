@@ -358,6 +358,7 @@ class SongbookDetailFragment : Fragment() {
         displayedImageBitmap?.recycle()
         displayedImageBitmap = null
         _binding?.webSongbookBody?.apply {
+            webViewClient = WebViewClient()
             stopLoading()
             loadUrl("about:blank")
             (parent as? ViewGroup)?.removeView(this)

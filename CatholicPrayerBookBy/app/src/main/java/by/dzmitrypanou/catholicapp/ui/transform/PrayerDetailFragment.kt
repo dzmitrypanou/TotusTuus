@@ -455,6 +455,7 @@ class PrayerDetailFragment : Fragment() {
 
     override fun onDestroyView() {
         _binding?.webPrayerBody?.apply {
+            webViewClient = WebViewClient()
             stopLoading()
             loadUrl("about:blank")
             (parent as? ViewGroup)?.removeView(this)

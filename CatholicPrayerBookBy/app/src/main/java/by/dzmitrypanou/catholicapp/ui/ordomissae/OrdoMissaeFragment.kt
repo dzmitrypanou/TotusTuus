@@ -49,6 +49,7 @@ class OrdoMissaeFragment : Fragment() {
     private var searchResultCount: Int = 0
     private var searchResultIndex: Int = -1
     private var pageLoaded: Boolean = false
+    private var viewDestroyed: Boolean = false
     /** Для перазагрузкі WebView пасля пераключэння светлай/цёмнай тэмы. */
     private var lastOrdoThemeSignature: Int? = null
 
@@ -57,6 +58,7 @@ class OrdoMissaeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
+        viewDestroyed = false
         _binding = FragmentOrdoMissaeBinding.inflate(inflater, container, false)
         setupWebView()
         return binding.root
@@ -117,6 +119,7 @@ class OrdoMissaeFragment : Fragment() {
         w.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
+                if (viewDestroyed || _binding == null) return
                 pageLoaded = true
                 applyOrdoSearchToWebView(searchQuery)
             }
@@ -155,6 +158,7 @@ class OrdoMissaeFragment : Fragment() {
             val outcome = withContext(Dispatchers.IO) {
                 OrdoMissaeRepository(appCtx).syncFromRemote()
             }
+            if (viewDestroyed || _binding == null || !isAdded) return@launch
             when (outcome) {
                 is OrdoMissaeRepository.SyncOutcome.Unchanged -> Unit
                 is OrdoMissaeRepository.SyncOutcome.Updated -> {
@@ -206,22 +210,24 @@ class OrdoMissaeFragment : Fragment() {
     }
 
     private fun applyOrdoSearchToWebView(query: String) {
-        if (_binding == null) return
+        if (viewDestroyed || _binding == null) return
         if (!pageLoaded) {
             updateSearchNav(query, 0, -1)
             return
         }
         val js = buildOrdoSearchHighlightJs(query)
         binding.webOrdoBody.evaluateJavascript(js) { value ->
+            if (viewDestroyed || _binding == null) return@evaluateJavascript
             val (count, index) = parseSearchPayload(value)
             updateSearchNav(query, count, index)
         }
     }
 
     private fun moveOrdoSearchResult(delta: Int) {
-        if (_binding == null || !pageLoaded || searchResultCount <= 0) return
+        if (viewDestroyed || _binding == null || !pageLoaded || searchResultCount <= 0) return
         val js = "window.__ordoMoveSearchResult ? window.__ordoMoveSearchResult($delta) : '0|-1';"
         binding.webOrdoBody.evaluateJavascript(js) { value ->
+            if (viewDestroyed || _binding == null) return@evaluateJavascript
             val (count, index) = parseSearchPayload(value)
             updateSearchNav(searchQuery, count, index)
         }
@@ -428,7 +434,7 @@ class OrdoMissaeFragment : Fragment() {
 
     /** Абнавіць памер тэксту без loadData — каб не скідваць пракрутку і не «прыгалі» ўверх. */
     private fun applyOrdoBodyFontToWebView(bodyFontPx: Float) {
-        if (_binding == null) return
+        if (viewDestroyed || _binding == null) return
         val density = resources.displayMetrics.density.coerceAtLeast(0.5f)
         val cssPx = bodyFontPx / density
         val pxStr = String.format(Locale.US, "%.2f", cssPx)
@@ -794,9 +800,10 @@ class OrdoMissaeFragment : Fragment() {
         String.format("#%06X", 0xFFFFFF and color)
 
     override fun onDestroyView() {
-        super.onDestroyView()
+        viewDestroyed = true
         searchJob?.cancel()
         _binding?.webOrdoBody?.apply {
+            webViewClient = WebViewClient()
             removeJavascriptInterface("OrdoFold")
             stopLoading()
             loadUrl("about:blank")
@@ -805,6 +812,7 @@ class OrdoMissaeFragment : Fragment() {
         }
         foldBridge = null
         _binding = null
+        super.onDestroyView()
     }
 
 }

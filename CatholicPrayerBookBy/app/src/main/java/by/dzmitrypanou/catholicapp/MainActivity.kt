@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -58,6 +59,7 @@ import by.dzmitrypanou.catholicapp.ui.transform.PrayerDetailFragment
 class MainActivity : AppCompatActivity() {
 
     companion object {
+        private const val TAG = "MainActivity"
         const val EXTRA_OPEN_PRAYER_BOOK_REFRESH = "extra_open_prayer_book_refresh"
     }
 
@@ -112,7 +114,10 @@ class MainActivity : AppCompatActivity() {
         installMainNavHost(savedInstanceState)
         initNavigationIfReady()
         if (!navigationInitialized) {
-            binding.appBarMain.coordinatorLayout.post { initNavigationIfReady() }
+            binding.appBarMain.coordinatorLayout.post {
+                if (isFinishing || isDestroyed) return@post
+                initNavigationIfReady()
+            }
         } else {
             consumePrayerRefreshLaunchIntent(intent)
         }
@@ -129,6 +134,7 @@ class MainActivity : AppCompatActivity() {
         intent.removeExtra(EXTRA_OPEN_PRAYER_BOOK_REFRESH)
         PrayerRefreshRequestStore.setPendingRefresh(this)
         binding.appBarMain.coordinatorLayout.post {
+            if (isFinishing || isDestroyed) return@post
             if (!navigationInitialized) return@post
             runCatching {
                 findNavController(R.id.nav_host_fragment_content_main).navigate(R.id.nav_transform)
@@ -193,8 +199,15 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         if (!isChangingConfigurations) {
-            AppColorSchemeStore.syncLauncherIconIfPending(this)
+            runCatching { AppColorSchemeStore.syncLauncherIconIfPending(this) }
+                .onFailure { Log.w(TAG, "Unable to sync launcher icon while stopping", it) }
         }
+    }
+
+    override fun onDestroy() {
+        binding.appBarMain.coordinatorLayout.removeCallbacks(null)
+        binding.appBarMain.toolbar.removeCallbacks(null)
+        super.onDestroy()
     }
 
     private fun applyDestinationToolbarUi(destinationId: Int, arguments: Bundle?) {
@@ -454,6 +467,7 @@ class MainActivity : AppCompatActivity() {
         if (usesCustomTitleRow && destinationId == R.id.nav_home) {
             val tbar = binding.appBarMain.toolbar
             tbar.post {
+                if (isFinishing || isDestroyed) return@post
                 if (currentDestinationId != R.id.nav_home) return@post
                 tbar.navigationIcon = null
                 tbar.navigationContentDescription = null

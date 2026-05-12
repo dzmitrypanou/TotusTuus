@@ -3,12 +3,13 @@ package by.dzmitrypanou.catholicapp.data
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import by.dzmitrypanou.catholicapp.R
 
 object AppColorSchemeStore {
 
+    private const val TAG = "AppColorSchemeStore"
     private const val PREFS_NAME = "ui_text_settings"
     private const val KEY_COLOR_SCHEME = "app_color_scheme"
     private const val KEY_LAUNCHER_SYNC_PENDING = "launcher_icon_sync_pending"
@@ -61,12 +62,17 @@ object AppColorSchemeStore {
     }
 
     fun syncLauncherIcon(context: Context) {
-        syncLauncherIcon(context, readScheme(context))
-        context.applicationContext
-            .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putBoolean(KEY_LAUNCHER_SYNC_PENDING, false)
-            .apply()
+        runCatching {
+            syncLauncherIcon(context, readScheme(context))
+        }.onSuccess {
+            context.applicationContext
+                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_LAUNCHER_SYNC_PENDING, false)
+                .apply()
+        }.onFailure { error ->
+            Log.w(TAG, "Unable to sync launcher icon", error)
+        }
     }
 
     fun syncLauncherIconIfPending(context: Context) {
@@ -83,8 +89,7 @@ object AppColorSchemeStore {
         val darkAlias = ComponentName(appContext, appContext.packageName + LAUNCHER_DARK_ALIAS_SUFFIX)
         val lightAlias = ComponentName(appContext, appContext.packageName + LAUNCHER_LIGHT_ALIAS_SUFFIX)
         val useLight = scheme == Scheme.LIGHT
-        val flags = PackageManager.DONT_KILL_APP or
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) PackageManager.SYNCHRONOUS else 0
+        val flags = PackageManager.DONT_KILL_APP
 
         // Enable the target first, then disable the other alias to avoid launcher gaps.
         val targetAlias = if (useLight) lightAlias else darkAlias
