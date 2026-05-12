@@ -1526,7 +1526,10 @@
             /** Як GridLayoutManager у HomeFragment: span 2 = на ўсю шырыню сеткі (не толькі з sm). */
             const colSpan = c.span === 2 ? 'col-span-2' : '';
             const img = c.image
-                ? homeCardPictureHtml(c.image, c.span, { fetchPriorityHigh: c.target === 'scripture' })
+                ? homeCardPictureHtml(c.image, c.span, {
+                    fetchPriorityHigh: c.target === 'scripture' || c.preload,
+                    decodeSync: c.preload,
+                })
                 : '';
             const unavailableOverlay = c.available
                 ? ''

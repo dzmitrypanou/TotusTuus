@@ -10,6 +10,9 @@
     <link rel="apple-touch-icon" href="favicon.png">
     <title>Totus Tuus</title>
     <meta name="description" content="Totus Tuus — малітоўнік, спеўнік, Святое Пісанне ў беларускіх перакладах і літургічны каляндар. Працуе ў браўзеры без усталёўкі.">
+    <!-- Першыя PNG-карткі галоўнага экрана не маюць WebP-дубляў, таму preload прыбірае кароткі flash фону пры refresh. -->
+    <link rel="preload" as="image" href="assets/home/ordo_missae_header_image.png?v=1.3.2" imagesizes="(max-width: 480px) calc((100vw - 1rem - 8px) / 2), min(228px, calc((100vw - 1rem - 8px) / 2))">
+    <link rel="preload" as="image" href="assets/home/kantaral_header_image.png?v=1.3.2" imagesizes="(max-width: 480px) calc((100vw - 1rem - 8px) / 2), min(228px, calc((100vw - 1rem - 8px) / 2))">
     <!-- LCP: карта «Святое Пісанне» (span 1, каля спеўніка); абноўліце ?v= разам з meta totus-web-build. -->
     <link rel="preload" as="image" href="assets/home/scripture_header_bible.webp?v=1.3.2" imagesizes="(max-width: 480px) calc((100vw - 1rem - 8px) / 2), min(228px, calc((100vw - 1rem - 8px) / 2))">
     <link rel="preconnect" href="https://fonts.googleapis.com">

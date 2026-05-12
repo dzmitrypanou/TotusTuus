@@ -25,23 +25,26 @@ object ScriptureVerseFavoritesStore {
             .getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .getString(KEY, "[]")
             ?: "[]"
-        val arr = JSONArray(raw)
-        return buildList {
-            for (i in 0 until arr.length()) {
-                val o = arr.getJSONObject(i)
-                add(
-                    FavoriteVerse(
-                        translationId = o.getString("translationId"),
-                        translationTitle = o.getString("translationTitle"),
-                        bookId = o.optInt("bookId", -1),
-                        bookTitle = o.getString("bookTitle"),
-                        chapter = o.getInt("chapter"),
-                        verse = o.getInt("verse"),
-                        text = o.getString("text")
+        return runCatching {
+            val arr = JSONArray(raw)
+            buildList {
+                for (i in 0 until arr.length()) {
+                    val o = arr.getJSONObject(i)
+                    add(
+                        FavoriteVerse(
+                            translationId = o.optString("translationId"),
+                            translationTitle = o.optString("translationTitle"),
+                            bookId = o.optInt("bookId", -1),
+                            bookTitle = o.optString("bookTitle"),
+                            chapter = o.optInt("chapter", 1),
+                            verse = o.optInt("verse", 1),
+                            text = o.optString("text")
+                        )
                     )
-                )
+                }
             }
-        }
+        }.getOrDefault(emptyList())
+            .filter { it.translationId.isNotBlank() && it.bookId >= 0 && it.bookTitle.isNotBlank() && it.text.isNotBlank() }
     }
 
     fun isFavorite(context: Context, verse: FavoriteVerse): Boolean =

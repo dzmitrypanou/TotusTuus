@@ -20,6 +20,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import by.dzmitrypanou.catholicapp.databinding.FragmentScriptureBinding
+import by.dzmitrypanou.catholicapp.ui.navigation.navigateSafely
 import by.dzmitrypanou.catholicapp.ui.themeColor
 import by.dzmitrypanou.catholicapp.databinding.ItemScriptureBookRowBinding
 import by.dzmitrypanou.catholicapp.databinding.ScriptureTestamentSectionBinding
@@ -49,7 +50,7 @@ class ScriptureFragment : Fragment(), ScriptureToolbarActions {
     ): View {
         _binding = FragmentScriptureBinding.inflate(inflater, container, false)
         binding.layoutScriptureSearchEntry.setOnClickListener {
-            findNavController().navigate(R.id.nav_scripture_word_search)
+            findNavController().navigateSafely(R.id.nav_scripture_word_search)
         }
         applySearchEntryTypography()
         bindContinueReadingRow()
@@ -113,7 +114,7 @@ class ScriptureFragment : Fragment(), ScriptureToolbarActions {
             binding.textScriptureReadingPlansEntrySubtitle.text = planName
             binding.layoutScriptureReadingPlansEntry.contentDescription = "$titleWithDays. $planName"
             binding.layoutScriptureReadingPlansEntry.setOnClickListener {
-                nav.navigate(
+                nav.navigateSafely(
                     R.id.nav_scripture_reading_plan,
                     bundleOf(ScriptureReadingPlanKind.NAV_ARG_PLAN_KIND to kind.storageKey)
                 )
@@ -126,7 +127,7 @@ class ScriptureFragment : Fragment(), ScriptureToolbarActions {
             binding.layoutScriptureReadingPlansEntry.contentDescription =
                 getString(R.string.scripture_reading_plans_section_title)
             binding.layoutScriptureReadingPlansEntry.setOnClickListener {
-                nav.navigate(R.id.action_nav_scripture_to_nav_scripture_reading_plans_hub)
+                nav.navigateSafely(R.id.action_nav_scripture_to_nav_scripture_reading_plans_hub)
             }
         }
     }
@@ -148,7 +149,7 @@ class ScriptureFragment : Fragment(), ScriptureToolbarActions {
             binding.textScriptureContinueSubtitle.text =
                 getString(R.string.scripture_continue_reading_line, p.bookTitle, p.chapter)
             binding.layoutScriptureContinueReading.setOnClickListener {
-                findNavController().navigate(
+                findNavController().navigateSafely(
                     R.id.nav_scripture_chapter_text,
                     bundleOf(
                         ScriptureChaptersFragment.ARG_BOOK_ID to p.bookId,
@@ -235,7 +236,7 @@ class ScriptureFragment : Fragment(), ScriptureToolbarActions {
                 lifecycleScope.launch {
                     ScriptureTextRepository.warmChapterCountForBook(appCtx, trId, book.id)
                 }
-                findNavController().navigate(
+                findNavController().navigateSafely(
                     R.id.action_nav_scripture_to_nav_scripture_chapters,
                     bundleOf(
                         ScriptureChaptersFragment.ARG_BOOK_ID to book.id,

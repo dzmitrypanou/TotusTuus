@@ -41,10 +41,12 @@ object ScriptureTextRepository {
     private fun loadJsonString(context: Context, translationId: String): String? {
         val f = File(context.filesDir, "scripture_cache/$translationId.json")
         if (f.isFile && f.length() > 0L) {
-            return f.readText()
+            runCatching { f.readText() }.getOrNull()?.let { return it }
         }
         val assetFile = assetsByTranslation[translationId] ?: return null
-        return context.assets.open(assetFile).bufferedReader().use { it.readText() }
+        return runCatching {
+            context.assets.open(assetFile).bufferedReader().use { it.readText() }
+        }.getOrNull()
     }
 
     fun getTestaments(context: Context, translationId: String): List<TestamentSection> {
@@ -322,9 +324,10 @@ object ScriptureTextRepository {
         synchronized(this) {
             cache[translationId]?.let { return it }
             val json = loadJsonString(context, translationId) ?: return emptyList()
-            val root = JSONObject(json)
-            val booksArray = root.getJSONArray("books")
-            val parsed = buildList {
+            val parsed = runCatching {
+                val root = JSONObject(json)
+                val booksArray = root.getJSONArray("books")
+                buildList {
                 for (i in 0 until booksArray.length()) {
                     val bookObj = booksArray.getJSONObject(i)
                     val chaptersArray = bookObj.getJSONArray("chapters")
@@ -361,6 +364,7 @@ object ScriptureTextRepository {
                     )
                 }
             }
+            }.getOrDefault(emptyList())
             cache[translationId] = parsed
             return parsed
         }

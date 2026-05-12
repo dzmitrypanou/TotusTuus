@@ -24,6 +24,7 @@ import by.dzmitrypanou.catholicapp.R
 import by.dzmitrypanou.catholicapp.sync.ScriptureRemoteSync
 import kotlinx.coroutines.launch
 import by.dzmitrypanou.catholicapp.databinding.FragmentScriptureChapterTextBinding
+import by.dzmitrypanou.catholicapp.ui.navigation.navigateSafely
 import by.dzmitrypanou.catholicapp.ui.themeColor
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textview.MaterialTextView
@@ -310,7 +311,7 @@ class ScriptureChapterTextFragment : Fragment(), ScriptureToolbarActions {
     }
 
     private fun openChapter(bookId: Int, bookTitle: String, chapter: Int) {
-        findNavController().navigate(
+        findNavController().navigateSafely(
             R.id.nav_scripture_chapter_text,
             bundleOf(
                 ScriptureChaptersFragment.ARG_BOOK_ID to bookId,

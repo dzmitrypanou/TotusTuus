@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import by.dzmitrypanou.catholicapp.R
 import by.dzmitrypanou.catholicapp.databinding.FragmentHomeBinding
 import by.dzmitrypanou.catholicapp.databinding.ItemHomeSectionBinding
+import by.dzmitrypanou.catholicapp.ui.navigation.navigateSafely
 import by.dzmitrypanou.catholicapp.ui.PrayerBookUiTypography
 
 class HomeFragment : Fragment() {
@@ -60,17 +61,17 @@ class HomeFragment : Fragment() {
             onAvailableClick = { section ->
                 when (section.title) {
                     getString(R.string.home_item_prayerbook) ->
-                        findNavController().navigate(R.id.action_nav_home_to_nav_transform)
+                        findNavController().navigateSafely(R.id.action_nav_home_to_nav_transform)
                     getString(R.string.home_item_scripture) ->
-                        findNavController().navigate(R.id.action_nav_home_to_nav_scripture)
+                        findNavController().navigateSafely(R.id.action_nav_home_to_nav_scripture)
                     getString(R.string.home_item_songbook) ->
-                        findNavController().navigate(R.id.action_nav_home_to_nav_songbook)
+                        findNavController().navigateSafely(R.id.action_nav_home_to_nav_songbook)
                     getString(R.string.home_item_liturgy_calendar) ->
-                        findNavController().navigate(R.id.action_nav_home_to_nav_liturgy_calendar)
+                        findNavController().navigateSafely(R.id.action_nav_home_to_nav_liturgy_calendar)
                     getString(R.string.home_item_solemnities) ->
-                        findNavController().navigate(R.id.action_nav_home_to_nav_solemnities)
+                        findNavController().navigateSafely(R.id.action_nav_home_to_nav_solemnities)
                     getString(R.string.home_item_ordo_missae) ->
-                        findNavController().navigate(R.id.action_nav_home_to_nav_ordo_missae)
+                        findNavController().navigateSafely(R.id.action_nav_home_to_nav_ordo_missae)
                 }
             },
             onUnavailableClick = {
