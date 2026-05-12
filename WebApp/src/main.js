@@ -1756,13 +1756,16 @@
 
     function solemnitiesRowsHtml(year) {
         const key = solemnitiesCacheKey(year);
+        let currentCollapsed = false;
         const rows = solemnitiesItems(year).map((item) => {
             if (item.type === 'header') {
+                currentCollapsed = item.collapsed === true || solemnitiesCollapsedSections.has(String(item.title || '').trim());
                 return `<button type="button" data-action="toggle-solemnities-section" data-section-title="${escapeHtml(item.title)}" class="w-full px-1 pt-3 pb-2 border-0 bg-transparent text-left font-bold text-app-text leading-snug flex items-center justify-between gap-3 cursor-pointer" style="font-size:calc(20px * var(--totus-read-scale));">
                     <span>${escapeHtml(item.title)}</span>
-                    <i class="fas ${item.collapsed ? 'fa-chevron-down' : 'fa-chevron-up'} text-sm text-app-textSec" aria-hidden="true"></i>
+                    <i class="fas ${currentCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'} text-sm text-app-textSec" aria-hidden="true"></i>
                 </button>`;
             }
+            if (currentCollapsed) return '';
             return `<article class="rounded-md border border-app-stroke bg-app-elevated px-[18px] py-3 min-h-[56px] flex items-center gap-3">
                 <div class="w-[92px] shrink-0 font-bold text-app-textSec leading-snug" style="font-size:calc(15px * var(--totus-read-scale));">${escapeHtml(item.date)}</div>
                 <div class="flex-1 min-w-0 text-app-text leading-snug" style="font-size:calc(17px * var(--totus-read-scale));">${escapeHtml(item.title)}</div>
