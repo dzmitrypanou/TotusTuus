@@ -18,7 +18,8 @@
             span: 1,
             target: 'ordo-missae',
             available: true,
-            image: 'assets/home/ordo_missae_header_image.png',
+            image: 'assets/home/ordo_missae_header_image.jpg',
+            preload: true,
         },
         {
             title: 'Малітоўнік',
@@ -46,7 +47,8 @@
             span: 1,
             target: 'kantaral',
             available: false,
-            image: 'assets/home/kantaral_header_image.png',
+            image: 'assets/home/kantaral_header_image.jpg',
+            preload: true,
         },
         {
             title: 'Спеўнік',
@@ -107,6 +109,7 @@
     function homeCardWebpSrcset(rasterPath, span) {
         if (!rasterPath) return '';
         const s = String(rasterPath);
+        if (s === 'assets/home/ordo_missae_header_image.jpg' || s === 'assets/home/kantaral_header_image.jpg') return '';
         const base = String(rasterPath).replace(/\.(jpe?g|png)$/i, '');
         if (span === 2) {
             const u640 = escapeHtml(totusAssetUrl(`${base}-640.webp`));
@@ -126,26 +129,28 @@
     }
 
     /**
-     * @param {{ fetchPriorityHigh?: boolean }} [opts] — fetchPriorityHigh для магчымага LCP (картка «Пісанне» у сетцы).
+     * @param {{ fetchPriorityHigh?: boolean, decodeSync?: boolean }} [opts] — fetchPriorityHigh для магчымага LCP (картка «Пісанне» у сетцы).
      * Усе карты галоўнай бачныя адразу — без loading=lazy.
      */
     function homeCardPictureHtml(rasterPath, span, opts) {
         if (!rasterPath) return '';
         const high = opts && opts.fetchPriorityHigh;
+        const sync = opts && opts.decodeSync;
         const sizes = escapeHtml(homeCardImageSizes(span));
         const src = escapeHtml(totusAssetUrl(rasterPath));
         const fetchPri = high ? ' fetchpriority="high"' : '';
+        const decoding = sync ? 'sync' : 'async';
         const useWebpSource = /\.jpe?g$/i.test(String(rasterPath));
         if (!useWebpSource) {
-            return `<img src="${src}" alt="" class="absolute inset-0 h-full w-full object-cover pointer-events-none" loading="eager" decoding="async" sizes="${sizes}"${fetchPri} />`;
+            return `<img src="${src}" alt="" class="absolute inset-0 h-full w-full object-cover pointer-events-none" loading="eager" decoding="${decoding}" sizes="${sizes}"${fetchPri} />`;
         }
         const webpSrcset = homeCardWebpSrcset(rasterPath, span);
         if (!webpSrcset) {
-            return `<img src="${src}" alt="" class="absolute inset-0 h-full w-full object-cover pointer-events-none" loading="eager" decoding="async" sizes="${sizes}"${fetchPri} />`;
+            return `<img src="${src}" alt="" class="absolute inset-0 h-full w-full object-cover pointer-events-none" loading="eager" decoding="${decoding}" sizes="${sizes}"${fetchPri} />`;
         }
         return `<picture class="absolute inset-0 h-full w-full pointer-events-none">
             <source type="image/webp" srcset="${webpSrcset}" sizes="${sizes}" />
-            <img src="${src}" alt="" class="absolute inset-0 h-full w-full object-cover pointer-events-none" loading="eager" decoding="async" sizes="${sizes}"${fetchPri} />
+            <img src="${src}" alt="" class="absolute inset-0 h-full w-full object-cover pointer-events-none" loading="eager" decoding="${decoding}" sizes="${sizes}"${fetchPri} />
         </picture>`;
     }
 
