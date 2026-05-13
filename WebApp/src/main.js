@@ -353,20 +353,6 @@ const SCRIPTURE_TR_SHORT = {
         return String(value || '').toLowerCase().replace(/i/g, 'і');
     }
 
-    function syncSongbookLegacyStateFromCatalog(catalog) {
-        const key = catalog === 'kantaral' ? 'kantaral' : 'songbook';
-        const state = songbookRuntimeState[key];
-        if (key === 'kantaral') {
-            state.cache = kantaralCache;
-            state.loadError = kantaralLoadError;
-            state.loadErrorIsNetwork = kantaralLoadErrorIsNetwork;
-        } else {
-            state.cache = songbookCache;
-            state.loadError = songbookLoadError;
-            state.loadErrorIsNetwork = songbookLoadErrorIsNetwork;
-        }
-    }
-
     function activateSongbookCatalogState(catalog) {
         const key = catalog === 'kantaral' ? 'kantaral' : 'songbook';
         if (key === 'songbook') {
@@ -393,6 +379,10 @@ const SCRIPTURE_TR_SHORT = {
             kantaralCache = state.cache;
             kantaralLoadError = state.loadError;
             kantaralLoadErrorIsNetwork = state.loadErrorIsNetwork;
+        } else {
+            songbookCache = state.cache;
+            songbookLoadError = state.loadError;
+            songbookLoadErrorIsNetwork = state.loadErrorIsNetwork;
         }
     }
 
@@ -4535,7 +4525,6 @@ const scr = e.target.closest('[data-scripture-action]');
             prayerSearchDraft = '';
         }
         if (view === 'songbook' || view === 'kantaral') {
-            syncSongbookLegacyStateFromCatalog(view === 'kantaral' ? 'kantaral' : 'songbook');
             songbookActiveCatalog = view === 'kantaral' ? 'kantaral' : 'songbook';
             songbookBookmarksOnly = false;
             songbookView = 'list';
@@ -4876,8 +4865,8 @@ function songbookBuildFlatListHtml(sortedEntries) {
         songbookLoadErrorIsNetwork = false;
         if (!isApiConfigured()) {
             songbookLoadError = 'Наладзьце API: WebApp/api/proxy-secrets.php (useServerProxy) або apiKey у api-config.js';
+            songbookCache = [];
             if (isKantaral) kantaralCache = [];
-            else songbookCache = [];
             persistActiveSongbookCatalogState(activeCatalog);
             return;
         }
@@ -4888,13 +4877,13 @@ function songbookBuildFlatListHtml(sortedEntries) {
             songbookLoadError = isNet
                 ? humanizeClientFetchError(res.data.message || '')
                 : res.data.message || res.data.error || (isKantaral ? 'Не ўдалося загрузіць кантарал' : 'Не ўдалося загрузіць спеўнік');
+            songbookCache = [];
             if (isKantaral) kantaralCache = [];
-            else songbookCache = [];
         } else {
             const loaded = Array.isArray(res.data) ? res.data : [];
             attachSongbookSearchIndex(loaded);
+            songbookCache = loaded;
             if (isKantaral) kantaralCache = loaded;
-            else songbookCache = loaded;
         }
         persistActiveSongbookCatalogState(activeCatalog);
         activateSongbookCatalogState(activeCatalog);
