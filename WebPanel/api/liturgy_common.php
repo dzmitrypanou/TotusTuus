@@ -606,6 +606,9 @@ function liturgy_optional_memorial_variant_for_client_display(string $label, boo
     if ($t === '') {
         return '';
     }
+    if (preg_match('/^Увечары\s*:/iu', $t) === 1) {
+        return $t;
+    }
     if (!$prefixAuto) {
         return $t;
     }
@@ -1188,21 +1191,14 @@ function liturgy_auto_title(DateTimeImmutable $date, ?array $important): string
 
 /**
  * When true, general optional memorials and fixed-date lectionary "альбо" rows are omitted:
- * Advent Sundays; Lent Sundays; Easter Sundays through Pentecost; Advent weekdays 17–24 Dec;
+ * all Sundays; Advent weekdays 17–24 Dec;
  * Holy Week; Ash Wednesday; Easter octave weekdays (Mon–Sat);
  * days that are already a fixed/movable solemnity or feast.
- * Іншыя нядзелі (Звычайны час): даброўныя успаміны праз «альбо» разам з імшой нядзелі.
  */
 function liturgy_optional_memorials_suppressed_for_day(DateTimeImmutable $date, ?array $important): bool
 {
     $season = liturgy_detect_season($date);
-    if ($season === 'ADVENT' && (int)$date->format('w') === 0) {
-        return true;
-    }
-    if ($season === 'LENT' && (int)$date->format('w') === 0) {
-        return true;
-    }
-    if ($season === 'EASTER' && (int)$date->format('w') === 0) {
+    if ((int)$date->format('w') === 0) {
         return true;
     }
     $month = (int)$date->format('m');
@@ -1465,6 +1461,32 @@ function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = nu
             $optionalMemorialPrefixAuto[] = true;
         }
     }
+    // Вігілія Нараджэння св. Яна Хрысціцеля — вечарам папярэдняга дня.
+    if ($date->format('m-d') === '06-23') {
+        $johnBaptistVigilLookup = 'Нараджэнне святога Яна Хрысціцеля - Імша ў вігілію';
+        $johnBaptistVigilLabel = 'Увечары: Імша з вігіліі ўрачыстасці Нараджэння св. Яна Хрысціцеля';
+        if (!in_array($johnBaptistVigilLabel, $optionalTitles, true)) {
+            $optionalTitles[] = $johnBaptistVigilLabel;
+            $optionalTitleColors[] = liturgy_infer_optional_memorial_color($johnBaptistVigilLabel);
+        }
+        if (!in_array($johnBaptistVigilLookup, $optionalLookupTitles, true)) {
+            $optionalLookupTitles[] = $johnBaptistVigilLookup;
+            $optionalMemorialPrefixAuto[] = false;
+        }
+    }
+    // Вігілія св. Пятра і Паўла — вечарам папярэдняга дня.
+    if ($date->format('m-d') === '06-28') {
+        $peterPaulVigilLookup = 'Урачыстасць святых апосталаў Пятра і Паўла - Імша ў вігілію';
+        $peterPaulVigilLabel = 'Увечары: Імша з вігіліі ўрачыстасці св. Пятра і Паўла, Апосталаў';
+        if (!in_array($peterPaulVigilLabel, $optionalTitles, true)) {
+            $optionalTitles[] = $peterPaulVigilLabel;
+            $optionalTitleColors[] = 'red';
+        }
+        if (!in_array($peterPaulVigilLookup, $optionalLookupTitles, true)) {
+            $optionalLookupTitles[] = $peterPaulVigilLookup;
+            $optionalMemorialPrefixAuto[] = false;
+        }
+    }
     // Вігілія Унебаўзяцця — у лекцыянарыі як папярэдні дзень; у спісе варыянтаў — апошнім (пасля іншых успамінаў / датаваных радкоў).
     if ($date->format('m-d') === '08-14') {
         $assumptionVigilLookup = 'Унебаўзяцце Найсвяцейшай Панны Марыі - Імша ў вігілію';
@@ -1632,7 +1654,8 @@ function liturgy_effective_title_is_holy_thursday(string $effectiveTitle): bool
 }
 
 /**
- * Пётр і Павел (29 чэрвеня): чытанні толькі «Імша ў вігілію» і «Імша ўдзень», без радка «асноўны» па назве ўрачыстасці.
+ * Пётр і Павел (29 чэрвеня): чытанні толькі «Імша ўдзень», без радка «асноўны» па назве ўрачыстасці.
+ * «Імша ў вігілію» паказваецца ўвечары 28 чэрвеня (гл. liturgy_auto_day_info).
  */
 function liturgy_effective_title_is_peter_and_paul_solemnity(string $effectiveTitle): bool
 {
@@ -1640,7 +1663,8 @@ function liturgy_effective_title_is_peter_and_paul_solemnity(string $effectiveTi
 }
 
 /**
- * Нараджэнне св. Яна Хрысціцеля: толькі «Імша ў вігілію» і «Імша ўдзень», без радка «асноўны» па назве ўрачыстасці.
+ * Нараджэнне св. Яна Хрысціцеля: чытанні толькі «Імша ўдзень», без радка «асноўны» па назве ўрачыстасці.
+ * «Імша ў вігілію» паказваецца ўвечары 23 чэрвеня (гл. liturgy_auto_day_info).
  */
 function liturgy_effective_title_is_john_baptist_nativity(string $effectiveTitle): bool
 {
@@ -1711,10 +1735,6 @@ function liturgy_special_lectionary_titles_for_day(string $effectiveTitle): arra
     if ($baseTitle === 'Нараджэнне святога Яна Хрысціцеля') {
         return [
             [
-                'lookup' => 'Нараджэнне святога Яна Хрысціцеля - Імша ў вігілію',
-                'label' => 'Імша ў вігілію',
-            ],
-            [
                 'lookup' => 'Нараджэнне святога Яна Хрысціцеля - Імша ўдзень',
                 'label' => 'Імша ўдзень',
             ],
@@ -1722,10 +1742,6 @@ function liturgy_special_lectionary_titles_for_day(string $effectiveTitle): arra
     }
     if ($baseTitle === 'Урачыстасць святых апосталаў Пятра і Паўла') {
         return [
-            [
-                'lookup' => 'Урачыстасць святых апосталаў Пятра і Паўла - Імша ў вігілію',
-                'label' => 'Імша ў вігілію',
-            ],
             [
                 'lookup' => 'Урачыстасць святых апосталаў Пятра і Паўла - Імша ўдзень',
                 'label' => 'Імша ўдзень',
@@ -2656,4 +2672,3 @@ function liturgy_fetch_entry_for_date(string $date): ?array
     $row = $stmt->fetch();
     return is_array($row) ? $row : null;
 }
-

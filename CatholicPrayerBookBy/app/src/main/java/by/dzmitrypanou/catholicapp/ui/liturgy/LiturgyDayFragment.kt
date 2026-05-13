@@ -446,37 +446,8 @@ class LiturgyDayFragment : Fragment() {
                 } else {
                     optionalColor
                 }
-                container.addView(createLiturgyOptionRow(ctx, formatOptionalMemorialPartForDisplay(part), partColorInt))
+                container.addView(createLiturgyOptionRow(ctx, part.trim(), partColorInt))
             }
-        }
-    }
-
-    /**
-     * Як liturgy_optional_memorial_variant_for_client_display у WebPanel: без «Чацвер — …»,
-     * для даброўных варыянтаў — «Успамін — …» (кэш/API могуць яшчэ з днём тыдня).
-     */
-    private fun formatOptionalMemorialPartForDisplay(part: String): String {
-        var t = part.trim()
-        if (t.isEmpty()) return ""
-        val wdStrip = Regex(
-            "^(?:Панядзелак|Аўторак|Серада|Чацвер|Пятніца|Субота|Нядзеля)\\s*—\\s*(.+)$",
-            RegexOption.IGNORE_CASE
-        ).find(t)?.groupValues?.getOrNull(1)?.trim()
-        if (wdStrip != null) t = wdStrip
-        if (t.isEmpty()) return ""
-        val obs = Regex(
-            "^((?:Даброўны\\s+успамін|Урачыстасць|Свята|Успамін)(?:\\s*[—–\\-]\\s*|\\s+))(.*)$",
-            setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
-        ).find(t)
-        val body = obs?.groupValues?.getOrNull(2)?.trim().orEmpty()
-        val pre = obs?.groupValues?.getOrNull(1).orEmpty()
-        return when {
-            obs == null -> "Успамін — $t"
-            Regex("^Даброўны\\s+успамін", RegexOption.IGNORE_CASE).containsMatchIn(pre) -> "Даброўны успамін — $body"
-            Regex("^Урачыстасць", RegexOption.IGNORE_CASE).containsMatchIn(pre) -> "Урачыстасць — $body"
-            Regex("^Свята", RegexOption.IGNORE_CASE).containsMatchIn(pre) -> "Свята — $body"
-            Regex("^Успамін", RegexOption.IGNORE_CASE).containsMatchIn(pre) -> "Успамін — $body"
-            else -> "Успамін — $t"
         }
     }
 

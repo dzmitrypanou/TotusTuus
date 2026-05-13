@@ -2586,26 +2586,6 @@
             .filter(Boolean);
     }
 
-    /** Як liturgy_optional_memorial_variant_for_client_display: без «Чацвер — …», замест гэтага «Успамін — …». */
-    function formatOptionalMemorialPartForDisplay(part) {
-        let t = String(part || '').trim();
-        if (!t) return '';
-        const wdRe = /^(?:Панядзелак|Аўторак|Серада|Чацвер|Пятніца|Субота|Нядзеля)\s*—\s*(.+)$/iu;
-        const wm = t.match(wdRe);
-        if (wm) t = wm[1].trim();
-        if (!t) return '';
-        const obsRe = /^((?:Даброўны\s+успамін|Урачыстасць|Свята|Успамін)(?:\s*[—–-]\s*|\s+))(.*)$/isu;
-        const om = t.match(obsRe);
-        if (!om) return `Успамін — ${t}`;
-        const body = String(om[2] || '').trim();
-        const pre = om[1] || '';
-        if (/^Даброўны\s+успамін/i.test(pre)) return `Даброўны успамін — ${body}`;
-        if (/^Урачыстасць/i.test(pre)) return `Урачыстасць — ${body}`;
-        if (/^Свята/i.test(pre)) return `Свята — ${body}`;
-        if (/^Успамін/i.test(pre)) return `Успамін — ${body}`;
-        return `Успамін — ${t}`;
-    }
-
     function liturgyDayTitleBlockHtml(data, err, title, optionalCombinedOverride) {
         const mainHex = liturgyMainColorHex(data, err);
         const optRaw =
@@ -2625,9 +2605,9 @@
                 html += `<p class="text-[13px] text-app-textSec leading-snug pl-6">альбо</p>
             <div class="flex items-start gap-2.5">
                 ${liturgyDayColorSwatchHtml(optHex)}
-                <p class="text-[18px] font-bold text-app-text leading-snug flex-1 min-w-0">${escapeHtml(formatOptionalMemorialPartForDisplay(part))}</p>
+                <p class="text-[18px] font-bold text-app-text leading-snug flex-1 min-w-0">${escapeHtml(String(part || '').trim())}</p>
             </div>`;
-            });
+        });
         }
         html += '</div>';
         return html;
