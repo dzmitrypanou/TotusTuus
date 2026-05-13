@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import by.dzmitrypanou.catholicapp.LauncherDark
+import by.dzmitrypanou.catholicapp.LauncherLight
 import by.dzmitrypanou.catholicapp.R
 
 object AppColorSchemeStore {
@@ -13,8 +15,6 @@ object AppColorSchemeStore {
     private const val PREFS_NAME = "ui_text_settings"
     private const val KEY_COLOR_SCHEME = "app_color_scheme"
     private const val KEY_LAUNCHER_SYNC_PENDING = "launcher_icon_sync_pending"
-    private const val LAUNCHER_DARK_ALIAS_SUFFIX = ".LauncherDark"
-    private const val LAUNCHER_LIGHT_ALIAS_SUFFIX = ".LauncherLight"
 
     enum class Scheme(val storageKey: String, val themeResId: Int, val prefersLightSystemBars: Boolean) {
         DARK("current", R.style.Theme_CatholicPrayerBookBy_NoActionBar, false),
@@ -53,6 +53,7 @@ object AppColorSchemeStore {
             .putBoolean(KEY_LAUNCHER_SYNC_PENDING, true)
             .apply()
         cachedScheme = scheme
+        syncLauncherIcon(context)
     }
 
     fun applyActivityTheme(activity: AppCompatActivity): Scheme {
@@ -86,12 +87,12 @@ object AppColorSchemeStore {
     private fun syncLauncherIcon(context: Context, scheme: Scheme) {
         val appContext = context.applicationContext
         val packageManager = appContext.packageManager
-        val darkAlias = ComponentName(appContext, appContext.packageName + LAUNCHER_DARK_ALIAS_SUFFIX)
-        val lightAlias = ComponentName(appContext, appContext.packageName + LAUNCHER_LIGHT_ALIAS_SUFFIX)
+        val darkAlias = ComponentName(appContext, LauncherDark::class.java)
+        val lightAlias = ComponentName(appContext, LauncherLight::class.java)
         val useLight = scheme == Scheme.LIGHT
         val flags = PackageManager.DONT_KILL_APP
 
-val targetAlias = if (useLight) lightAlias else darkAlias
+        val targetAlias = if (useLight) lightAlias else darkAlias
         val otherAlias = if (useLight) darkAlias else lightAlias
         packageManager.setComponentEnabledSetting(
             targetAlias,

@@ -18,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import by.dzmitrypanou.catholicapp.MainActivity
+import by.dzmitrypanou.catholicapp.MainLightActivity
 import by.dzmitrypanou.catholicapp.R
 import by.dzmitrypanou.catholicapp.data.AppColorSchemeStore
 import by.dzmitrypanou.catholicapp.data.OrdoMissaeRepository
@@ -30,7 +31,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ResetLoadingActivity : AppCompatActivity() {
+open class ResetLoadingActivity : AppCompatActivity() {
     private lateinit var root: View
     private lateinit var imageLogo: ImageView
     private lateinit var progressBar: ProgressBar
@@ -43,6 +44,7 @@ class ResetLoadingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         val scheme = AppColorSchemeStore.readScheme(this)
+        setTheme(scheme.themeResId)
         super.onCreate(savedInstanceState)
         val lightBars = scheme.prefersLightSystemBars
         enableEdgeToEdge(
@@ -171,7 +173,13 @@ class ResetLoadingActivity : AppCompatActivity() {
     }
 
     private fun openMain() {
-        val intent = Intent(this, MainActivity::class.java).apply {
+        val scheme = AppColorSchemeStore.readScheme(this)
+        val mainActivityClass = if (scheme == AppColorSchemeStore.Scheme.LIGHT) {
+            MainLightActivity::class.java
+        } else {
+            MainActivity::class.java
+        }
+        val intent = Intent(this, mainActivityClass).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             putExtra(MainActivity.EXTRA_OPEN_PRAYER_BOOK_REFRESH, false)
         }
@@ -180,3 +188,7 @@ class ResetLoadingActivity : AppCompatActivity() {
         finish()
     }
 }
+
+class ResetLoadingDarkActivity : ResetLoadingActivity()
+
+class ResetLoadingLightActivity : ResetLoadingActivity()

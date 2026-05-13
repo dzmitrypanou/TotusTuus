@@ -56,7 +56,7 @@ import by.dzmitrypanou.catholicapp.ui.songbook.SongbookToolbarActions
 import by.dzmitrypanou.catholicapp.ui.transform.PrayerBookToolbarActions
 import by.dzmitrypanou.catholicapp.ui.transform.PrayerDetailFragment
 
-class MainActivity : AppCompatActivity() {
+open class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
@@ -1068,3 +1068,5 @@ private fun createSectionToolbarTitleTextView(@DimenRes textDimen: Int): AppComp
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }
+
+class MainLightActivity : MainActivity()

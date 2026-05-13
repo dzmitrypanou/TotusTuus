@@ -22,33 +22,45 @@
             android:theme="@style/Theme.CatholicPrayerBookBy.Startup">
         </activity>
 
-        <activity-alias
+        <activity
+            android:name=".ui.settings.ResetLoadingDarkActivity"
+            android:exported="true"
+            android:theme="@style/Theme.CatholicPrayerBookBy.Startup">
+        </activity>
+
+        <activity
+            android:name=".ui.settings.ResetLoadingLightActivity"
+            android:exported="true"
+            android:theme="@style/Theme.CatholicPrayerBookBy.Startup.Light">
+        </activity>
+
+        <activity
             android:name=".LauncherDark"
             android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_dark"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_dark"
-            android:targetActivity=".ui.settings.ResetLoadingActivity">
+            android:theme="@style/Theme.CatholicPrayerBookBy.Startup">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity-alias>
+        </activity>
 
-        <activity-alias
+        <activity
             android:name=".LauncherLight"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_light"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_light"
-            android:targetActivity=".ui.settings.ResetLoadingActivity">
+            android:theme="@style/Theme.CatholicPrayerBookBy.Startup.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity-alias>
+        </activity>
 
         <activity
             android:name=".MainActivity"
@@ -56,6 +68,13 @@
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/Theme.CatholicPrayerBookBy.NoActionBar" />
+
+        <activity
+            android:name=".MainLightActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.CatholicPrayerBookBy.NoActionBar.Beige" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
