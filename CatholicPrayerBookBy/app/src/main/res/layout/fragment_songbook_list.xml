@@ -96,5 +96,49 @@
             android:visibility="gone"
             tools:text="@string/songbook_empty"
             tools:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/layout_kantaral_loading_center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_gradient_dark"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/prayer_card_padding"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/progress_kantaral_loading_center"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:indeterminateTint="?attr/totusColorTextSecondary" />
+
+            <ProgressBar
+                android:id="@+id/progress_kantaral_loading_horizontal"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:indeterminate="true"
+                android:max="100"
+                android:progress="0"
+                android:indeterminateTint="?attr/totusColorTextSecondary"
+                android:progressTint="?attr/totusColorTextSecondary"
+                android:progressBackgroundTint="?attr/totusColorSurfaceStroke" />
+
+            <TextView
+                android:id="@+id/text_kantaral_loading_center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp"
+                android:text="@string/kantaral_loading"
+                android:textAlignment="gravity"
+                android:textColor="?attr/totusColorTextSecondary" />
+        </LinearLayout>
     </FrameLayout>
 </LinearLayout>

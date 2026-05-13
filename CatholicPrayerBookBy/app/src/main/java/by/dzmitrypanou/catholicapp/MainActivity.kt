@@ -1028,10 +1028,11 @@ class MainActivity : AppCompatActivity() {
 
         val autoUpdateEnabled = PrayerAutoUpdateConsentStore.isGranted(this)
         val syncingInProgress = primary?.isSongbookDataSyncInProgress() == true
+        val showToolbarProgress = primary?.showSongbookToolbarSyncProgress() != false
         actionView.findViewById<View>(R.id.button_songbook_refresh)?.visibility =
             if (autoUpdateEnabled) View.GONE else View.VISIBLE
         actionView.findViewById<View>(R.id.progress_songbook_sync)?.visibility =
-            if (autoUpdateEnabled && syncingInProgress) View.VISIBLE else View.INVISIBLE
+            if (autoUpdateEnabled && syncingInProgress && showToolbarProgress) View.VISIBLE else View.INVISIBLE
         actionView.findViewById<View>(R.id.button_songbook_refresh)?.setOnClickListener {
             primary?.refreshSongbookDataFromToolbar()
         }

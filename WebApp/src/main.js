@@ -36,13 +36,6 @@
             image: 'assets/home/liturgy_calendar_header_image.jpg',
         },
         {
-            title: 'Урачыстасці і святы',
-            span: 1,
-            target: 'solemnities',
-            available: true,
-            image: 'assets/home/solemnities_header_image.jpg',
-        },
-        {
             title: 'Кантарал',
             span: 1,
             target: 'kantaral',
@@ -56,6 +49,13 @@
             target: 'songbook',
             available: true,
             image: 'assets/home/songbook_header_image.jpg',
+        },
+        {
+            title: 'Урачыстасці і святы',
+            span: 1,
+            target: 'solemnities',
+            available: true,
+            image: 'assets/home/solemnities_header_image.jpg',
         },
         {
             title: 'Святое Пісанне',
