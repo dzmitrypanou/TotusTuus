@@ -52,7 +52,7 @@ class HomeFragment : Fragment() {
             HomeSection(getString(R.string.home_item_prayerbook), true, R.drawable.prayerbook_header_image),
             HomeSection(getString(R.string.home_item_liturgy_calendar), true, R.drawable.liturgy_calendar_header_image, spanSize = 2),
             HomeSection(getString(R.string.home_item_solemnities), true, R.drawable.solemnities_header_image),
-            HomeSection(getString(R.string.home_item_kantaral), false, R.drawable.kantaral_header_image),
+            HomeSection(getString(R.string.home_item_kantaral), true, R.drawable.kantaral_header_image),
             HomeSection(getString(R.string.home_item_songbook), true, R.drawable.songbook_header_image),
             HomeSection(getString(R.string.home_item_scripture), true, R.drawable.scripture_header_bible)
         )
@@ -66,6 +66,8 @@ class HomeFragment : Fragment() {
                         findNavController().navigateSafely(R.id.action_nav_home_to_nav_scripture)
                     getString(R.string.home_item_songbook) ->
                         findNavController().navigateSafely(R.id.action_nav_home_to_nav_songbook)
+                    getString(R.string.home_item_kantaral) ->
+                        findNavController().navigateSafely(R.id.action_nav_home_to_nav_kantaral)
                     getString(R.string.home_item_liturgy_calendar) ->
                         findNavController().navigateSafely(R.id.action_nav_home_to_nav_liturgy_calendar)
                     getString(R.string.home_item_solemnities) ->

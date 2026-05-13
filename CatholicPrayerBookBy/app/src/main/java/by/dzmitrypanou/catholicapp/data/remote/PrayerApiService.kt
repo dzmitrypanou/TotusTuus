@@ -19,6 +19,12 @@ interface PrayerApiService {
     @GET("songbook.php")
     suspend fun getSongbook(): List<SongbookDto>
 
+    @GET("kantaral_hash.php")
+    suspend fun getKantaralContentHash(): PrayersHashDto
+
+    @GET("kantaral.php")
+    suspend fun getKantaral(): List<SongbookDto>
+
     @GET("liturgy_calendar_month.php")
     suspend fun getLiturgyCalendarMonth(
         @Query("year") year: Int,

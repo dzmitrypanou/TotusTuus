@@ -230,6 +230,7 @@ $sectionKeys = panel_content_section_keys();
 $labelsShort = [
     'prayers' => 'Малітвы',
     'songbook' => 'Спеўнік',
+    'kantaral' => 'Кантарал',
     'scripture' => 'Біблія',
     'liturgy' => 'Літургія',
     'lectionary' => 'Лекц.',

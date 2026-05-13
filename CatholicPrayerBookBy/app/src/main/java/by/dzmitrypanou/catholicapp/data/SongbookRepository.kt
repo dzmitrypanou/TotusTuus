@@ -19,8 +19,16 @@ import java.io.File
 import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicInteger
 
-class SongbookRepository(private val context: Context) {
+class SongbookRepository(
+    private val context: Context,
+    private val catalog: Catalog = Catalog.SONGBOOK
+) {
     data class SyncProgress(val done: Int, val total: Int)
+
+    enum class Catalog {
+        SONGBOOK,
+        KANTARAL
+    }
 
     private val refreshMutex = Mutex()
 
@@ -37,8 +45,8 @@ class SongbookRepository(private val context: Context) {
             }
         )
         .create()
-    private val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    private val rootDir = File(appContext.filesDir, "songbook")
+    private val prefs = appContext.getSharedPreferences(catalog.prefsName, Context.MODE_PRIVATE)
+    private val rootDir = File(appContext.filesDir, catalog.dirName)
     private val mediaDir = File(rootDir, "media")
 
     init {
@@ -62,13 +70,15 @@ class SongbookRepository(private val context: Context) {
     suspend fun getRemoteContentHashOrNull(allowNetwork: Boolean = false): String? =
         withContext(Dispatchers.IO) {
             if (!allowNetwork) return@withContext null
-            runCatching { PrayerApiClient.service.getSongbookContentHash().hash }.getOrNull()
+            runCatching { catalog.remoteHash() }.getOrNull()
         }
 
     /** Скід кэша спеўніка: JSON, хэш, файлы выяў, закладкі на песні. */
     fun clearCache() {
         prefs.edit().clear().apply()
-        SongbookBookmarksStore(appContext).clearAll()
+            if (catalog == Catalog.SONGBOOK) {
+                SongbookBookmarksStore(appContext).clearAll()
+            }
         runCatching {
             mediaDir.listFiles()?.forEach { f ->
                 if (f.isFile) f.delete()
@@ -107,7 +117,7 @@ class SongbookRepository(private val context: Context) {
             return@withContext existingLocal.sortedWith(songbookOrderComparator)
         }
         val remoteHash = runCatching {
-            PrayerApiClient.service.getSongbookContentHash().hash
+            catalog.remoteHash()
         }.getOrNull()
 
         if (allowHashShortCircuit && remoteHash != null) {
@@ -120,7 +130,7 @@ class SongbookRepository(private val context: Context) {
             }
         }
 
-        val dtos = runCatching { PrayerApiClient.service.getSongbook() }.getOrElse {
+        val dtos = runCatching { catalog.remoteEntries() }.getOrElse {
             return@withContext existingLocal.sortedWith(songbookOrderComparator)
         }
 
@@ -175,7 +185,9 @@ class SongbookRepository(private val context: Context) {
             .putString(KEY_MEDIA_REV, gson.toJson(newRevisions))
             .apply()
 
-        SongbookBookmarksStore(appContext).retainOnly(activeIds)
+        if (catalog == Catalog.SONGBOOK) {
+            SongbookBookmarksStore(appContext).retainOnly(activeIds)
+        }
         migrateAwayFromLegacyIndexJson()
         SongbookCacheInvalidationNotifier.notifySongbookSyncFinished()
         result.sortedWith(songbookOrderComparator)
@@ -291,7 +303,7 @@ class SongbookRepository(private val context: Context) {
         }
         val safeExt = ext.filter { it.isLetterOrDigit() }
         val e = if (safeExt.isNotEmpty()) safeExt else "jpg"
-        return "sb_${id}.$e"
+        return "${catalog.mediaPrefix}_${id}.$e"
     }
 
     private fun computeEntriesHash(entries: List<SongbookEntry>): String {
@@ -317,11 +329,38 @@ class SongbookRepository(private val context: Context) {
     companion object {
         private const val MAX_PARALLEL_SONGBOOK_MEDIA_DOWNLOADS = 6
 
-        private const val PREFS_NAME = "songbook_cache"
         private const val KEY_ENTRIES = "entries_json"
         private const val KEY_HASH = "content_hash"
         private const val KEY_MEDIA_REV = "media_revision_json"
 
         private val songbookOrderComparator = SongbookEntry.DISPLAY_ORDER
     }
+}
+
+private val SongbookRepository.Catalog.prefsName: String
+    get() = when (this) {
+        SongbookRepository.Catalog.SONGBOOK -> "songbook_cache"
+        SongbookRepository.Catalog.KANTARAL -> "kantaral_cache"
+    }
+
+private val SongbookRepository.Catalog.dirName: String
+    get() = when (this) {
+        SongbookRepository.Catalog.SONGBOOK -> "songbook"
+        SongbookRepository.Catalog.KANTARAL -> "kantaral"
+    }
+
+private val SongbookRepository.Catalog.mediaPrefix: String
+    get() = when (this) {
+        SongbookRepository.Catalog.SONGBOOK -> "sb"
+        SongbookRepository.Catalog.KANTARAL -> "kt"
+    }
+
+private suspend fun SongbookRepository.Catalog.remoteHash(): String = when (this) {
+    SongbookRepository.Catalog.SONGBOOK -> PrayerApiClient.service.getSongbookContentHash().hash
+    SongbookRepository.Catalog.KANTARAL -> PrayerApiClient.service.getKantaralContentHash().hash
+}
+
+private suspend fun SongbookRepository.Catalog.remoteEntries(): List<SongbookDto> = when (this) {
+    SongbookRepository.Catalog.SONGBOOK -> PrayerApiClient.service.getSongbook()
+    SongbookRepository.Catalog.KANTARAL -> PrayerApiClient.service.getKantaral()
 }

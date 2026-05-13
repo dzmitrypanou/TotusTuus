@@ -4,7 +4,7 @@ declare(strict_types=1);
 /** @return list<string> */
 function panel_content_section_keys(): array
 {
-    return ['prayers', 'songbook', 'scripture', 'liturgy', 'lectionary', 'solemnities', 'announcements'];
+    return ['prayers', 'songbook', 'kantaral', 'scripture', 'liturgy', 'lectionary', 'solemnities', 'announcements'];
 }
 
 /** @return array<string, string> */
@@ -13,6 +13,7 @@ function panel_section_labels_be(): array
     return [
         'prayers' => 'Малітвы і катэгорыі',
         'songbook' => 'Спеўнік',
+        'kantaral' => 'Кантарал',
         'scripture' => 'Біблія (пераклады)',
         'liturgy' => 'Літургія (каляндар, святы, пустыя дні)',
         'lectionary' => 'Лекцыянарый',
@@ -36,6 +37,8 @@ function panel_view_section(string $view): ?string
         'prayers' => 'prayers',
         'songbook' => 'songbook',
         'add-songbook' => 'songbook',
+        'kantaral' => 'kantaral',
+        'add-kantaral' => 'kantaral',
         'scripture' => 'scripture',
         'scripture-import' => 'scripture',
         'scripture-chapter' => 'scripture',

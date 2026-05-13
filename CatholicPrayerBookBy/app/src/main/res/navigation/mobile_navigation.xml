@@ -90,6 +90,9 @@
             android:id="@+id/action_nav_home_to_nav_songbook"
             app:destination="@id/nav_songbook" />
         <action
+            android:id="@+id/action_nav_home_to_nav_kantaral"
+            app:destination="@id/nav_kantaral" />
+        <action
             android:id="@+id/action_nav_home_to_nav_liturgy_calendar"
             app:destination="@id/nav_liturgy_calendar" />
         <action
@@ -154,6 +157,20 @@
     </fragment>
 
     <fragment
+        android:id="@+id/nav_kantaral"
+        android:name="by.dzmitrypanou.catholicapp.ui.songbook.SongbookListFragment"
+        tools:label="@string/home_item_kantaral"
+        tools:layout="@layout/fragment_songbook_list">
+        <argument
+            android:name="catalog"
+            android:defaultValue="kantaral"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_nav_kantaral_to_nav_songbook_detail"
+            app:destination="@id/nav_songbook_detail" />
+    </fragment>
+
+    <fragment
         android:id="@+id/nav_songbook_detail"
         android:name="by.dzmitrypanou.catholicapp.ui.songbook.SongbookDetailFragment"
         tools:label="@string/songbook_detail_title"
@@ -170,6 +187,10 @@
             android:name="displayCategory"
             app:argType="string"
             android:defaultValue="" />
+        <argument
+            android:name="catalog"
+            app:argType="string"
+            android:defaultValue="songbook" />
     </fragment>
 
     <fragment

@@ -34,6 +34,12 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
     private var toolbarSongbookSyncInProgress: Boolean = false
     private var songbookListSyncBlockingUi: Boolean = false
     private var lastSongbookCacheGeneration: Long = Long.MIN_VALUE
+    private val catalog: SongbookRepository.Catalog
+        get() = if (arguments?.getString("catalog") == "kantaral") {
+            SongbookRepository.Catalog.KANTARAL
+        } else {
+            SongbookRepository.Catalog.SONGBOOK
+        }
 
     private lateinit var categoriesAdapter: SongbookCategoryBlocksAdapter
 
@@ -52,11 +58,16 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
         val appCtx = requireContext().applicationContext
         categoriesAdapter = SongbookCategoryBlocksAdapter(appCtx) { entry, displayCategory ->
             findNavController().navigate(
-                R.id.action_nav_songbook_to_nav_songbook_detail,
+                if (catalog == SongbookRepository.Catalog.KANTARAL) {
+                    R.id.action_nav_kantaral_to_nav_songbook_detail
+                } else {
+                    R.id.action_nav_songbook_to_nav_songbook_detail
+                },
                 bundleOf(
                     "entryId" to entry.id,
                     "displayTitle" to entry.listLabel(),
-                    "displayCategory" to displayCategory
+                    "displayCategory" to displayCategory,
+                    "catalog" to if (catalog == SongbookRepository.Catalog.KANTARAL) "kantaral" else "songbook"
                 )
             )
         }
@@ -73,6 +84,8 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
         binding.layoutSongbookSearchEntry.setOnClickListener {
             findNavController().navigate(R.id.action_global_nav_songbook_search)
         }
+        binding.layoutSongbookSearchEntry.visibility =
+            if (catalog == SongbookRepository.Catalog.KANTARAL) View.GONE else View.VISIBLE
 
         lastSongbookCacheGeneration = SongbookCacheInvalidationNotifier.currentGeneration()
         reloadFromCache()
@@ -109,7 +122,8 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
     private fun refreshListUi() {
         val b = _binding ?: return
         val hasData = allEntries.isNotEmpty()
-        b.layoutSongbookSearchEntry.visibility = View.VISIBLE
+        b.layoutSongbookSearchEntry.visibility =
+            if (catalog == SongbookRepository.Catalog.KANTARAL) View.GONE else View.VISIBLE
         val loading = songbookListSyncBlockingUi
         val showCenteredEmpty = !hasData && !loading
         b.textSongbookEmptyCenter.setText(R.string.songbook_empty)
@@ -126,7 +140,7 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
         viewLifecycleOwner.lifecycleScope.launch {
             val appCtx = requireContext().applicationContext
             val entries = withContext(Dispatchers.IO) {
-                SongbookRepository(appCtx).getCachedEntriesSorted()
+                SongbookRepository(appCtx, catalog).getCachedEntriesSorted()
             }
             if (_binding == null || !isAdded) return@launch
             allEntries = entries
@@ -146,7 +160,7 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
             toolbarSongbookSyncInProgress = true
             requireActivity().invalidateOptionsMenu()
             val appCtx = requireContext().applicationContext
-            val repo = SongbookRepository(appCtx)
+            val repo = SongbookRepository(appCtx, catalog)
             try {
                 val list = runCatching {
                     repo.refreshFromApi(allowHashShortCircuit = true, allowNetwork = true)

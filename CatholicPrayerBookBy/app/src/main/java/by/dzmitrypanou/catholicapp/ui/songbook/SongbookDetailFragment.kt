@@ -35,6 +35,12 @@ class SongbookDetailFragment : Fragment() {
     private var lastLoadedBodyPx: Float = Float.NaN
     private var displayedImageBitmap: Bitmap? = null
     private var currentContentType: SongbookContentType? = null
+    private val catalog: SongbookRepository.Catalog
+        get() = if (arguments?.getString("catalog") == "kantaral") {
+            SongbookRepository.Catalog.KANTARAL
+        } else {
+            SongbookRepository.Catalog.SONGBOOK
+        }
 
     private var songbookWhitePaperChrome: Boolean = false
 
@@ -55,7 +61,7 @@ class SongbookDetailFragment : Fragment() {
     }
 
     fun reloadBodyForCurrentTextScale() {
-        val repo = SongbookRepository(requireContext())
+        val repo = SongbookRepository(requireContext(), catalog)
         val e = repo.getById(entryId) ?: return
         if (e.contentType == SongbookContentType.TEXT) {
             lastLoadedBodyPx = Float.NaN
@@ -64,7 +70,7 @@ class SongbookDetailFragment : Fragment() {
     }
 
     fun bindSongbookDetailToolbarActions(actionView: View) {
-        val repo = SongbookRepository(requireContext())
+        val repo = SongbookRepository(requireContext(), catalog)
         val resolvedType = currentContentType ?: repo.getById(entryId)?.contentType
         val showTextScaleButtons = resolvedType == SongbookContentType.TEXT
         val smallerButton = actionView.findViewById<View>(R.id.button_reading_text_smaller)
@@ -121,7 +127,7 @@ class SongbookDetailFragment : Fragment() {
     }
 
     private fun loadEntry() {
-        val repo = SongbookRepository(requireContext())
+        val repo = SongbookRepository(requireContext(), catalog)
         val entry = repo.getById(entryId)
         if (entry == null) {
             findNavController().popBackStack()
@@ -184,7 +190,7 @@ class SongbookDetailFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         requireActivity().invalidateOptionsMenu()
-        val repo = SongbookRepository(requireContext())
+        val repo = SongbookRepository(requireContext(), catalog)
         val e = repo.getById(entryId)
         if (e == null) {
             if (entryId.isNotBlank()) {

@@ -158,6 +158,30 @@ function ensureSongbookEntriesTable(): void
     );
 }
 
+function ensureKantaralEntriesTable(): void
+{
+    db()->exec(
+        'CREATE TABLE IF NOT EXISTS kantaral_entries (
+            id BIGINT PRIMARY KEY AUTO_INCREMENT,
+            title VARCHAR(255) NOT NULL DEFAULT \'\',
+            chapter_major INT NOT NULL,
+            subchapter INT NULL,
+            content_type VARCHAR(16) NOT NULL,
+            text_body MEDIUMTEXT NOT NULL,
+            media_path VARCHAR(512) NULL,
+            media_revision VARCHAR(64) NOT NULL DEFAULT \'\',
+            sort_order INT NOT NULL DEFAULT 0,
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
+    );
+    ensureTableColumnExists(
+        'kantaral_entries',
+        'category',
+        'ALTER TABLE kantaral_entries ADD COLUMN category VARCHAR(255) NOT NULL DEFAULT \'\' AFTER title'
+    );
+}
+
 function ensureLiturgyCalendarEntriesTable(): void
 {
     db()->exec(
@@ -661,6 +685,7 @@ function ensureSchemaAndSeed(): void
     ensurePrayersTable();
     ensurePrayerCategoryLinksTable();
     ensureSongbookEntriesTable();
+    ensureKantaralEntriesTable();
     ensureLiturgyCalendarEntriesTable();
     ensureLiturgyObservancesTable();
     ensureLiturgyLectionaryEntriesTable();

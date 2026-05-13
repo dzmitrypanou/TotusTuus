@@ -249,6 +249,14 @@ if (!defined('PANEL_ADMIN_NAV_STYLE_EMITTED')) {
         </div>
       </div>
     <?php endif; ?>
+    <?php if (panel_can_access_section('kantaral')): ?>
+      <div class="panel-nav-block">
+        <span class="panel-nav-block__label" id="panel-nav-lbl-kantaral">Кантарал</span>
+        <div class="panel-nav-block__links" role="group" aria-labelledby="panel-nav-lbl-kantaral">
+          <a href="/admin/kantaral.php" class="panel-nav-link<?= panel_admin_nav_active_page('kantaral', $panelNavPage) ?>">Запісы</a>
+        </div>
+      </div>
+    <?php endif; ?>
     <?php if (panel_can_access_section('scripture')): ?>
       <div class="panel-nav-block">
         <span class="panel-nav-block__label" id="panel-nav-lbl-bible">Біблія</span>

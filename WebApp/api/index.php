@@ -22,6 +22,7 @@ const TOTUS_PROXY_ALLOWED = [
     'prayers.php',
     'prayer_category_meta.php',
     'songbook.php',
+    'kantaral.php',
     'liturgy_calendar_month.php',
     'liturgy_day.php',
     'solemnities.php',

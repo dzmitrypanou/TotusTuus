@@ -517,7 +517,7 @@ if ($authReady && !$isSetupRequired && $_SERVER['REQUEST_METHOD'] === 'POST'
 $isLoggedIn = $authReady && panel_is_logged_in();
 $view = 'categories';
 if ($isLoggedIn) {
-    $allowedViews = ['categories', 'add-category', 'add-prayer', 'prayers', 'songbook', 'add-songbook', 'scripture', 'scripture-import', 'scripture-chapter', 'no-access'];
+    $allowedViews = ['categories', 'add-category', 'add-prayer', 'prayers', 'songbook', 'add-songbook', 'kantaral', 'add-kantaral', 'scripture', 'scripture-import', 'scripture-chapter', 'no-access'];
     $requestedView = (string)($_GET['view'] ?? 'categories');
     if (in_array($requestedView, $allowedViews, true)) {
         $view = $requestedView;

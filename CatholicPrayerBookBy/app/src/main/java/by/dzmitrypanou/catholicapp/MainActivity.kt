@@ -273,6 +273,13 @@ class MainActivity : AppCompatActivity() {
                     getString(R.string.home_item_songbook)
                 )
             }
+            R.id.nav_kantaral -> {
+                clearToolbarBrand()
+                attachAutoSizedToolbarTitle(
+                    getString(R.string.home_item_kantaral),
+                    getString(R.string.home_item_kantaral)
+                )
+            }
             R.id.nav_songbook_detail -> {
                 clearToolbarBrand()
                 attachSongbookDetailToolbarTitle(
@@ -787,6 +794,7 @@ class MainActivity : AppCompatActivity() {
         }
         val showSongbookTools =
             currentDestinationId == R.id.nav_songbook ||
+                currentDestinationId == R.id.nav_kantaral ||
                 currentDestinationId == R.id.nav_songbook_search ||
                 currentDestinationId == R.id.nav_songbook_bookmarked
         if (showSongbookTools) {
@@ -884,6 +892,7 @@ class MainActivity : AppCompatActivity() {
         }
         val showSongbookTools =
             currentDestinationId == R.id.nav_songbook ||
+                currentDestinationId == R.id.nav_kantaral ||
                 currentDestinationId == R.id.nav_songbook_search ||
                 currentDestinationId == R.id.nav_songbook_bookmarked
         if (showSongbookTools) {
