@@ -45,14 +45,23 @@ class SongbookSearchFragment : Fragment(), SongbookToolbarActions {
     private var entriesLoaded: Boolean = false
     private var searchJob: Job? = null
     private var applySearchJob: Job? = null
+    private val catalog: SongbookRepository.Catalog
+        get() = if (arguments?.getString("catalog") == "kantaral") {
+            SongbookRepository.Catalog.KANTARAL
+        } else {
+            SongbookRepository.Catalog.SONGBOOK
+        }
 
-    private val adapter = SearchResultAdapter { entry ->
+    private val adapter = SearchResultAdapter(
+        isKantaral = { catalog == SongbookRepository.Catalog.KANTARAL }
+    ) { entry ->
         findNavController().navigate(
             R.id.action_nav_songbook_search_to_nav_songbook_detail,
             bundleOf(
                 "entryId" to entry.id,
                 "displayTitle" to entry.listLabel(),
-                "displayCategory" to entry.categoryToolbarSubtitle(requireContext())
+                "displayCategory" to entry.categoryToolbarSubtitle(requireContext()),
+                "catalog" to if (catalog == SongbookRepository.Catalog.KANTARAL) "kantaral" else "songbook"
             )
         )
     }
@@ -128,7 +137,7 @@ private fun reloadFromCache() {
         if (_binding == null) return
         viewLifecycleOwner.lifecycleScope.launch {
             val entries = withContext(Dispatchers.IO) {
-                SongbookRepository(requireContext()).getCachedEntriesSorted()
+                SongbookRepository(requireContext(), catalog).getCachedEntriesSorted()
             }
             if (_binding == null || !isAdded) return@launch
             allEntries = entries
@@ -141,7 +150,7 @@ private fun reloadFromCache() {
         viewLifecycleOwner.lifecycleScope.launch {
             toolbarSongbookSyncInProgress = true
             requireActivity().invalidateOptionsMenu()
-            val repo = SongbookRepository(requireContext())
+            val repo = SongbookRepository(requireContext(), catalog)
             try {
                 runCatching {
                     repo.refreshFromApi(allowHashShortCircuit = true, allowNetwork = true)
@@ -214,12 +223,13 @@ private fun reloadFromCache() {
     }
 
     private class SearchResultAdapter(
+        private val isKantaral: () -> Boolean,
         private val onClick: (SongbookEntry) -> Unit
     ) : ListAdapter<SongbookEntry, SearchResultAdapter.Holder>(Diff) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
             val itemBinding = ItemPrayerTreeBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            return Holder(itemBinding, onClick)
+            return Holder(itemBinding, isKantaral, onClick)
         }
 
         override fun onBindViewHolder(holder: Holder, position: Int) {
@@ -228,6 +238,7 @@ private fun reloadFromCache() {
 
         class Holder(
             private val binding: ItemPrayerTreeBinding,
+            private val isKantaral: () -> Boolean,
             private val onClick: (SongbookEntry) -> Unit
         ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -235,7 +246,12 @@ private fun reloadFromCache() {
                 binding.textTreeTitle.text = entry.listLabel()
                 binding.textTreeSubtitle.visibility = View.GONE
                 binding.root.setOnClickListener { onClick(entry) }
-                PrayerBookUiTypography.bindSongbookTreeRow(binding, entry, binding.root.context)
+                PrayerBookUiTypography.bindSongbookTreeRow(
+                    binding,
+                    entry,
+                    binding.root.context,
+                    showImageBadge = !isKantaral()
+                )
             }
         }
 
@@ -257,7 +273,7 @@ private fun reloadFromCache() {
                 .trim()
 
         private fun filterEntries(entries: List<SongbookEntry>, query: String): List<SongbookEntry> {
-            val nq = query.trim().lowercase()
+            val nq = normalizeSearchText(query)
             if (nq.isEmpty()) return emptyList()
             return entries.filter { matches(it, nq) }
                 .distinctBy { it.id }
@@ -265,13 +281,16 @@ private fun reloadFromCache() {
         }
 
         private fun matches(entry: SongbookEntry, nq: String): Boolean {
-            if (entry.categorySortKey().lowercase().contains(nq)) return true
-            if (entry.title.lowercase().contains(nq)) return true
-            if (entry.listLabel().lowercase().contains(nq)) return true
-            if (entry.numberPrefix().lowercase().contains(nq)) return true
-            val body = stripHtmlForSearch(entry.textBody).lowercase()
+            if (normalizeSearchText(entry.categorySortKey()).contains(nq)) return true
+            if (normalizeSearchText(entry.title).contains(nq)) return true
+            if (normalizeSearchText(entry.listLabel()).contains(nq)) return true
+            if (normalizeSearchText(entry.numberPrefix()).contains(nq)) return true
+            val body = normalizeSearchText(stripHtmlForSearch(entry.textBody))
             if (body.contains(nq)) return true
             return false
         }
+
+        private fun normalizeSearchText(value: String): String =
+            value.trim().lowercase().replace('i', 'і')
     }
 }

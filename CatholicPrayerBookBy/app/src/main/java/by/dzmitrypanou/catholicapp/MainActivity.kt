@@ -35,6 +35,7 @@ import by.dzmitrypanou.catholicapp.data.PrayerRepository
 import by.dzmitrypanou.catholicapp.data.PrayerAutoUpdateConsentStore
 import by.dzmitrypanou.catholicapp.data.AppFontFamilyStore
 import by.dzmitrypanou.catholicapp.data.AppColorSchemeStore
+import by.dzmitrypanou.catholicapp.data.SongbookRepository
 import by.dzmitrypanou.catholicapp.databinding.ActivityMainBinding
 import by.dzmitrypanou.catholicapp.ui.PrayerBookUiTypography
 import by.dzmitrypanou.catholicapp.ui.ReadingTextScaleToolbar
@@ -287,9 +288,14 @@ var usesCustomTitleRow = true
             }
             R.id.nav_songbook_search -> {
                 clearToolbarBrand()
-                attachAutoSizedToolbarTitle(
-                    getString(R.string.songbook_search_title),
+                val title = if (currentSongbookCatalog() == SongbookRepository.Catalog.KANTARAL) {
+                    getString(R.string.kantaral_search_title)
+                } else {
                     getString(R.string.songbook_search_title)
+                }
+                attachAutoSizedToolbarTitle(
+                    title,
+                    title
                 )
             }
             R.id.nav_songbook_bookmarked -> {
@@ -1034,9 +1040,23 @@ private fun createSectionToolbarTitleTextView(@DimenRes textDimen: Int): AppComp
         }
         actionView.findViewById<View>(R.id.button_songbook_search)?.setOnClickListener {
             runCatching {
-                findNavController(R.id.nav_host_fragment_content_main)
-                    .navigate(R.id.action_global_nav_songbook_search)
+                val actionId = if (currentSongbookCatalog() == SongbookRepository.Catalog.KANTARAL) {
+                    R.id.action_global_nav_kantaral_search
+                } else {
+                    R.id.action_global_nav_songbook_search
+                }
+                findNavController(R.id.nav_host_fragment_content_main).navigate(actionId)
             }
+        }
+    }
+
+    private fun currentSongbookCatalog(): SongbookRepository.Catalog {
+        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        val catalogArg = navController.currentBackStackEntry?.arguments?.getString("catalog")
+        return if (currentDestinationId == R.id.nav_kantaral || catalogArg == "kantaral") {
+            SongbookRepository.Catalog.KANTARAL
+        } else {
+            SongbookRepository.Catalog.SONGBOOK
         }
     }
 

@@ -325,14 +325,75 @@ const SCRIPTURE_TR_SHORT = {
     let songbookLoadErrorIsNetwork = false;
     let kantaralLoadErrorIsNetwork = false;
 
+    const songbookRuntimeState = {
+        songbook: { cache: null, loadError: null, loadErrorIsNetwork: false },
+        kantaral: { cache: null, loadError: null, loadErrorIsNetwork: false },
+    };
+
     let songbookBookmarksOnly = false;
 
     let songbookView = 'list';
     let songbookSearchQuery = '';
     let songbookSearchDebounceTimer = null;
+    let songbookActiveCatalog = 'songbook';
 
     function isSongbookLikeView() {
         return currentView === 'songbook' || currentView === 'kantaral';
+    }
+
+    function getSongbookActiveCatalog() {
+        return currentView === 'kantaral' ? 'kantaral' : songbookActiveCatalog;
+    }
+
+    function setSongbookActiveCatalogFromView() {
+        songbookActiveCatalog = currentView === 'kantaral' ? 'kantaral' : 'songbook';
+    }
+
+    function normalizeSearchText(value) {
+        return String(value || '').toLowerCase().replace(/i/g, 'і');
+    }
+
+    function syncSongbookLegacyStateFromCatalog(catalog) {
+        const key = catalog === 'kantaral' ? 'kantaral' : 'songbook';
+        const state = songbookRuntimeState[key];
+        if (key === 'kantaral') {
+            state.cache = kantaralCache;
+            state.loadError = kantaralLoadError;
+            state.loadErrorIsNetwork = kantaralLoadErrorIsNetwork;
+        } else {
+            state.cache = songbookCache;
+            state.loadError = songbookLoadError;
+            state.loadErrorIsNetwork = songbookLoadErrorIsNetwork;
+        }
+    }
+
+    function activateSongbookCatalogState(catalog) {
+        const key = catalog === 'kantaral' ? 'kantaral' : 'songbook';
+        if (key === 'songbook') {
+            songbookCache = songbookRuntimeState.songbook.cache;
+            songbookLoadError = songbookRuntimeState.songbook.loadError;
+            songbookLoadErrorIsNetwork = songbookRuntimeState.songbook.loadErrorIsNetwork;
+        } else {
+            songbookCache = songbookRuntimeState.kantaral.cache;
+            songbookLoadError = songbookRuntimeState.kantaral.loadError;
+            songbookLoadErrorIsNetwork = songbookRuntimeState.kantaral.loadErrorIsNetwork;
+            kantaralCache = songbookRuntimeState.kantaral.cache;
+            kantaralLoadError = songbookRuntimeState.kantaral.loadError;
+            kantaralLoadErrorIsNetwork = songbookRuntimeState.kantaral.loadErrorIsNetwork;
+        }
+    }
+
+    function persistActiveSongbookCatalogState(catalog) {
+        const key = catalog === 'kantaral' ? 'kantaral' : 'songbook';
+        const state = songbookRuntimeState[key];
+        state.cache = songbookCache;
+        state.loadError = songbookLoadError;
+        state.loadErrorIsNetwork = songbookLoadErrorIsNetwork;
+        if (key === 'kantaral') {
+            kantaralCache = state.cache;
+            kantaralLoadError = state.loadError;
+            kantaralLoadErrorIsNetwork = state.loadErrorIsNetwork;
+        }
     }
 
     function songbookSectionTitle() {
@@ -1263,6 +1324,7 @@ function scriptureReadingToolbarTitleText() {
             return `<h1 class="${TOOLBAR_H1_CLASS}">${escapeHtml(t)}</h1>`;
         }
         if (isSongbookLikeView()) {
+            const activeCatalog = getSongbookActiveCatalog();
             if (songbookDetailId != null) {
                 const e = (songbookCache || []).find((x) => Number(x.id) === Number(songbookDetailId));
                 if (!e) {
@@ -1276,9 +1338,9 @@ function scriptureReadingToolbarTitleText() {
                 </div>`;
             }
             if (songbookView === 'search') {
-                return `<h1 class="${TOOLBAR_H1_CLASS}">${escapeHtml(currentView === 'kantaral' ? 'Пошук у кантарале' : 'Пошук у спеўніку')}</h1>`;
+                return `<h1 class="${TOOLBAR_H1_CLASS}">${escapeHtml(activeCatalog === 'kantaral' ? 'Пошук у кантарале' : 'Пошук у спеўніку')}</h1>`;
             }
-            const st = songbookBookmarksOnly ? (currentView === 'kantaral' ? 'Выбранае (кантарал)' : 'Выбранае (спеўнік)') : songbookSectionTitle();
+            const st = songbookBookmarksOnly ? (activeCatalog === 'kantaral' ? 'Выбранае (кантарал)' : 'Выбранае (спеўнік)') : songbookSectionTitle();
             return `<h1 class="${TOOLBAR_H1_CLASS}">${escapeHtml(st)}</h1>`;
         }
         if (currentView === 'ordo-missae') {
@@ -1382,9 +1444,10 @@ function toolbarRightActionsHtml() {
             return `${scaleHtml}<button type="button" data-action="toolbar-songbook-detail-bookmark" data-songbook-toggle-bm="${Number.isFinite(id) ? id : ''}" class="${TOOLBAR_ICON_BTN}" aria-label="У выбранае"><i class="${bmCls} text-lg" aria-hidden="true"></i></button>`;
         }
         if (isSongbookLikeView()) {
+            const activeCatalog = getSongbookActiveCatalog();
             const bmBtn = songbookBookmarksOnly
                 ? ''
-                : `<button type="button" data-action="toolbar-songbook-bookmarks" class="${TOOLBAR_ICON_BTN}" aria-label="${escapeHtml(currentView === 'kantaral' ? 'Выбранае (кантарал)' : 'Выбранае (спеўнік)')}"><i class="far fa-bookmark text-lg" aria-hidden="true"></i></button>`;
+                : `<button type="button" data-action="toolbar-songbook-bookmarks" class="${TOOLBAR_ICON_BTN}" aria-label="${escapeHtml(activeCatalog === 'kantaral' ? 'Выбранае (кантарал)' : 'Выбранае (спеўнік)')}"><i class="far fa-bookmark text-lg" aria-hidden="true"></i></button>`;
             return `<div class="flex items-center shrink-0 gap-0 [&>button+button]:-ml-1.5">${bmBtn}<button type="button" data-action="toolbar-songbook-search" class="${TOOLBAR_ICON_BTN}" aria-label="Пошук"><i class="fas fa-search text-lg" aria-hidden="true"></i></button></div>`;
         }
         if (currentView === 'scripture') {
@@ -2807,7 +2870,8 @@ function totusHistoryPushExitBlocker() {
         for (const p of prayers || []) {
             p._totusSearchBlob = [p.title, p.text, p.category, p.subcategory, p.additional_categories]
                 .join(' ')
-                .toLowerCase();
+                .toLowerCase()
+                .replace(/i/g, 'і');
         }
     }
 
@@ -2974,7 +3038,7 @@ function prayerTreeRowHtml(p) {
             resRoot.innerHTML = '';
             return;
         }
-        const nq = trimmed.toLowerCase();
+        const nq = normalizeSearchText(trimmed);
         const rows = all
             .filter((p) => {
                 const blob = p._totusSearchBlob;
@@ -2982,6 +3046,7 @@ function prayerTreeRowHtml(p) {
                 return [p.title, p.text, p.category, p.subcategory, p.additional_categories]
                     .join(' ')
                     .toLowerCase()
+                    .replace(/i/g, 'і')
                     .includes(nq);
             })
             .sort((a, b) => {
@@ -4035,6 +4100,7 @@ const scr = e.target.closest('[data-scripture-action]');
                 }
                 if (a === 'toolbar-songbook-search') {
                     if (!isSongbookLikeView()) return;
+                    setSongbookActiveCatalogFromView();
                     songbookDetailId = null;
                     songbookStateBeforeDetail = null;
                     songbookSearchQuery = '';
@@ -4050,6 +4116,7 @@ const scr = e.target.closest('[data-scripture-action]');
                 }
                 if (a === 'songbook-open-search') {
                     if (!isSongbookLikeView()) return;
+                    setSongbookActiveCatalogFromView();
                     songbookDetailId = null;
                     songbookStateBeforeDetail = null;
                     songbookSearchQuery = '';
@@ -4216,8 +4283,17 @@ const scr = e.target.closest('[data-scripture-action]');
                     prayersLoadError = null;
                     prayersLoadErrorIsNetwork = false;
                     songbookCache = null;
+                    kantaralCache = null;
+                    songbookRuntimeState.songbook.cache = null;
+                    songbookRuntimeState.kantaral.cache = null;
                     songbookLoadError = null;
+                    kantaralLoadError = null;
+                    songbookRuntimeState.songbook.loadError = null;
+                    songbookRuntimeState.kantaral.loadError = null;
                     songbookLoadErrorIsNetwork = false;
+                    kantaralLoadErrorIsNetwork = false;
+                    songbookRuntimeState.songbook.loadErrorIsNetwork = false;
+                    songbookRuntimeState.kantaral.loadErrorIsNetwork = false;
                     renderApp();
                     window.alert(
                         'Дадзеныя былі скінуты. Малітвы, спеўнік і Пісанне зноў загрузяцца пры наступным адкрыцці адпаведных раздзелаў.'
@@ -4459,17 +4535,15 @@ const scr = e.target.closest('[data-scripture-action]');
             prayerSearchDraft = '';
         }
         if (view === 'songbook' || view === 'kantaral') {
+            syncSongbookLegacyStateFromCatalog(view === 'kantaral' ? 'kantaral' : 'songbook');
+            songbookActiveCatalog = view === 'kantaral' ? 'kantaral' : 'songbook';
             songbookBookmarksOnly = false;
             songbookView = 'list';
             songbookSearchQuery = '';
             songbookSearchDebounceTimer = null;
             songbookDetailId = null;
             songbookStateBeforeDetail = null;
-            if (view === 'kantaral') {
-                songbookCache = kantaralCache;
-                songbookLoadError = kantaralLoadError;
-                songbookLoadErrorIsNetwork = kantaralLoadErrorIsNetwork;
-            }
+            activateSongbookCatalogState(songbookActiveCatalog);
         }
         if (view === 'ordo-missae') {
             ordoMissaeSearchQuery = '';
@@ -4594,28 +4668,28 @@ function sortSongbookWithoutCategory(entries) {
             if (e._totusSearchNum.includes(nq)) return true;
             return e._totusSearchBody.includes(nq);
         }
-        const cat = songbookCategoryKey(e).toLowerCase();
+        const cat = normalizeSearchText(songbookCategoryKey(e));
         if (cat && cat.includes(nq)) return true;
-        const title = String(e.title || '').toLowerCase();
+        const title = normalizeSearchText(e.title);
         if (title.includes(nq)) return true;
-        if (songbookListLabel(e).toLowerCase().includes(nq)) return true;
-        if (songbookNumberPrefix(e).toLowerCase().includes(nq)) return true;
-        const body = stripHtmlForSongbookSearch(e.text || '');
+        if (normalizeSearchText(songbookListLabel(e)).includes(nq)) return true;
+        if (normalizeSearchText(songbookNumberPrefix(e)).includes(nq)) return true;
+        const body = normalizeSearchText(stripHtmlForSongbookSearch(e.text || ''));
         return body.includes(nq);
     }
 
     function attachSongbookSearchIndex(entries) {
         for (const e of entries || []) {
-            e._totusSearchCat = songbookCategoryKey(e).toLowerCase();
-            e._totusSearchTitle = String(e.title || '').toLowerCase();
-            e._totusSearchLabel = songbookListLabel(e).toLowerCase();
-            e._totusSearchNum = songbookNumberPrefix(e).toLowerCase();
-            e._totusSearchBody = stripHtmlForSongbookSearch(e.text || '');
+            e._totusSearchCat = normalizeSearchText(songbookCategoryKey(e));
+            e._totusSearchTitle = normalizeSearchText(e.title);
+            e._totusSearchLabel = normalizeSearchText(songbookListLabel(e));
+            e._totusSearchNum = normalizeSearchText(songbookNumberPrefix(e));
+            e._totusSearchBody = normalizeSearchText(stripHtmlForSongbookSearch(e.text || ''));
         }
     }
 
     function songbookFilterSearchResults(entries, query) {
-        const nq = String(query || '').trim().toLowerCase();
+        const nq = normalizeSearchText(String(query || '').trim());
         if (!nq) return [];
         const seen = new Set();
         const out = [];
@@ -4790,20 +4864,21 @@ function songbookBuildFlatListHtml(sortedEntries) {
     }
 
     async function ensureSongbookLoaded() {
-        const isKantaral = currentView === 'kantaral';
-        if (isKantaral && kantaralCache !== null) {
-            songbookCache = kantaralCache;
-            songbookLoadError = kantaralLoadError;
-            songbookLoadErrorIsNetwork = kantaralLoadErrorIsNetwork;
+        const activeCatalog = getSongbookActiveCatalog();
+        activateSongbookCatalogState(activeCatalog);
+        const isKantaral = activeCatalog === 'kantaral';
+        const activeState = songbookRuntimeState[activeCatalog];
+        if (activeState.cache !== null) {
+            activateSongbookCatalogState(activeCatalog);
             return;
         }
-        if (!isKantaral && songbookCache !== null) return;
         songbookLoadError = null;
         songbookLoadErrorIsNetwork = false;
         if (!isApiConfigured()) {
             songbookLoadError = 'Наладзьце API: WebApp/api/proxy-secrets.php (useServerProxy) або apiKey у api-config.js';
             if (isKantaral) kantaralCache = [];
             else songbookCache = [];
+            persistActiveSongbookCatalogState(activeCatalog);
             return;
         }
         const res = await apiFetch(isKantaral ? 'kantaral.php' : 'songbook.php');
@@ -4821,11 +4896,8 @@ function songbookBuildFlatListHtml(sortedEntries) {
             if (isKantaral) kantaralCache = loaded;
             else songbookCache = loaded;
         }
-        if (isKantaral) {
-            songbookCache = kantaralCache;
-            kantaralLoadError = songbookLoadError;
-            kantaralLoadErrorIsNetwork = songbookLoadErrorIsNetwork;
-        }
+        persistActiveSongbookCatalogState(activeCatalog);
+        activateSongbookCatalogState(activeCatalog);
     }
 
     function songbookShellHtml() {
@@ -4838,7 +4910,7 @@ function songbookBuildFlatListHtml(sortedEntries) {
             </div>
             <button type="button" data-action="songbook-open-search" id="songbook-search-entry" class="hidden w-full ${APP_SEARCH_BAR_CLASS} hover:bg-white/[0.04] cursor-pointer text-left transition-colors">
                 <i class="fas fa-search text-app-textTer text-sm shrink-0" aria-hidden="true"></i>
-                <span class="flex-1 min-w-0 text-sm text-app-textTer truncate text-left">${escapeHtml(currentView === 'kantaral' ? 'Пошук у кантарале' : 'Пошук у спеўніку')}</span>
+                <span class="flex-1 min-w-0 text-sm text-app-textTer truncate text-left">${escapeHtml(getSongbookActiveCatalog() === 'kantaral' ? 'Пошук у кантарале' : 'Пошук у спеўніку')}</span>
             </button>
             <div id="songbook-root" class="hidden min-h-[200px]"></div>
         </div>
@@ -6301,4 +6373,3 @@ async function ensureScriptureTranslationsList() {
         boot();
     }
 })();
-

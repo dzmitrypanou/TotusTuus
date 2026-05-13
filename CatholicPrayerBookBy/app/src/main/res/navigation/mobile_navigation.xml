@@ -30,6 +30,19 @@
         app:popExitAnim="@anim/nav_noop" />
 
     <action
+        android:id="@+id/action_global_nav_kantaral_search"
+        app:destination="@id/nav_songbook_search"
+        app:enterAnim="@anim/nav_noop"
+        app:exitAnim="@anim/nav_noop"
+        app:popEnterAnim="@anim/nav_noop"
+        app:popExitAnim="@anim/nav_noop">
+        <argument
+            android:name="catalog"
+            android:defaultValue="kantaral"
+            app:argType="string" />
+    </action>
+
+    <action
         android:id="@+id/action_global_nav_bookmarked_songs"
         app:destination="@id/nav_songbook_bookmarked"
         app:enterAnim="@anim/nav_noop"
@@ -198,6 +211,10 @@
         android:name="by.dzmitrypanou.catholicapp.ui.songbook.SongbookSearchFragment"
         tools:label="@string/songbook_search_title"
         tools:layout="@layout/fragment_songbook_search">
+        <argument
+            android:name="catalog"
+            android:defaultValue="songbook"
+            app:argType="string" />
         <action
             android:id="@+id/action_nav_songbook_search_to_nav_songbook_detail"
             app:destination="@id/nav_songbook_detail" />

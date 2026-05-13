@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import by.dzmitrypanou.catholicapp.LauncherDark
 import by.dzmitrypanou.catholicapp.LauncherLight
 import by.dzmitrypanou.catholicapp.R
+import java.util.concurrent.Executors
 
 object AppColorSchemeStore {
 
@@ -15,6 +16,9 @@ object AppColorSchemeStore {
     private const val PREFS_NAME = "ui_text_settings"
     private const val KEY_COLOR_SCHEME = "app_color_scheme"
     private const val KEY_LAUNCHER_SYNC_PENDING = "launcher_icon_sync_pending"
+    private val launcherIconExecutor = Executors.newSingleThreadExecutor { runnable ->
+        Thread(runnable, "launcher-icon-sync").apply { isDaemon = true }
+    }
 
     enum class Scheme(val storageKey: String, val themeResId: Int, val prefersLightSystemBars: Boolean) {
         DARK("current", R.style.Theme_CatholicPrayerBookBy_NoActionBar, false),
@@ -53,7 +57,7 @@ object AppColorSchemeStore {
             .putBoolean(KEY_LAUNCHER_SYNC_PENDING, true)
             .apply()
         cachedScheme = scheme
-        syncLauncherIcon(context)
+        syncLauncherIconAsync(context.applicationContext)
     }
 
     fun applyActivityTheme(activity: AppCompatActivity): Scheme {
@@ -81,7 +85,14 @@ object AppColorSchemeStore {
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getBoolean(KEY_LAUNCHER_SYNC_PENDING, false)
         if (!pending) return
-        syncLauncherIcon(context)
+        syncLauncherIconAsync(context.applicationContext)
+    }
+
+    private fun syncLauncherIconAsync(context: Context) {
+        val appContext = context.applicationContext
+        launcherIconExecutor.execute {
+            syncLauncherIcon(appContext)
+        }
     }
 
     private fun syncLauncherIcon(context: Context, scheme: Scheme) {

@@ -218,7 +218,7 @@ class PrayerSearchFragment : Fragment() {
         }
 
         private fun filterPrayers(prayers: List<Prayer>, query: String): List<Prayer> {
-            val nq = query.trim().lowercase()
+            val nq = normalizeSearchText(query)
             if (nq.isEmpty()) return emptyList()
             return prayers.filter { matches(it, nq) }
                 .distinctBy { it.id }
@@ -226,13 +226,16 @@ class PrayerSearchFragment : Fragment() {
         }
 
         private fun matches(prayer: Prayer, nq: String): Boolean {
-            if (prayer.title.lowercase().contains(nq)) return true
-            if (prayer.category?.lowercase()?.contains(nq) == true) return true
-            if (prayer.subcategory?.lowercase()?.contains(nq) == true) return true
-            if (prayer.additionalCategories.any { it.lowercase().contains(nq) }) return true
-            val body = stripHtmlForSearch(prayer.text).lowercase()
+            if (normalizeSearchText(prayer.title).contains(nq)) return true
+            if (normalizeSearchText(prayer.category.orEmpty()).contains(nq)) return true
+            if (normalizeSearchText(prayer.subcategory.orEmpty()).contains(nq)) return true
+            if (prayer.additionalCategories.any { normalizeSearchText(it).contains(nq) }) return true
+            val body = normalizeSearchText(stripHtmlForSearch(prayer.text))
             if (body.contains(nq)) return true
             return false
         }
+
+        private fun normalizeSearchText(value: String): String =
+            value.trim().lowercase().replace('i', 'і')
     }
 }
