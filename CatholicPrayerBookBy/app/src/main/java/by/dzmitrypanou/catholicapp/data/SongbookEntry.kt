@@ -24,7 +24,9 @@ data class SongbookEntry(
     val textBody: String = "",
     /** Лакальнае імя ў каталогу media (напр. sb_12.webp). */
     val mediaFileName: String? = null,
-    val sortOrder: Int = 0
+    val sortOrder: Int = 0,
+    val showNumber: Boolean? = null,
+    val showBadge: Boolean? = null
 ) {
     /** Адзіны ключ групы: як на вэбе, без залішніх прагалаў. */
     fun categorySortKey(): String {
@@ -46,8 +48,9 @@ data class SongbookEntry(
     fun numberPrefix(): String =
         if (subchapter == null) "$chapterMajor." else "$chapterMajor.$subchapter"
 
-    fun listLabel(): String {
+    fun listLabel(showNumber: Boolean = this.showNumber != false): String {
         val t = title.trim()
+        if (!showNumber) return t.ifEmpty { numberPrefix() }
         return if (t.isEmpty()) numberPrefix() else "${numberPrefix()} $t"
     }
 

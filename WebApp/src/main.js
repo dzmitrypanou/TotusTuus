@@ -4604,6 +4604,7 @@
     function songbookListLabel(e) {
         const t = String(e.title || '').trim();
         const p = songbookNumberPrefix(e);
+        if (e && e.show_number === false) return t === '' ? p : t;
         return t === '' ? p : `${p} ${t}`;
     }
 
@@ -4626,6 +4627,10 @@
     /** Як SongbookContentType.IMAGE. */
     function songbookContentIsImage(e) {
         return String(e && e.content_type != null ? e.content_type : '').toLowerCase() === 'image';
+    }
+
+    function songbookShouldShowBadge(e) {
+        return songbookContentIsImage(e) && (!e || e.show_badge !== false);
     }
 
     /** Як songbookOrderComparator у SongbookRepository. */
@@ -4836,7 +4841,7 @@
         const gapCls = tight ? '' : ' mb-2 last:mb-0';
         const rowLabel = songbookBookmarksOnly ? songbookBookmarkListLabel(item) : songbookListLabel(item);
         const label = escapeHtml(rowLabel);
-        const noteHtml = songbookContentIsImage(item)
+        const noteHtml = songbookShouldShowBadge(item)
             ? `<span class="w-5 h-5 shrink-0 flex items-center justify-center text-app-textSec" aria-label="З нотамі (відарыс)"><i class="fas fa-music text-sm" aria-hidden="true"></i></span>`
             : '';
         if (tight) {

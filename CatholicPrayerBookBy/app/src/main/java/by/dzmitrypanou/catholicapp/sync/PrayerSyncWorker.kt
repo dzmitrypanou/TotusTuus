@@ -7,6 +7,7 @@ import by.dzmitrypanou.catholicapp.data.OrdoMissaeRepository
 import by.dzmitrypanou.catholicapp.data.PrayerAutoUpdateConsentStore
 import by.dzmitrypanou.catholicapp.data.PrayerCacheInvalidationNotifier
 import by.dzmitrypanou.catholicapp.data.PrayerRepository
+import by.dzmitrypanou.catholicapp.data.SongbookRepository
 
 class PrayerSyncWorker(
     appContext: Context,
@@ -22,12 +23,23 @@ class PrayerSyncWorker(
             val before = repository.getCachedPrayers()
             repository.refreshPrayers(before, allowHashShortCircuit = false)
             PrayerCacheInvalidationNotifier.signalRemotePrayerCacheUpdated()
+            syncSongCatalog(SongbookRepository.Catalog.SONGBOOK)
+            syncSongCatalog(SongbookRepository.Catalog.KANTARAL)
             // Той жа згод: хэш scripture_hash.php → поўная загрузка толькі пры змене (гл. ScriptureRemoteSync).
             ScriptureRemoteSync.downloadIfChanged(applicationContext)
             runCatching { OrdoMissaeRepository(applicationContext).syncFromRemote() }
         }.fold(
             onSuccess = { Result.success() },
             onFailure = { Result.retry() }
+        )
+    }
+
+    private suspend fun syncSongCatalog(catalog: SongbookRepository.Catalog) {
+        val repository = SongbookRepository(applicationContext, catalog)
+        repository.refreshFromApi(
+            existingLocal = repository.getCachedEntries(),
+            allowHashShortCircuit = true,
+            allowNetwork = true
         )
     }
 }

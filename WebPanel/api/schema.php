@@ -156,6 +156,16 @@ function ensureSongbookEntriesTable(): void
         'category',
         'ALTER TABLE songbook_entries ADD COLUMN category VARCHAR(255) NOT NULL DEFAULT \'\' AFTER title'
     );
+    ensureTableColumnExists(
+        'songbook_entries',
+        'show_number',
+        'ALTER TABLE songbook_entries ADD COLUMN show_number TINYINT(1) NOT NULL DEFAULT 1 AFTER sort_order'
+    );
+    ensureTableColumnExists(
+        'songbook_entries',
+        'show_badge',
+        'ALTER TABLE songbook_entries ADD COLUMN show_badge TINYINT(1) NOT NULL DEFAULT 1 AFTER show_number'
+    );
 }
 
 function ensureKantaralEntriesTable(): void
@@ -179,6 +189,16 @@ function ensureKantaralEntriesTable(): void
         'kantaral_entries',
         'category',
         'ALTER TABLE kantaral_entries ADD COLUMN category VARCHAR(255) NOT NULL DEFAULT \'\' AFTER title'
+    );
+    ensureTableColumnExists(
+        'kantaral_entries',
+        'show_number',
+        'ALTER TABLE kantaral_entries ADD COLUMN show_number TINYINT(1) NOT NULL DEFAULT 0 AFTER sort_order'
+    );
+    ensureTableColumnExists(
+        'kantaral_entries',
+        'show_badge',
+        'ALTER TABLE kantaral_entries ADD COLUMN show_badge TINYINT(1) NOT NULL DEFAULT 0 AFTER show_number'
     );
 }
 

@@ -15,7 +15,9 @@ data class SongbookDto(
     @SerializedName("text") val text: String = "",
     @SerializedName("media_url") val mediaUrl: String? = null,
     @SerializedName("media_revision") val mediaRevision: String? = null,
-    @SerializedName("sort_order") val sortOrder: Int? = null
+    @SerializedName("sort_order") val sortOrder: Int? = null,
+    @SerializedName("show_number") val showNumber: Boolean? = null,
+    @SerializedName("show_badge") val showBadge: Boolean? = null
 ) {
     fun contentType(): SongbookContentType =
         when (contentTypeRaw.trim().lowercase()) {
@@ -33,6 +35,8 @@ data class SongbookDto(
             contentType = contentType(),
             textBody = text,
             mediaFileName = mediaFileName,
-            sortOrder = sortOrder ?: 0
+            sortOrder = sortOrder ?: 0,
+            showNumber = showNumber,
+            showBadge = showBadge
         )
 }

@@ -29,10 +29,15 @@ object PrayerBookUiTypography {
         binding.imageTreeChevron.visibility = View.VISIBLE
     }
 
-    /** Радок спеўніка: іконка нот толькі для запісаў з відарысам (ноты). */
-    fun bindSongbookTreeRow(binding: ItemPrayerTreeBinding, entry: SongbookEntry, context: Context) {
+    /** Радок спеўніка: іконка нот толькі для запісаў з відарысам (ноты), калі экран яе дазваляе. */
+    fun bindSongbookTreeRow(
+        binding: ItemPrayerTreeBinding,
+        entry: SongbookEntry,
+        context: Context,
+        showImageBadge: Boolean = true
+    ) {
         applyPrayerTreeRowTypography(binding, context)
-        if (entry.contentType == SongbookContentType.IMAGE) {
+        if (showImageBadge && entry.contentType == SongbookContentType.IMAGE) {
             binding.imageTreeNotesIndicator.visibility = View.VISIBLE
             binding.imageTreeNotesIndicator.contentDescription =
                 context.getString(R.string.songbook_row_notes_a11y)

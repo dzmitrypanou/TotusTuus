@@ -7,7 +7,7 @@ declare(strict_types=1);
 function fetch_active_songbook_for_api(): array
 {
     $stmt = db()->query(
-        'SELECT id, title, category, chapter_major, subchapter, content_type, text_body, media_path, media_revision, sort_order
+        'SELECT id, title, category, chapter_major, subchapter, content_type, text_body, media_path, media_revision, sort_order, show_number, show_badge
          FROM songbook_entries
          WHERE is_active = 1
          ORDER BY category ASC, chapter_major ASC, COALESCE(subchapter, 0) ASC, sort_order ASC, id ASC'
@@ -36,6 +36,8 @@ function fetch_active_songbook_for_api(): array
             'media_url' => $mediaPath,
             'media_revision' => (string)($row['media_revision'] ?? ''),
             'sort_order' => (int)($row['sort_order'] ?? 0),
+            'show_number' => ((int)($row['show_number'] ?? 1)) !== 0,
+            'show_badge' => ((int)($row['show_badge'] ?? 1)) !== 0,
         ];
     }
 

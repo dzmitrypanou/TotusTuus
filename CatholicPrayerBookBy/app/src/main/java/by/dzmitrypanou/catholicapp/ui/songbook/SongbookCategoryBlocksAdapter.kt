@@ -128,7 +128,12 @@ private class SongbookSectionRowsAdapter(
             binding.textTreeTitle.text = entry.listLabel()
             binding.textTreeSubtitle.visibility = View.GONE
             binding.root.setOnClickListener { onSongClick(entry) }
-            PrayerBookUiTypography.bindSongbookTreeRow(binding, entry, binding.root.context)
+            PrayerBookUiTypography.bindSongbookTreeRow(
+                binding,
+                entry,
+                binding.root.context,
+                showImageBadge = entry.showBadge != false
+            )
             PrayerBookUiTypography.applyPrayerTreeRowTypography(binding, binding.root.context)
         }
     }

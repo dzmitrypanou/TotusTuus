@@ -39,8 +39,15 @@ object PrayerApiClient {
         if (p.startsWith("http://", ignoreCase = true) || p.startsWith("https://", ignoreCase = true)) {
             return p
         }
+        if (p.startsWith("/")) {
+            val apiBase = BASE_URL.trimEnd('/')
+            val marker = "/api"
+            val idx = apiBase.lastIndexOf(marker)
+            val panelRoot = if (idx >= 0) apiBase.substring(0, idx) else siteOriginForHtml.trimEnd('/')
+            return "$panelRoot$p"
+        }
         val origin = siteOriginForHtml.trimEnd('/')
-        return "$origin/${p.trimStart('/')}"
+        return "$origin/$p"
     }
 
     private val sharedHttpClient: OkHttpClient by lazy {
