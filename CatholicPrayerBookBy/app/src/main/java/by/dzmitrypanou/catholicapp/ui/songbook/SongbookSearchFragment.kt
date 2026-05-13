@@ -124,8 +124,7 @@ class SongbookSearchFragment : Fragment(), SongbookToolbarActions {
         adapter.notifyDataSetChanged()
     }
 
-    /** Толькі лакальны кэш. Сетка — пры старце праграмы або кнопка «абнавіць». */
-    private fun reloadFromCache() {
+private fun reloadFromCache() {
         if (_binding == null) return
         viewLifecycleOwner.lifecycleScope.launch {
             val entries = withContext(Dispatchers.IO) {

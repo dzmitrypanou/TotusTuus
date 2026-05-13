@@ -1,23 +1,13 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Літургічныя святы / успаміны з табліцы liturgy_observances (рэдагаванне праз адмінку).
- */
-
 require_once __DIR__ . '/db.php';
 
-/**
- * Скінуць кэш радкоў (пасля змен у адмінцы).
- */
 function liturgy_observances_invalidate_cache(): void
 {
     $GLOBALS['__liturgy_obs_cache_gen'] = (int)($GLOBALS['__liturgy_obs_cache_gen'] ?? 0) + 1;
 }
 
-/**
- * @return array<string, bool>
- */
 function liturgy_observances_csv_to_opts(string $csv): array
 {
     $out = [];
@@ -31,9 +21,6 @@ function liturgy_observances_csv_to_opts(string $csv): array
     return $out;
 }
 
-/**
- * @param array<string, bool> $needKeys
- */
 function liturgy_observances_opts_has_any(array $dioceseOpts, array $needKeys): bool
 {
     foreach ($needKeys as $k => $_) {
@@ -45,9 +32,6 @@ function liturgy_observances_opts_has_any(array $dioceseOpts, array $needKeys): 
     return false;
 }
 
-/**
- * @param array<string, bool> $needKeys
- */
 function liturgy_observances_opts_has_all(array $dioceseOpts, array $needKeys): bool
 {
     if ($needKeys === []) {
@@ -62,10 +46,6 @@ function liturgy_observances_opts_has_all(array $dioceseOpts, array $needKeys): 
     return true;
 }
 
-/**
- * @param array<string, mixed> $row
- * @param array<string, bool> $dioceseOpts
- */
 function liturgy_observances_row_matches_diocese(array $row, array $dioceseOpts): bool
 {
     $anyReq = liturgy_observances_csv_to_opts((string)($row['require_any_of'] ?? ''));
@@ -148,9 +128,6 @@ function liturgy_observances_normalize_color(string $raw): string
     return in_array($c, ['green', 'red', 'purple', 'white', 'rose', 'black'], true) ? $c : '';
 }
 
-/**
- * @param array<string, mixed> $row
- */
 function liturgy_observances_resolve_ymd(array $row, int $year, DateTimeImmutable $easter): ?string
 {
     $rule = (string)($row['rule_type'] ?? 'fixed_md');
@@ -192,15 +169,11 @@ function liturgy_observances_resolve_ymd(array $row, int $year, DateTimeImmutabl
     return null;
 }
 
-/**
- * @param array<string, mixed> $row
- * @return array{title:string,color:string,is_important:true,source:string,rank?:string}
- */
 function liturgy_observances_row_to_important_entry(array $row): array
 {
     $src = (string)($row['source_tag'] ?? 'fixed');
     $rank = trim((string)($row['regional_rank'] ?? ''));
-    /** @var array{title:string,color:string,is_important:true,source:string,rank?:string} $out */
+
     $out = [
         'title' => (string)$row['title'],
         'color' => (string)$row['liturgical_color'],
@@ -224,9 +197,6 @@ function liturgy_observances_rank_weight(string $rank): int
     };
 }
 
-/**
- * @return list<array<string, mixed>>
- */
 function liturgy_observances_fetch_active_rows(): array
 {
     static $gen = -1;
@@ -250,14 +220,10 @@ function liturgy_observances_fetch_active_rows(): array
     return $cache;
 }
 
-/**
- * @param array<string, bool> $dioceseOpts
- * @return array<string, array{title:string,color:string,is_important:bool,source:string,rank?:string}>
- */
 function liturgy_observances_build_important_map(int $year, array $dioceseOpts): array
 {
     $easter = liturgy_observances_easter_sunday($year);
-    /** @var array<string, list<array{pri:int,rank_w:int,entry:array}>> $buckets */
+
     $buckets = [];
     foreach (liturgy_observances_fetch_active_rows() as $row) {
         if ((string)($row['observance_kind'] ?? '') === 'patch') {
@@ -303,14 +269,10 @@ function liturgy_observances_build_important_map(int $year, array $dioceseOpts):
     return $result;
 }
 
-/**
- * @param array<string, bool> $dioceseOpts
- * @return array<string, array{title:string,color:string,colors?:list<string>,optional_title_prefix_auto?:list<bool>}>
- */
 function liturgy_observances_build_optional_map(int $year, array $dioceseOpts): array
 {
     $easter = liturgy_observances_easter_sunday($year);
-    /** @var array<string, list<array{title:string,color:string,prefix_auto:bool}>> $branchesByDate */
+
     $branchesByDate = [];
     foreach (liturgy_observances_fetch_active_rows() as $row) {
         if ((string)($row['observance_kind'] ?? '') === 'patch') {
@@ -376,10 +338,6 @@ function liturgy_observances_build_optional_map(int $year, array $dioceseOpts): 
     return $result;
 }
 
-/**
- * @param array<string, array<string,mixed>> $important
- * @param array<string, bool> $dioceseOpts
- */
 function liturgy_observances_apply_title_patches(int $year, array $dioceseOpts, array &$important): void
 {
     $Y = sprintf('%04d', $year);

@@ -29,8 +29,7 @@ object PrayerBookUiTypography {
         binding.imageTreeChevron.visibility = View.VISIBLE
     }
 
-    /** Радок спеўніка: іконка нот толькі для запісаў з відарысам (ноты), калі экран яе дазваляе. */
-    fun bindSongbookTreeRow(
+fun bindSongbookTreeRow(
         binding: ItemPrayerTreeBinding,
         entry: SongbookEntry,
         context: Context,
@@ -52,8 +51,7 @@ object PrayerBookUiTypography {
         binding.imageTreeChevron.visibility = View.GONE
     }
 
-    /** Спісы, шапкі, пошук — без кроку памеру тэксту. */
-    fun applyUiSp(textView: TextView, @DimenRes dimenSpId: Int, context: Context) {
+fun applyUiSp(textView: TextView, @DimenRes dimenSpId: Int, context: Context) {
         val res = context.resources
         val basePx = res.getDimension(dimenSpId)
         val baseSp = basePx / res.displayMetrics.scaledDensity
@@ -66,8 +64,7 @@ object PrayerBookUiTypography {
         AppFontFamilyStore.applyToTextView(textView, context)
     }
 
-    /** Тэкст чытанняў (лекцыянарый і г.д.) — з [AppGlobalTextScaleStore]. */
-    fun applyContentSp(textView: TextView, @DimenRes dimenSpId: Int, context: Context) {
+fun applyContentSp(textView: TextView, @DimenRes dimenSpId: Int, context: Context) {
         val res = context.resources
         val basePx = res.getDimension(dimenSpId)
         val baseSp = basePx / res.displayMetrics.scaledDensity
@@ -76,11 +73,7 @@ object PrayerBookUiTypography {
         AppFontFamilyStore.applyToTextView(textView, context)
     }
 
-    /**
-     * Загаловак раздзела ў шапцы (не галоўная): да 3 радкоў, пры доўгім тэксце маштаб ад max ([maxDimenSpId])
-     * да ~45% ад гэтага памеру.
-     */
-    fun applyToolbarSectionTitleAutoSize(
+fun applyToolbarSectionTitleAutoSize(
         textView: TextView,
         @DimenRes maxDimenSpId: Int,
         context: Context
@@ -99,10 +92,7 @@ object PrayerBookUiTypography {
         )
     }
 
-    /**
-     * Загаловак запісу спеўніка ў шапцы: да 2 радкоў, autosize ад [maxDimenSpId] да ~45%.
-     */
-    fun applySongbookToolbarDetailTitleAutoSize(
+fun applySongbookToolbarDetailTitleAutoSize(
         textView: TextView,
         @DimenRes maxDimenSpId: Int,
         context: Context
@@ -121,10 +111,7 @@ object PrayerBookUiTypography {
         )
     }
 
-    /**
-     * Катэгорыя пад загалоўкам (спеўнік): 1 радок, autosize ад [maxDimenSpId] да ~50%.
-     */
-    fun applySongbookToolbarCategoryAutoSize(
+fun applySongbookToolbarCategoryAutoSize(
         textView: TextView,
         @DimenRes maxDimenSpId: Int,
         context: Context

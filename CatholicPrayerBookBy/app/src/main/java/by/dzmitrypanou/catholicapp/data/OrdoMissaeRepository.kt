@@ -17,14 +17,10 @@ class OrdoMissaeRepository(context: Context) {
 
         data class Updated(val html: String) : SyncOutcome()
 
-        /** [hadLocalCache] — true калі застаўся паказаны лакальны тэкст; toast не патрэбны. */
-        data class Failed(val hadLocalCache: Boolean) : SyncOutcome()
+data class Failed(val hadLocalCache: Boolean) : SyncOutcome()
     }
 
-    /**
-     * Лёгкі [PrayerApiService.getOrdoMissaeVersion]; поўны [getOrdoMissae] толькі калі версія змянілася або кэш пусты.
-     */
-    suspend fun syncFromRemote(): SyncOutcome = withContext(Dispatchers.IO) {
+suspend fun syncFromRemote(): SyncOutcome = withContext(Dispatchers.IO) {
         val localHtml = store.readHtml()
         val localAt = store.readUpdatedAt()
         val remoteAt = runCatching {

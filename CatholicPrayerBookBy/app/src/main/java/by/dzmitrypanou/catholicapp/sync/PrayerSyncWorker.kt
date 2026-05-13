@@ -25,7 +25,7 @@ class PrayerSyncWorker(
             PrayerCacheInvalidationNotifier.signalRemotePrayerCacheUpdated()
             syncSongCatalog(SongbookRepository.Catalog.SONGBOOK)
             syncSongCatalog(SongbookRepository.Catalog.KANTARAL)
-            // Той жа згод: хэш scripture_hash.php → поўная загрузка толькі пры змене (гл. ScriptureRemoteSync).
+
             ScriptureRemoteSync.downloadIfChanged(applicationContext)
             runCatching { OrdoMissaeRepository(applicationContext).syncFromRemote() }
         }.fold(

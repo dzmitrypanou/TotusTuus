@@ -28,7 +28,7 @@ try {
 
     $tz = new DateTimeZone('UTC');
     $firstOfMonth = new DateTimeImmutable(sprintf('%04d-%02d-01', $year, $month), $tz);
-    $offset = (int)$firstOfMonth->format('w'); // 0=Sunday
+    $offset = (int)$firstOfMonth->format('w');
     $gridStart = $firstOfMonth->modify(sprintf('-%d day', $offset));
     $gridEnd = $gridStart->modify('+41 day');
 

@@ -30,11 +30,9 @@ class ScriptureFragment : Fragment(), ScriptureToolbarActions {
     private var _binding: FragmentScriptureBinding? = null
     private val binding get() = _binding!!
 
-    /** Апошні пераклад, для якога ўжо пабудаваны layoutScriptureContent (без перабудовы пры вяртанні ў раздзел). */
-    private var lastRenderedTranslationId: String? = null
+private var lastRenderedTranslationId: String? = null
 
-    /** Адзіны дамаход перабудовы спіса заветаў — інакш дзве карутыны могуць абнішчыць layout і намаляваць зноў («мігценне»). */
-    private val scriptureContentMutex = Mutex()
+private val scriptureContentMutex = Mutex()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +58,7 @@ class ScriptureFragment : Fragment(), ScriptureToolbarActions {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Адна паслядоўнасць пры кожным RESUMED — без паралельных карутын (тыпаграфіка + спіс кніг).
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 val ctx = requireContext()

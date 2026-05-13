@@ -6,8 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient_dark">
 
-    <!-- Вертыкальны bias 0.40 замест 0.50 — каля ~10% вышыні экрана вышэй за цэнтр -->
-    <LinearLayout
+<LinearLayout
         android:id="@+id/reset_loading_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

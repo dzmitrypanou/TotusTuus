@@ -5,16 +5,12 @@ import android.content.SharedPreferences
 import android.content.res.Resources
 import kotlin.math.abs
 
-/**
- * Налада памеру тэксту для зместу чытання: малітва, спеўнік, вершы Пісання, лекцыянарый.
- * Спісы, шапка і налады не маштабуюцца. У інтэрфейсе — 5 крокаў; крок 1 прадвызначаны, крок 5 — удвая больш за крок 1.
- */
 object AppGlobalTextScaleStore {
 
     private const val PREFS_NAME = "ui_text_settings"
     private const val KEY_STEP_INDEX = "app_text_size_step_index"
     private const val KEY_PERCENT = "app_text_size_percent"
-    /** Legacy float 0.85…1.45 — міграцыя ў адсоткі. */
+
     private const val KEY_LEGACY_SCALE = "app_global_text_scale"
 
     private const val MIN_STEP_INDEX = 0
@@ -27,8 +23,7 @@ object AppGlobalTextScaleStore {
     @Volatile
     private var cachedStepIndex: Int? = null
 
-    /** Множнік для зместу чытання (малітва, спеўнік, вершы, лекцыянарый): крок 1 = [DEFAULT_BASE_SCALE], далей +0.25 за крок. */
-    fun readScale(context: Context): Float = stepIndexToScale(readStepIndex(context))
+fun readScale(context: Context): Float = stepIndexToScale(readStepIndex(context))
 
     fun readStepIndex(context: Context): Int {
         cachedStepIndex?.let { return it }
@@ -53,8 +48,7 @@ object AppGlobalTextScaleStore {
         return next
     }
 
-    /** Скінуць памер тэксту і сумяшчальныя ключы да прадвызначаных. */
-    fun resetTextSizeToDefaults(context: Context) {
+fun resetTextSizeToDefaults(context: Context) {
         val app = context.applicationContext
         val prefs = app.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit()
@@ -65,10 +59,7 @@ object AppGlobalTextScaleStore {
         syncAdditionalSettingsToMatchGlobal(app, app.resources)
     }
 
-    /**
-     * Пасля змены глабальнага памеру: секцыйныя множнікі → 1, база тэксту малітвы → стандарт.
-     */
-    fun syncAdditionalSettingsToMatchGlobal(context: Context, resources: Resources) {
+fun syncAdditionalSettingsToMatchGlobal(context: Context, resources: Resources) {
         PrayerBookUiTextScaleStore.resetToDefault(context)
         ScriptureUiTextScaleStore.resetToDefault(context)
         PrayerBodyTextSizeStore.resetStoredToDefault(context)

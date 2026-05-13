@@ -296,7 +296,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       min-width: 0;
       overflow: visible;
     }
-    /* Як у admin/index.php: усплывальныя тосты, не ў патоку старонкі */
+
     .toast-wrap {
       position: fixed;
       top: 16px;
@@ -341,7 +341,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       background: rgba(10, 12, 20, 0.55);
       overflow: visible;
     }
-    /* Панель рэдактара — як у молітвенніку (admin/index.php): .rich-toolbar, .rich-quick-toolbar */
+
     #ordo-toolbar.rich-toolbar {
       display: flex;
       flex-wrap: wrap;
@@ -776,7 +776,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       <h1>Totus Tuus</h1>
       <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
-    <?php
+<?php
     $panelNavPage = 'ordo_missae';
     $panelNavView = 'categories';
     $panelNavCalYear = (int)date('Y');
@@ -787,7 +787,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
   <div class="grid">
     <div class="card">
       <form id="ordo-form" method="post" data-save-path="<?= htmlspecialchars($ordoSavePath, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-        <?= panel_csrf_field() ?>
+<?= panel_csrf_field() ?>
         <div class="ordo-editor-stack">
           <div class="rich-toolbar" id="ordo-toolbar">
             <div class="rich-toolbar-group">
@@ -824,7 +824,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
           </div>
           <input type="hidden" name="ordo_layout_json" id="ordo_layout_json" value="<?= htmlspecialchars(json_encode($ordoLayout, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" />
           <div class="ordo-sections" id="ordo-sections">
-            <?php
+<?php
             $secIdx = 0;
             foreach ($ordoLayout['order'] as $slot) :
                 if (!is_array($slot)) {
@@ -844,7 +844,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
               data-section-kind="built_in"
               data-ordo-key="<?= htmlspecialchars($k, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
               data-default-title="<?= htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
-              <?= $secIdx === 0 ? ' open' : '' ?>
+<?= $secIdx === 0 ? ' open' : '' ?>
             >
               <summary>
                 <span class="ordo-section-toolbar" aria-label="Парадак секцый">
@@ -892,7 +892,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
                 aria-hidden="true"
               ></textarea>
             </details>
-            <?php
+<?php
                     $secIdx++;
                 elseif (($slot['type'] ?? '') === 'custom') :
                     $cid = (string) ($slot['id'] ?? '');
@@ -909,7 +909,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
               data-section-kind="custom"
               data-ordo-key="<?= htmlspecialchars($cid, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
               data-default-title="<?= htmlspecialchars($defaultCustom, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
-              <?= $secIdx === 0 ? ' open' : '' ?>
+<?= $secIdx === 0 ? ' open' : '' ?>
             >
               <summary>
                 <span class="ordo-section-toolbar" aria-label="Парадак і выдаленне">
@@ -958,7 +958,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
                 aria-hidden="true"
               ></textarea>
             </details>
-            <?php
+<?php
                     $secIdx++;
                 endif;
             endforeach;
@@ -1482,7 +1482,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-      var initialMap = <?= json_encode($initialB64Map, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+      var initialMap =<?= json_encode($initialB64Map, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
       var form = document.getElementById('ordo-form');
       var saveBtn = document.getElementById('ordo-save-btn');
       var stack = document.querySelector('.ordo-editor-stack');

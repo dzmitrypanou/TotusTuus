@@ -49,9 +49,6 @@ function obs_gap_clamp_year(int $y): int
     return max(OBS_GAP_YEAR_MIN, min(OBS_GAP_YEAR_MAX, $y));
 }
 
-/**
- * @return list<int>
- */
 function obs_gap_years_for_period(string $period, int $yOne, int $yFrom, int $yTo): array
 {
     switch ($period) {
@@ -96,12 +93,6 @@ function obs_gap_dm_range_label(string $minYmd, string $maxYmd): string
     return $a === $b ? $a : ($a . '–' . $b);
 }
 
-/**
- * @param array<string, true> $lectionaryKeysWithText
- * @param list<int>           $years
- *
- * @return list<array<string, mixed>>
- */
 function obs_gap_compute_missing(
     array $lectionaryKeysWithText,
     array $dioceseOpts,
@@ -125,8 +116,7 @@ function obs_gap_compute_missing(
         $obsCandidates[] = $obsRow;
     }
 
-    /** @var array<int, array<string, mixed>> $byId */
-    $byId = [];
+$byId = [];
     foreach ($years as $obsYear) {
         $easterObs = liturgy_observances_easter_sunday($obsYear);
         foreach ($obsCandidates as $obsRow) {
@@ -220,7 +210,6 @@ if ($obsFilterApplied) {
 $gapYears = obs_gap_years_for_period($obsPeriod, $obsYear, $obsYearFrom, $obsYearTo);
 $panelNavGapYear = $gapYears === [] ? $obsYear : max($gapYears);
 
-/** @var array<string, true> */
 $lectionaryKeysWithText = [];
 $lkStmt = db()->query(
     'SELECT lookup_key, title, text_html
@@ -479,7 +468,7 @@ if ($exportKind === 'txt' || $exportKind === 'txt_md') {
       <h1>Totus Tuus</h1>
       <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
-    <?php
+<?php
     $panelNavPage = 'lectionary_gap';
     $panelNavView = 'categories';
     $panelNavCalYear = $panelNavGapYear;
@@ -495,7 +484,7 @@ if ($exportKind === 'txt' || $exportKind === 'txt_md') {
     <div class="card">
       <h2 style="margin:0 0 8px; font-size:1.05rem;">Святы з БД без чытанняў (варынт «альбо»)</h2>
       <p class="muted" style="margin-top:0;">Радкі <code>optional</code> з <code>liturgy_observances</code>, якія трапяюць у каляндар пры абраных дыяцэзіях, але не маюць непустога тэксту ў лекцыянарыі па ключы назвы. Ключ збіраецца як для поля «Назва» запісу лекцыянарыя.</p>
-      <?php
+<?php
       $obsGapExportTxt = '/admin/lectionary_observances_gap.php?' . http_build_query(array_merge($obsGapBaseQuery, ['export' => 'txt']));
       $obsGapExportTxtMd = '/admin/lectionary_observances_gap.php?' . http_build_query(array_merge($obsGapBaseQuery, ['export' => 'txt_md']));
       ?>
@@ -505,15 +494,15 @@ if ($exportKind === 'txt' || $exportKind === 'txt_md') {
           <span class="nav-group-label" style="display:block;margin-bottom:6px;">Перыяд</span>
           <div class="obs-period-radios" style="display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;">
             <label class="diocese-cb" style="margin:0;">
-              <input type="radio" name="obs_period" value="one" <?= $obsPeriod === 'one' ? 'checked' : '' ?>>
+              <input type="radio" name="obs_period" value="one"<?= $obsPeriod === 'one' ? 'checked' : '' ?>>
               Адзін год
             </label>
             <label class="diocese-cb" style="margin:0;">
-              <input type="radio" name="obs_period" value="range" <?= $obsPeriod === 'range' ? 'checked' : '' ?>>
+              <input type="radio" name="obs_period" value="range"<?= $obsPeriod === 'range' ? 'checked' : '' ?>>
               Дыяпазон гадоў
             </label>
             <label class="diocese-cb" style="margin:0;">
-              <input type="radio" name="obs_period" value="all" <?= $obsPeriod === 'all' ? 'checked' : '' ?>>
+              <input type="radio" name="obs_period" value="all"<?= $obsPeriod === 'all' ? 'checked' : '' ?>>
               Увесь час (1970–2100)
             </label>
           </div>
@@ -534,15 +523,15 @@ if ($exportKind === 'txt' || $exportKind === 'txt_md') {
           <div>
             <span class="nav-group-label" style="display:block;margin-bottom:6px;">Дыяцэзіі (для ўзору «хто ўкліканы»)</span>
             <div class="diocese-checkboxes">
-              <?php foreach (liturgy_diocese_keys() as $dk): ?>
+<?php foreach (liturgy_diocese_keys() as $dk): ?>
                 <label class="diocese-cb">
-                  <input type="checkbox" name="d[<?= htmlspecialchars($dk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>]" value="1" <?= !empty($dioceseOpts[$dk]) ? 'checked' : '' ?>>
-                  <?= htmlspecialchars((string)($dioceseLabels[$dk] ?? $dk), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+                  <input type="checkbox" name="d[<?= htmlspecialchars($dk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>]" value="1"<?= !empty($dioceseOpts[$dk]) ? 'checked' : '' ?>>
+<?= htmlspecialchars((string)($dioceseLabels[$dk] ?? $dk), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                 </label>
-              <?php endforeach; ?>
+<?php endforeach; ?>
             </div>
             <label class="diocese-cb obs-hide-general-cb">
-              <input type="checkbox" name="obs_hide_general" value="1" <?= $obsHideNonDiocesan ? 'checked' : '' ?>>
+              <input type="checkbox" name="obs_hide_general" value="1"<?= $obsHideNonDiocesan ? 'checked' : '' ?>>
               Схаваць агульныя (без умоў any/all/forbid для дыяцэзій у БД)
             </label>
           </div>
@@ -553,7 +542,7 @@ if ($exportKind === 'txt' || $exportKind === 'txt_md') {
         </div>
       </form>
       <p class="muted" style="margin:0 0 8px;">Без прадпісаных чытанняў у лекцыянарыі: <strong><?= count($observancesMissingLectionary) ?></strong>.
-        <?php if (!$obsFilterApplied): ?><span class="muted"> Па змаўчанні ўсе дыяцэзіі ўлічаны як уключаныя; адмяніце непатрэбныя і націсніце «Паказаць», каб звузіць спіс.</span><?php endif; ?>
+<?php if (!$obsFilterApplied): ?><span class="muted"> Па змаўчанні ўсе дыяцэзіі ўлічаны як уключаныя; адмяніце непатрэбныя і націсніце «Паказаць», каб звузіць спіс.</span><?php endif; ?>
       </p>
       <p style="margin:0 0 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
         <a class="btn-pill" href="<?= htmlspecialchars($obsGapExportTxt, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" download>Сцягнуць .txt (даты + назва)</a>
@@ -571,7 +560,7 @@ if ($exportKind === 'txt' || $exportKind === 'txt_md') {
           </tr>
           </thead>
           <tbody>
-          <?php foreach ($observancesMissingLectionary as $om): ?>
+<?php foreach ($observancesMissingLectionary as $om): ?>
             <tr>
               <td><code><?php
                 $dmin = (string)$om['date_min'];
@@ -597,7 +586,7 @@ if ($exportKind === 'txt' || $exportKind === 'txt_md') {
                 echo htmlspecialchars(implode('; ', $bits), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                 ?></td>
               <td>
-                <?php
+<?php
                 $prefillQ = [
                     'prefill_title' => $om['title'],
                     'obs_filter' => '1',
@@ -626,10 +615,10 @@ if ($exportKind === 'txt' || $exportKind === 'txt_md') {
                 </div>
               </td>
             </tr>
-          <?php endforeach; ?>
-          <?php if ($observancesMissingLectionary === []): ?>
+<?php endforeach; ?>
+<?php if ($observancesMissingLectionary === []): ?>
             <tr><td colspan="5" class="muted">Прагалаў для абраных умоў няма (або ўсе маюць тэкст у лекцыянарыі).</td></tr>
-          <?php endif; ?>
+<?php endif; ?>
           </tbody>
         </table>
       </div>

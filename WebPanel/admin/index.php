@@ -239,7 +239,6 @@ function getPrayerForEdit(int $id): ?array
     return is_array($row) ? $row : null;
 }
 
-/** Наступны sort_order у гэтай жа асноўнай катэгорыі (уключаючы NULL). */
 function nextPrayerSortOrder(?int $categoryId): int
 {
     $stmt = db()->prepare(
@@ -347,10 +346,8 @@ function songbookUploadsDir(): string
     return $dir;
 }
 
-/** Пашырэнні выяваў: у т.ч. эканамічныя WebP і AVIF. */
 const SONGBOOK_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'];
 
-/** @return list<string> */
 function songbookImageMimeTypes(): array
 {
     return [
@@ -372,9 +369,6 @@ function songbookIsAllowedImagePath(?string $relPath): bool
     return in_array($ext, SONGBOOK_IMAGE_EXTENSIONS, true);
 }
 
-/**
- * @param array<string, mixed> $fileField элементаў з $_FILES['sb_media']
- */
 function songbookUploadedImageMimeOk(array $fileField): bool
 {
     $tmp = (string)($fileField['tmp_name'] ?? '');
@@ -394,11 +388,6 @@ function songbookUploadedImageMimeOk(array $fileField): bool
     return in_array($mime, songbookImageMimeTypes(), true);
 }
 
-/**
- * Захаванне выявы спеўніка (JPEG, PNG, WebP, GIF, AVIF).
- *
- * @param array<string, mixed> $fileField элементаў з $_FILES['sb_media']
- */
 function songbookApplyUploadedMedia(int $entryId, array $fileField): bool
 {
     $tmp = (string)($fileField['tmp_name'] ?? '');
@@ -825,7 +814,7 @@ if ($authReady && $isLoggedIn && $_SERVER['REQUEST_METHOD'] === 'POST' && isset(
             ]);
             $newId = (int)db()->lastInsertId();
             if ($contentType === 'image') {
-                /** @var array<string, mixed> $mediaFile */
+
                 $mediaFile = $_FILES['sb_media'];
                 if (!songbookApplyUploadedMedia($newId, $mediaFile)) {
                     db()->prepare('DELETE FROM songbook_entries WHERE id = :id')->execute([':id' => $newId]);
@@ -920,7 +909,7 @@ if ($authReady && $isLoggedIn && $_SERVER['REQUEST_METHOD'] === 'POST' && isset(
                         ]);
                         if ($hasNewFile) {
                             songbookDeleteMediaFile($oldPath !== '' ? $oldPath : null);
-                            /** @var array<string, mixed> $mediaFile */
+
                             $mediaFile = $_FILES['sb_media'];
                             if (!songbookApplyUploadedMedia($songbookId, $mediaFile)) {
                                 $error = 'Не ўдалося захаваць выяву. Праверце фармат (JPEG, PNG, WebP, GIF, AVIF).';
@@ -2122,7 +2111,6 @@ if ($authReady && $isLoggedIn) {
       font-size: 1rem;
     }
     select[multiple] { min-height: 140px; }
-    /* Адзіночныя select: адступ справа і ўласная стрэлка замест сістэмнай ля краю */
     select:not([multiple]) {
       appearance: none;
       -webkit-appearance: none;
@@ -2563,7 +2551,6 @@ if ($authReady && $isLoggedIn) {
       .header-brand { align-self: center; }
     }
 
-    /* --- Старонкі ўваходу і першаснай налады --- */
     body.body-auth {
       display: flex;
       flex-direction: column;
@@ -2727,20 +2714,20 @@ if ($authReady && $isLoggedIn) {
       <h1>Totus Tuus</h1>
       <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
-    <?php if ($isLoggedIn): ?>
-      <?php
+<?php if ($isLoggedIn): ?>
+<?php
         $panelNavPage = 'index';
         $panelNavView = $view;
         $panelNavCalYear = (int)date('Y');
         require __DIR__ . '/../includes/panel_admin_nav.php';
         ?>
-    <?php endif; ?>
+<?php endif; ?>
   </div>
 
-  <?php
+<?php
   $authLockSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
   ?>
-  <?php if (!$authReady): ?>
+<?php if (!$authReady): ?>
     <main class="auth-layout">
       <div class="auth-card auth-card--warning">
         <div class="auth-card-head">
@@ -2749,13 +2736,13 @@ if ($authReady && $isLoggedIn) {
           <h2>Няма злучэння з БД</h2>
           <p class="auth-lead">Панэль не можа ініцыялізаваць аўтарызацыю. Праверце канфігурацыю і правы доступу.</p>
         </div>
-        <?php if ($error !== null && $error !== ''): ?>
+<?php if ($error !== null && $error !== ''): ?>
           <div class="auth-alert auth-alert--system"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></div>
-        <?php endif; ?>
+<?php endif; ?>
         <p class="auth-hint">Файл наладаў: <code>api/db.php</code>. Патрэбныя правы SELECT, INSERT, UPDATE, CREATE.</p>
       </div>
     </main>
-  <?php elseif ($isSetupRequired): ?>
+<?php elseif ($isSetupRequired): ?>
     <main class="auth-layout">
       <div class="auth-card">
         <div class="auth-card-head">
@@ -2764,9 +2751,9 @@ if ($authReady && $isLoggedIn) {
           <h2>Першасная налада</h2>
           <p class="auth-lead">Задайце пароль адміністратара — ён будзе захаваны ў базе толькі ў выглядзе надзейнага хэша.</p>
         </div>
-        <?php if ($error !== null && $error !== ''): ?>
+<?php if ($error !== null && $error !== ''): ?>
           <div class="auth-alert"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></div>
-        <?php endif; ?>
+<?php endif; ?>
         <form method="post" class="auth-form" autocomplete="off"><?= panel_csrf_field() ?>
           <label for="setup_password">Пароль</label>
           <input id="setup_password" name="setup_password" type="password" minlength="8" required autocomplete="new-password" placeholder="Не менш за 8 сімвалаў">
@@ -2778,7 +2765,7 @@ if ($authReady && $isLoggedIn) {
         </form>
       </div>
     </main>
-  <?php elseif (!$isLoggedIn): ?>
+<?php elseif (!$isLoggedIn): ?>
     <main class="auth-layout">
       <div class="auth-card">
         <div class="auth-card-head">
@@ -2787,9 +2774,9 @@ if ($authReady && $isLoggedIn) {
           <h2>Уваход у панэль</h2>
           <p class="auth-lead">Каталог малітваў, катэгорыі і тэксты Бібліі для праграмы.</p>
         </div>
-        <?php if ($error !== null && $error !== ''): ?>
+<?php if ($error !== null && $error !== ''): ?>
           <div class="auth-alert"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></div>
-        <?php endif; ?>
+<?php endif; ?>
         <form method="post" class="auth-form" autocomplete="off"><?= panel_csrf_field() ?>
           <label for="panel_login">Лагін</label>
           <input id="panel_login" name="panel_login" type="text" required maxlength="64" autocomplete="username" placeholder="Увядзіце лагін" autofocus>
@@ -2801,9 +2788,9 @@ if ($authReady && $isLoggedIn) {
         </form>
       </div>
     </main>
-  <?php else: ?>
+<?php else: ?>
     <div id="dynamic-sections">
-      <?php if ($view === 'no-access'): ?>
+<?php if ($view === 'no-access'): ?>
         <div class="card">
           <h2>Няма доступу</h2>
           <p>Вам не прызначаны ніводзін раздзел панэлі. Звярніцеся да адміністратара, каб атрымаць правы.</p>
@@ -2811,7 +2798,7 @@ if ($authReady && $isLoggedIn) {
             <button type="submit" name="logout" value="1" class="btn-pill">Выйсці</button>
           </form>
         </div>
-      <?php elseif ($view === 'add-category'): ?>
+<?php elseif ($view === 'add-category'): ?>
         <div class="card">
           <h2>Дадаць катэгорыю</h2>
           <form method="post" class="js-ajax-form" data-refresh="1"><?= panel_csrf_field() ?>
@@ -2821,30 +2808,30 @@ if ($authReady && $isLoggedIn) {
             <label for="create_category_parent_id">Бацькоўская катэгорыя (пуста = верхні ўзровень)</label>
             <select id="create_category_parent_id" name="create_category_parent_id">
               <option value="">Абраць бацькоўскую катэгорыю</option>
-              <?php foreach ($topLevelCategories as $category): ?>
+<?php foreach ($topLevelCategories as $category): ?>
                 <option value="<?= (int)$category['id'] ?>"><?= htmlspecialchars((string)$category['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
-              <?php endforeach; ?>
+<?php endforeach; ?>
             </select>
 
             <button type="submit">Захаваць катэгорыю</button>
           </form>
         </div>
-      <?php endif; ?>
+<?php endif; ?>
 
-      <?php if ($view === 'categories'): ?>
+<?php if ($view === 'categories'): ?>
         <div class="card tree tree-card-full">
           <h2>Дрэва катэгорый</h2>
-          <?php if (count($categoryTree) === 0): ?>
+<?php if (count($categoryTree) === 0): ?>
             <p>Катэгорыі пакуль не створаны.</p>
-          <?php else: ?>
+<?php else: ?>
             <ul class="tree-level" data-parent-id="">
-              <?php foreach ($categoryTree as $rootNode): ?>
+<?php foreach ($categoryTree as $rootNode): ?>
                 <li class="tree-item" data-id="<?= (int)$rootNode['id'] ?>" data-parent-id="">
                   <div class="tree-node">
                     <div class="tree-node-meta">
                       <span class="drag-handle" title="Затрымайце і перацягніце">::</span>
                       <strong><?= htmlspecialchars((string)$rootNode['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></strong>
-                      <span class="badge">ID <?= (int)$rootNode['id'] ?></span>
+                      <span class="badge">ID<?= (int)$rootNode['id'] ?></span>
                     </div>
                     <div class="tree-actions">
                       <form method="post" class="js-ajax-form" data-refresh="1"><?= panel_csrf_field() ?>
@@ -2864,15 +2851,15 @@ if ($authReady && $isLoggedIn) {
                       </form>
                     </div>
                   </div>
-                  <?php if (count($rootNode['children']) > 0): ?>
+<?php if (count($rootNode['children']) > 0): ?>
                     <ul class="tree-level" data-parent-id="<?= (int)$rootNode['id'] ?>">
-                      <?php foreach ($rootNode['children'] as $childNode): ?>
+<?php foreach ($rootNode['children'] as $childNode): ?>
                         <li class="tree-item" data-id="<?= (int)$childNode['id'] ?>" data-parent-id="<?= (int)$rootNode['id'] ?>">
                           <div class="tree-node">
                             <div class="tree-node-meta">
                               <span class="drag-handle" title="Затрымайце і перацягніце">::</span>
-                              <?= htmlspecialchars((string)$childNode['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
-                              <span class="badge">ID <?= (int)$childNode['id'] ?></span>
+<?= htmlspecialchars((string)$childNode['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+                              <span class="badge">ID<?= (int)$childNode['id'] ?></span>
                             </div>
                             <div class="tree-actions">
                               <form method="post" class="js-ajax-form" data-refresh="1"><?= panel_csrf_field() ?>
@@ -2893,17 +2880,17 @@ if ($authReady && $isLoggedIn) {
                             </div>
                           </div>
                         </li>
-                      <?php endforeach; ?>
+<?php endforeach; ?>
                     </ul>
-                  <?php endif; ?>
+<?php endif; ?>
                 </li>
-              <?php endforeach; ?>
+<?php endforeach; ?>
             </ul>
-          <?php endif; ?>
+<?php endif; ?>
         </div>
-      <?php endif; ?>
+<?php endif; ?>
 
-    <?php if ($view === 'add-category' && $editCategory !== null): ?>
+<?php if ($view === 'add-category' && $editCategory !== null): ?>
       <div class="card">
         <h2>Рэдагаванне катэгорыі #<?= (int)$editCategory['id'] ?></h2>
         <form method="post"><?= panel_csrf_field() ?>
@@ -2915,13 +2902,13 @@ if ($authReady && $isLoggedIn) {
           <label for="update_category_parent_id">Бацькоўская катэгорыя</label>
           <select id="update_category_parent_id" name="update_category_parent_id">
             <option value="">Абраць бацькоўскую катэгорыю</option>
-            <?php foreach ($topLevelCategories as $category): ?>
-              <?php if ((int)$category['id'] !== (int)$editCategory['id']): ?>
-                <option value="<?= (int)$category['id'] ?>" <?= ((int)($editCategory['parent_id'] ?? 0) === (int)$category['id']) ? 'selected' : '' ?>>
-                  <?= htmlspecialchars((string)$category['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+<?php foreach ($topLevelCategories as $category): ?>
+<?php if ((int)$category['id'] !== (int)$editCategory['id']): ?>
+                <option value="<?= (int)$category['id'] ?>"<?= ((int)($editCategory['parent_id'] ?? 0) === (int)$category['id']) ? 'selected' : '' ?>>
+<?= htmlspecialchars((string)$category['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                 </option>
-              <?php endif; ?>
-            <?php endforeach; ?>
+<?php endif; ?>
+<?php endforeach; ?>
           </select>
 
           <div class="form-actions-row">
@@ -2930,9 +2917,9 @@ if ($authReady && $isLoggedIn) {
           </div>
         </form>
       </div>
-    <?php endif; ?>
+<?php endif; ?>
 
-    <?php if ($view === 'add-prayer'): ?>
+<?php if ($view === 'add-prayer'): ?>
       <div class="card">
         <h2>Дадаць малітву</h2>
         <form method="post" class="js-ajax-form" data-refresh="1"><?= panel_csrf_field() ?>
@@ -2942,22 +2929,22 @@ if ($authReady && $isLoggedIn) {
         <label for="parent_category_id">Катэгорыя</label>
         <select id="parent_category_id" name="parent_category_id">
           <option value="">Абраць катэгорыю</option>
-          <?php foreach ($topLevelCategories as $category): ?>
+<?php foreach ($topLevelCategories as $category): ?>
             <option value="<?= (int)$category['id'] ?>"><?= htmlspecialchars((string)$category['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
-          <?php endforeach; ?>
+<?php endforeach; ?>
         </select>
 
         <div id="subcategory-block" class="hidden">
         <label for="subcategory_id">Падкатэгорыя</label>
           <select id="subcategory_id" name="subcategory_id">
             <option value="">Абраць падкатэгорыю</option>
-            <?php foreach ($subcategoryOptions as $parentId => $subcategories): ?>
-              <?php foreach ($subcategories as $subcategory): ?>
+<?php foreach ($subcategoryOptions as $parentId => $subcategories): ?>
+<?php foreach ($subcategories as $subcategory): ?>
                 <option value="<?= (int)$subcategory['id'] ?>" data-parent-id="<?= (int)$parentId ?>">
-                  <?= htmlspecialchars((string)$subcategory['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+<?= htmlspecialchars((string)$subcategory['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                 </option>
-              <?php endforeach; ?>
-            <?php endforeach; ?>
+<?php endforeach; ?>
+<?php endforeach; ?>
           </select>
           <div class="inline-help">Паказваюцца толькі падкатэгорыі абранай катэгорыі.</div>
         </div>
@@ -2971,11 +2958,11 @@ if ($authReady && $isLoggedIn) {
 
         <label for="additional_category_ids">Дадатковыя катэгорыі</label>
         <select id="additional_category_ids" name="additional_category_ids[]" multiple>
-          <?php foreach ($categoryOptions as $categoryId => $categoryLabel): ?>
+<?php foreach ($categoryOptions as $categoryId => $categoryLabel): ?>
             <option value="<?= (int)$categoryId ?>">
-              <?= htmlspecialchars((string)$categoryLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+<?= htmlspecialchars((string)$categoryLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
             </option>
-          <?php endforeach; ?>
+<?php endforeach; ?>
         </select>
         <div class="inline-help">Можна абраць некалькі дадатковых катэгорый (Ctrl/Cmd + пстрычка).</div>
 
@@ -3054,10 +3041,10 @@ if ($authReady && $isLoggedIn) {
           <button type="submit" name="create_prayer" value="1">Захаваць малітву</button>
         </form>
       </div>
-    <?php endif; ?>
+<?php endif; ?>
 
-    <?php if ($view === 'prayers' && $editPrayer !== null): ?>
-      <?php
+<?php if ($view === 'prayers' && $editPrayer !== null): ?>
+<?php
       $prayersReturnGet = $_GET;
       unset($prayersReturnGet['edit_prayer_id']);
       $prayersReturnGet['view'] = 'prayers';
@@ -3074,24 +3061,24 @@ if ($authReady && $isLoggedIn) {
           <label for="update_parent_category_id">Катэгорыя</label>
           <select id="update_parent_category_id" name="update_parent_category_id">
             <option value="">Абраць катэгорыю</option>
-            <?php foreach ($topLevelCategories as $category): ?>
-              <option value="<?= (int)$category['id'] ?>" <?= ($editPrayerParentCategoryId === (int)$category['id']) ? 'selected' : '' ?>>
-                <?= htmlspecialchars((string)$category['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+<?php foreach ($topLevelCategories as $category): ?>
+              <option value="<?= (int)$category['id'] ?>"<?= ($editPrayerParentCategoryId === (int)$category['id']) ? 'selected' : '' ?>>
+<?= htmlspecialchars((string)$category['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
               </option>
-            <?php endforeach; ?>
+<?php endforeach; ?>
           </select>
 
           <div id="update_subcategory-block" class="hidden">
             <label for="update_subcategory_id">Падкатэгорыя</label>
             <select id="update_subcategory_id" name="update_subcategory_id">
               <option value="">Абраць падкатэгорыю</option>
-              <?php foreach ($subcategoryOptions as $parentId => $subcategories): ?>
-                <?php foreach ($subcategories as $subcategory): ?>
-                  <option value="<?= (int)$subcategory['id'] ?>" data-parent-id="<?= (int)$parentId ?>" <?= ($editPrayerSubcategoryId === (int)$subcategory['id']) ? 'selected' : '' ?>>
-                    <?= htmlspecialchars((string)$subcategory['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+<?php foreach ($subcategoryOptions as $parentId => $subcategories): ?>
+<?php foreach ($subcategories as $subcategory): ?>
+                  <option value="<?= (int)$subcategory['id'] ?>" data-parent-id="<?= (int)$parentId ?>"<?= ($editPrayerSubcategoryId === (int)$subcategory['id']) ? 'selected' : '' ?>>
+<?= htmlspecialchars((string)$subcategory['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                   </option>
-                <?php endforeach; ?>
-              <?php endforeach; ?>
+<?php endforeach; ?>
+<?php endforeach; ?>
             </select>
             <div class="inline-help">Паказваюцца толькі падкатэгорыі абранай катэгорыі.</div>
           </div>
@@ -3105,11 +3092,11 @@ if ($authReady && $isLoggedIn) {
 
           <label for="update_additional_category_ids">Дополнительные категории</label>
           <select id="update_additional_category_ids" name="update_additional_category_ids[]" multiple>
-            <?php foreach ($categoryOptions as $categoryId => $categoryLabel): ?>
-              <option value="<?= (int)$categoryId ?>" <?= in_array((int)$categoryId, $editPrayerAdditionalCategoryIds, true) ? 'selected' : '' ?>>
-                <?= htmlspecialchars((string)$categoryLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+<?php foreach ($categoryOptions as $categoryId => $categoryLabel): ?>
+              <option value="<?= (int)$categoryId ?>"<?= in_array((int)$categoryId, $editPrayerAdditionalCategoryIds, true) ? 'selected' : '' ?>>
+<?= htmlspecialchars((string)$categoryLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
               </option>
-            <?php endforeach; ?>
+<?php endforeach; ?>
           </select>
           <div class="inline-help">Дадатковыя катэгорыі для гэтай малітвы.</div>
 
@@ -3196,9 +3183,9 @@ if ($authReady && $isLoggedIn) {
           </div>
         </form>
       </div>
-    <?php endif; ?>
+<?php endif; ?>
 
-    <?php if ($view === 'prayers'): ?>
+<?php if ($view === 'prayers'): ?>
     <form method="get" class="prayers-filter-form" action="/">
       <input type="hidden" name="view" value="prayers">
       <details class="panel-filter-details"<?= $prayersFilterOpen ? ' open' : '' ?>>
@@ -3216,65 +3203,65 @@ if ($authReady && $isLoggedIn) {
         <div>
           <label for="pr_cat">Асноўная катэгорыя</label>
           <select id="pr_cat" name="pr_cat">
-            <option value="" <?= $prCat === '' ? 'selected' : '' ?>>Усе</option>
-            <option value="none" <?= $prCat === 'none' ? 'selected' : '' ?>>Без катэгорыі</option>
-            <?php foreach ($categoryOptions as $cid => $clabel): ?>
-              <option value="<?= (int)$cid ?>" <?= $prCat === (string)(int)$cid ? 'selected' : '' ?>>
-                <?= htmlspecialchars((string)$clabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+            <option value=""<?= $prCat === '' ? 'selected' : '' ?>>Усе</option>
+            <option value="none"<?= $prCat === 'none' ? 'selected' : '' ?>>Без катэгорыі</option>
+<?php foreach ($categoryOptions as $cid => $clabel): ?>
+              <option value="<?= (int)$cid ?>"<?= $prCat === (string)(int)$cid ? 'selected' : '' ?>>
+<?= htmlspecialchars((string)$clabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
               </option>
-            <?php endforeach; ?>
+<?php endforeach; ?>
           </select>
         </div>
         <div>
           <label for="pr_parent">Каранёвая катэгорыя (дрэва)</label>
           <select id="pr_parent" name="pr_parent">
-            <option value="0" <?= $prParent === 0 ? 'selected' : '' ?>>Любая</option>
-            <?php foreach ($topLevelCategories as $tc): ?>
-              <option value="<?= (int)$tc['id'] ?>" <?= $prParent === (int)$tc['id'] ? 'selected' : '' ?>>
-                <?= htmlspecialchars((string)$tc['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+            <option value="0"<?= $prParent === 0 ? 'selected' : '' ?>>Любая</option>
+<?php foreach ($topLevelCategories as $tc): ?>
+              <option value="<?= (int)$tc['id'] ?>"<?= $prParent === (int)$tc['id'] ? 'selected' : '' ?>>
+<?= htmlspecialchars((string)$tc['name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
               </option>
-            <?php endforeach; ?>
+<?php endforeach; ?>
           </select>
         </div>
         <div>
           <label for="pr_level">Тып асноўнай прывязкі</label>
           <select id="pr_level" name="pr_level">
-            <option value="" <?= $prLevel === '' ? 'selected' : '' ?>>Усе</option>
-            <option value="root" <?= $prLevel === 'root' ? 'selected' : '' ?>>Толькі бацькоўская (без падкатэгорыі)</option>
-            <option value="sub" <?= $prLevel === 'sub' ? 'selected' : '' ?>>Толькі падкатэгорыя</option>
+            <option value=""<?= $prLevel === '' ? 'selected' : '' ?>>Усе</option>
+            <option value="root"<?= $prLevel === 'root' ? 'selected' : '' ?>>Толькі бацькоўская (без падкатэгорыі)</option>
+            <option value="sub"<?= $prLevel === 'sub' ? 'selected' : '' ?>>Толькі падкатэгорыя</option>
           </select>
         </div>
         <div>
           <label for="pr_lang">Мова</label>
           <select id="pr_lang" name="pr_lang">
-            <option value="" <?= $prLang === '' ? 'selected' : '' ?>>Усе</option>
-            <?php foreach ($prayerListLanguages as $lng): ?>
-              <option value="<?= htmlspecialchars($lng, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" <?= $prLang === $lng ? 'selected' : '' ?>>
-                <?= htmlspecialchars($lng, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+            <option value=""<?= $prLang === '' ? 'selected' : '' ?>>Усе</option>
+<?php foreach ($prayerListLanguages as $lng): ?>
+              <option value="<?= htmlspecialchars($lng, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= $prLang === $lng ? 'selected' : '' ?>>
+<?= htmlspecialchars($lng, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
               </option>
-            <?php endforeach; ?>
+<?php endforeach; ?>
           </select>
         </div>
         <div>
           <label for="pr_additional">Дадатковыя катэгорыі</label>
           <select id="pr_additional" name="pr_additional">
-            <option value="" <?= $prAdditional === '' ? 'selected' : '' ?>>Не важна</option>
-            <option value="yes" <?= $prAdditional === 'yes' ? 'selected' : '' ?>>Ёсць</option>
-            <option value="no" <?= $prAdditional === 'no' ? 'selected' : '' ?>>Няма</option>
+            <option value=""<?= $prAdditional === '' ? 'selected' : '' ?>>Не важна</option>
+            <option value="yes"<?= $prAdditional === 'yes' ? 'selected' : '' ?>>Ёсць</option>
+            <option value="no"<?= $prAdditional === 'no' ? 'selected' : '' ?>>Няма</option>
           </select>
         </div>
         <div>
           <label for="pr_active">Статус</label>
           <select id="pr_active" name="pr_active">
-            <option value="" <?= $prActive === '' ? 'selected' : '' ?>>Усе</option>
-            <option value="1" <?= $prActive === '1' ? 'selected' : '' ?>>Актыўныя</option>
-            <option value="0" <?= $prActive === '0' ? 'selected' : '' ?>>Неактыўныя</option>
+            <option value=""<?= $prActive === '' ? 'selected' : '' ?>>Усе</option>
+            <option value="1"<?= $prActive === '1' ? 'selected' : '' ?>>Актыўныя</option>
+            <option value="0"<?= $prActive === '0' ? 'selected' : '' ?>>Неактыўныя</option>
           </select>
         </div>
         <div>
           <label for="pr_sort">Сартаванне</label>
           <select id="pr_sort" name="pr_sort">
-            <?php
+<?php
             $sortChoices = [
                 'sort_order_asc' => 'Парадак у катэгорыі (як у праграме)',
                 'sort_order_desc' => 'Парадак у катэгорыі — наадварот',
@@ -3293,16 +3280,16 @@ if ($authReady && $isLoggedIn) {
             ];
             foreach ($sortChoices as $sk => $slabel):
             ?>
-              <option value="<?= htmlspecialchars($sk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" <?= $prSort === $sk ? 'selected' : '' ?>><?= htmlspecialchars($slabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
-            <?php endforeach; ?>
+              <option value="<?= htmlspecialchars($sk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= $prSort === $sk ? 'selected' : '' ?>><?= htmlspecialchars($slabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
+<?php endforeach; ?>
           </select>
         </div>
         <div>
           <label for="pr_limit">На старонцы</label>
           <select id="pr_limit" name="pr_limit">
-            <?php foreach ([25, 50, 100, 200, 500] as $lim): ?>
-              <option value="<?= $lim ?>" <?= $prLimit === $lim ? 'selected' : '' ?>><?= $lim ?> шт.</option>
-            <?php endforeach; ?>
+<?php foreach ([25, 50, 100, 200, 500] as $lim): ?>
+              <option value="<?= $lim ?>"<?= $prLimit === $lim ? 'selected' : '' ?>><?= $lim ?> шт.</option>
+<?php endforeach; ?>
           </select>
         </div>
       </div>
@@ -3314,7 +3301,7 @@ if ($authReady && $isLoggedIn) {
       </details>
     </form>
     <p class="prayers-list-meta">
-      Паказана <?= count($rows) ?> з <?= (int)$prayersTotalFiltered ?> па ўмовах<?= $prayersTotalFiltered > $prLimit ? ' (ліміт ' . (int)$prLimit . ')' : '' ?>.
+      Паказана<?= count($rows) ?> з<?= (int)$prayersTotalFiltered ?> па ўмовах<?= $prayersTotalFiltered > $prLimit ? ' (ліміт ' . (int)$prLimit . ')' : '' ?>.
     </p>
     <table>
       <thead>
@@ -3331,8 +3318,8 @@ if ($authReady && $isLoggedIn) {
         </tr>
       </thead>
       <tbody>
-        <?php foreach ($rows as $row): ?>
-          <?php
+<?php foreach ($rows as $row): ?>
+<?php
           $editQuery = $_GET;
           $editQuery['view'] = 'prayers';
           $editQuery['edit_prayer_id'] = (int)$row['id'];
@@ -3355,12 +3342,12 @@ if ($authReady && $isLoggedIn) {
               </form>
             </td>
           </tr>
-        <?php endforeach; ?>
+<?php endforeach; ?>
       </tbody>
     </table>
-    <?php endif; ?>
+<?php endif; ?>
 
-    <?php if ($view === 'songbook'): ?>
+<?php if ($view === 'songbook'): ?>
     <h2 class="table-section-title">Спеўнік (загрузка ў праграму праз API)</h2>
     <p class="inline-help songbook-intro">Тэксты і выявы (JPEG, PNG, WebP, GIF, AVIF) у праграме толькі для чытання. Файлы — у <code>uploads/songbook/</code>.</p>
     <div class="songbook-toolbar-top">
@@ -3377,7 +3364,7 @@ if ($authReady && $isLoggedIn) {
           </summary>
           <div class="panel-filter-details__body">
             <p class="songbook-panel-section__hint">Некалькі галачак працуюць як <strong>АБО</strong>: у спісе застаюцца запісы з <em>любой</em> з абраных катэгорый. Зніміце ўсе галачкі і націсніце «Паказаць» або «Скід фільтра», каб паказаць усе запісы.</p>
-            <?php
+<?php
             $songbookHasEmptyCat = false;
             foreach ($songbookCategoryDistinct as $dCat) {
                 if (trim($dCat) === '') {
@@ -3387,23 +3374,23 @@ if ($authReady && $isLoggedIn) {
             }
             ?>
             <div class="songbook-filter-chips" role="group" aria-label="Катэгорыі">
-              <?php if ($songbookHasEmptyCat): ?>
+<?php if ($songbookHasEmptyCat): ?>
                 <label class="songbook-filter-chip">
-                  <input type="checkbox" name="sb_cat[]" value="<?= htmlspecialchars($songbookCatEmptyToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" <?= in_array($songbookCatEmptyToken, $songbookCatSelected, true) ? ' checked' : '' ?>>
+                  <input type="checkbox" name="sb_cat[]" value="<?= htmlspecialchars($songbookCatEmptyToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= in_array($songbookCatEmptyToken, $songbookCatSelected, true) ? ' checked' : '' ?>>
                   <span>(без катэгорыі)</span>
                 </label>
-              <?php endif; ?>
-              <?php foreach ($songbookCategoryDistinct as $dCat): ?>
-                <?php if (trim($dCat) === '') { continue; } ?>
+<?php endif; ?>
+<?php foreach ($songbookCategoryDistinct as $dCat): ?>
+<?php if (trim($dCat) === '') { continue; } ?>
                 <label class="songbook-filter-chip">
-                  <input type="checkbox" name="sb_cat[]" value="<?= htmlspecialchars($dCat, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" <?= in_array($dCat, $songbookCatSelected, true) ? ' checked' : '' ?>>
+                  <input type="checkbox" name="sb_cat[]" value="<?= htmlspecialchars($dCat, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= in_array($dCat, $songbookCatSelected, true) ? ' checked' : '' ?>>
                   <span><?= htmlspecialchars($dCat, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
                 </label>
-              <?php endforeach; ?>
+<?php endforeach; ?>
             </div>
-            <?php if (count($songbookCategoryDistinct) === 0): ?>
+<?php if (count($songbookCategoryDistinct) === 0): ?>
               <p class="songbook-panel-section__empty">Катэгорыі з’явяцца пасля дадання запісаў.</p>
-            <?php endif; ?>
+<?php endif; ?>
             <div class="songbook-panel-actions">
               <button type="submit" class="btn-pill btn-pill--purple">Паказаць</button>
               <a class="btn-pill btn-pill--muted" href="/?view=songbook">Скід фільтра</a>
@@ -3441,8 +3428,8 @@ if ($authReady && $isLoggedIn) {
         </tr>
       </thead>
       <tbody>
-        <?php foreach ($songbookRows as $sbr): ?>
-          <?php
+<?php foreach ($songbookRows as $sbr): ?>
+<?php
           $chapterMajorValue = (int)$sbr['chapter_major'];
           $num = '';
           if ($chapterMajorValue > 0) {
@@ -3457,7 +3444,7 @@ if ($authReady && $isLoggedIn) {
           ?>
           <tr>
             <td class="cell-checkbox">
-              <input type="checkbox" class="songbook-bulk-id-cb" name="songbook_bulk_ids[]" value="<?= (int)$sbr['id'] ?>" form="songbook-bulk-category-form" aria-label="Абраць запіс <?= (int)$sbr['id'] ?>">
+              <input type="checkbox" class="songbook-bulk-id-cb" name="songbook_bulk_ids[]" value="<?= (int)$sbr['id'] ?>" form="songbook-bulk-category-form" aria-label="Абраць запіс<?= (int)$sbr['id'] ?>">
             </td>
             <td><?= (int)$sbr['id'] ?></td>
             <td><?= htmlspecialchars((string)($sbr['category'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
@@ -3474,17 +3461,17 @@ if ($authReady && $isLoggedIn) {
               </form>
             </td>
           </tr>
-        <?php endforeach; ?>
+<?php endforeach; ?>
       </tbody>
     </table>
-    <?php endif; ?>
+<?php endif; ?>
 
-    <?php if ($view === 'add-songbook'): ?>
+<?php if ($view === 'add-songbook'): ?>
       <div class="card">
         <h2><?= $editSongbook !== null ? 'Рэдагаваць запіс спеўніка' : 'Дадаць запіс спеўніка' ?></h2>
-        <?php if ($editSongbookId > 0 && $editSongbook === null): ?>
+<?php if ($editSongbookId > 0 && $editSongbook === null): ?>
           <p>Запіс не знойдзены. <a class="btn-pill btn-pill--sm btn-pill--gold" href="<?= htmlspecialchars($songbookListHref, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Да спісу</a></p>
-        <?php else: ?>
+<?php else: ?>
         <form method="post" enctype="multipart/form-data" class="<?= $editSongbook !== null ? 'js-ajax-form' : '' ?>" data-refresh="<?= $editSongbook !== null ? '1' : '0' ?>"><?= panel_csrf_field() ?>
           <label for="sb_title">Назва (напрыклад, Абрад)</label>
           <input id="sb_title" name="sb_title" type="text" value="<?= htmlspecialchars((string)($editSongbook['title'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
@@ -3503,15 +3490,15 @@ if ($authReady && $isLoggedIn) {
 
           <label for="sb_content_type">Тып зместу</label>
           <select id="sb_content_type" name="sb_content_type" required>
-            <?php
+<?php
             $ct = $editSongbook !== null ? (string)($editSongbook['content_type'] ?? 'text') : 'text';
             if (!in_array($ct, ['text', 'image'], true)) {
                 $ct = 'text';
             }
             foreach (['text' => 'Тэкст', 'image' => 'Выява'] as $cv => $clabel):
             ?>
-              <option value="<?= htmlspecialchars($cv, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" <?= $ct === $cv ? 'selected' : '' ?>><?= htmlspecialchars($clabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
-            <?php endforeach; ?>
+              <option value="<?= htmlspecialchars($cv, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= $ct === $cv ? 'selected' : '' ?>><?= htmlspecialchars($clabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
+<?php endforeach; ?>
           </select>
 
           <label for="sb_text_body">Тэкст (HTML дазволены; для выявы можна пакінуць пустым)</label>
@@ -3519,40 +3506,40 @@ if ($authReady && $isLoggedIn) {
 
           <label for="sb_media">Выява (абавязкова пры стварэнні з тыпам «Выява»; пры рэдагаванні — толькі калі мяняеце файл). Фарматы: JPEG, PNG, WebP, GIF, AVIF.</label>
           <input id="sb_media" name="sb_media" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,.avif,image/jpeg,image/png,image/webp,image/gif,image/avif">
-          <?php if ($editSongbook !== null && !empty($editSongbook['media_path'])): ?>
+<?php if ($editSongbook !== null && !empty($editSongbook['media_path'])): ?>
             <p class="inline-help">Бягучы файл: <code><?= htmlspecialchars((string)$editSongbook['media_path'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></code></p>
-          <?php endif; ?>
+<?php endif; ?>
 
-          <?php if ($editSongbook !== null): ?>
+<?php if ($editSongbook !== null): ?>
             <input type="hidden" name="update_songbook_id" value="<?= (int)$editSongbook['id'] ?>">
             <div class="form-actions-row">
               <button type="submit">Захаваць</button>
               <a href="<?= htmlspecialchars($songbookListHref, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="btn-pill btn-pill--gold">Да спісу</a>
             </div>
-          <?php else: ?>
+<?php else: ?>
             <input type="hidden" name="create_songbook" value="1">
             <div class="form-actions-row">
               <button type="submit">Стварыць</button>
               <a href="<?= htmlspecialchars($songbookListHref, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="btn-pill btn-pill--gold">Да спісу</a>
             </div>
-          <?php endif; ?>
+<?php endif; ?>
         </form>
-        <?php endif; ?>
+<?php endif; ?>
       </div>
-    <?php endif; ?>
+<?php endif; ?>
 
-    <?php if ($view === 'scripture'): ?>
+<?php if ($view === 'scripture'): ?>
       <div class="card">
         <h2>Тэксты Бібліі</h2>
         <p class="inline-help">Імпартуйце JSON у тым жа фармаце, што і файлы ў праграме (assets: books → chapters → verses). Потым рэдагуйце сціхі па главах.</p>
         <div class="scripture-bible-toolbar">
           <a class="btn-scripture btn-scripture-primary" href="/?view=scripture-import">Імпарт JSON у БД</a>
         </div>
-        <?php if (count($scriptureTranslations) === 0): ?>
+<?php if (count($scriptureTranslations) === 0): ?>
           <p>Няма запісаў перакладаў (мета не створана).</p>
-        <?php else: ?>
+<?php else: ?>
           <ul class="scripture-translation-list">
-            <?php foreach ($scriptureTranslations as $tr): ?>
+<?php foreach ($scriptureTranslations as $tr): ?>
               <li class="scripture-translation-item">
                 <div class="scripture-translation-title">
                   <strong><?= htmlspecialchars((string)$tr['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></strong>
@@ -3560,23 +3547,23 @@ if ($authReady && $isLoggedIn) {
                 </div>
                 <a class="btn-scripture btn-scripture-secondary" href="/?view=scripture-chapter&amp;tr=<?= urlencode((string)$tr['id']) ?>">Рэдагаваць сціхі</a>
               </li>
-            <?php endforeach; ?>
+<?php endforeach; ?>
           </ul>
-        <?php endif; ?>
+<?php endif; ?>
       </div>
-    <?php endif; ?>
+<?php endif; ?>
 
-    <?php if ($view === 'scripture-import'): ?>
+<?php if ($view === 'scripture-import'): ?>
       <div class="card">
         <h2>Імпарт Бібліі (JSON)</h2>
         <form method="post" enctype="multipart/form-data"><?= panel_csrf_field() ?>
           <label for="scripture_import_translation">Пераклад</label>
           <select id="scripture_import_translation" name="scripture_import_translation" required>
-            <?php foreach ($scriptureTranslations as $tr): ?>
+<?php foreach ($scriptureTranslations as $tr): ?>
               <option value="<?= htmlspecialchars((string)$tr['id'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-                <?= htmlspecialchars((string)$tr['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+<?= htmlspecialchars((string)$tr['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
               </option>
-            <?php endforeach; ?>
+<?php endforeach; ?>
           </select>
           <label for="scripture_json_file">JSON-файл</label>
           <input id="scripture_json_file" name="scripture_json_file" type="file" accept=".json,application/json" required>
@@ -3585,86 +3572,86 @@ if ($authReady && $isLoggedIn) {
         </form>
         <p class="inline-help"><a class="btn-pill btn-pill--sm btn-pill--gold" href="/?view=scripture">← Да раздзела Бібліі</a></p>
       </div>
-    <?php endif; ?>
+<?php endif; ?>
 
-    <?php if ($view === 'scripture-chapter'): ?>
+<?php if ($view === 'scripture-chapter'): ?>
       <div class="card">
         <h2>Рэдагаванне сціхаў</h2>
-        <?php if ($scriptureEditTr === ''): ?>
+<?php if ($scriptureEditTr === ''): ?>
           <p>Абярыце пераклад на <a class="btn-pill btn-pill--sm btn-pill--purple" href="/?view=scripture">старонцы Бібліі</a>.</p>
-        <?php elseif (count($scriptureBooks) === 0): ?>
+<?php elseif (count($scriptureBooks) === 0): ?>
           <p>Няма кніг у БД. Спачатку <a class="btn-pill btn-pill--sm btn-pill--purple" href="/?view=scripture-import">імпартуйце JSON</a>.</p>
-        <?php else: ?>
+<?php else: ?>
           <form method="get" class="scripture-chapter-nav">
             <input type="hidden" name="view" value="scripture-chapter">
             <div class="scripture-nav-row">
               <div class="scripture-nav-field">
                 <label for="tr_sel">Пераклад</label>
                 <select id="tr_sel" name="tr" onchange="this.form.submit()">
-                  <?php foreach ($scriptureTranslations as $tr): ?>
-                    <option value="<?= htmlspecialchars((string)$tr['id'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" <?= ($scriptureEditTr === (string)$tr['id']) ? 'selected' : '' ?>>
-                      <?= htmlspecialchars((string)$tr['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+<?php foreach ($scriptureTranslations as $tr): ?>
+                    <option value="<?= htmlspecialchars((string)$tr['id'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= ($scriptureEditTr === (string)$tr['id']) ? 'selected' : '' ?>>
+<?= htmlspecialchars((string)$tr['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                     </option>
-                  <?php endforeach; ?>
+<?php endforeach; ?>
                 </select>
               </div>
               <div class="scripture-nav-field">
                 <label for="book_sel">Кніга</label>
                 <select id="book_sel" name="book_id" onchange="this.form.submit()">
-                  <?php foreach ($scriptureBooks as $b): ?>
-                    <option value="<?= (int)$b['book_id'] ?>" <?= ($scriptureEditBookId === (int)$b['book_id']) ? 'selected' : '' ?>>
-                      <?= htmlspecialchars((string)$b['book_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+<?php foreach ($scriptureBooks as $b): ?>
+                    <option value="<?= (int)$b['book_id'] ?>"<?= ($scriptureEditBookId === (int)$b['book_id']) ? 'selected' : '' ?>>
+<?= htmlspecialchars((string)$b['book_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                     </option>
-                  <?php endforeach; ?>
+<?php endforeach; ?>
                 </select>
               </div>
               <div class="scripture-nav-field scripture-nav-field--chapter">
                 <label for="ch_sel">Глава</label>
                 <select id="ch_sel" name="chapter" onchange="this.form.submit()">
-                  <?php foreach ($scriptureChapters as $chNum): ?>
-                    <option value="<?= (int)$chNum ?>" <?= ($scriptureEditChapter === (int)$chNum) ? 'selected' : '' ?>><?= (int)$chNum ?></option>
-                  <?php endforeach; ?>
+<?php foreach ($scriptureChapters as $chNum): ?>
+                    <option value="<?= (int)$chNum ?>"<?= ($scriptureEditChapter === (int)$chNum) ? 'selected' : '' ?>><?= (int)$chNum ?></option>
+<?php endforeach; ?>
                 </select>
               </div>
             </div>
           </form>
 
-          <?php if (count($scriptureChapterVerses) === 0): ?>
+<?php if (count($scriptureChapterVerses) === 0): ?>
             <p>Няма сціхаў для гэтай главы (пусты імпарт або няслушныя параметры).</p>
-          <?php else: ?>
+<?php else: ?>
             <form method="post"><?= panel_csrf_field() ?>
               <input type="hidden" name="scripture_save_chapter" value="1">
               <input type="hidden" name="scripture_tr" value="<?= htmlspecialchars($scriptureEditTr, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
               <input type="hidden" name="scripture_book_id" value="<?= (int)$scriptureEditBookId ?>">
               <input type="hidden" name="scripture_chapter" value="<?= (int)$scriptureEditChapter ?>">
-              <?php foreach ($scriptureChapterVerses as $vr): ?>
-                <label for="v<?= (int)$vr['verse'] ?>">Сціх <?= (int)$vr['verse'] ?></label>
+<?php foreach ($scriptureChapterVerses as $vr): ?>
+                <label for="v<?= (int)$vr['verse'] ?>">Сціх<?= (int)$vr['verse'] ?></label>
                 <textarea id="v<?= (int)$vr['verse'] ?>" class="scripture-verse-field" name="verse_text[<?= (int)$vr['verse'] ?>]" rows="2"><?= htmlspecialchars((string)$vr['text'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea>
-              <?php endforeach; ?>
+<?php endforeach; ?>
               <div class="scripture-form-actions">
                 <button type="submit">Захаваць главу</button>
                 <a class="scripture-back-btn" href="/?view=scripture"><span class="scripture-back-icon" aria-hidden="true">←</span> Да раздзела Бібліі</a>
               </div>
             </form>
-          <?php endif; ?>
-        <?php endif; ?>
-        <?php
+<?php endif; ?>
+<?php endif; ?>
+<?php
         $showScriptureBackInForm = $scriptureEditTr !== '' && count($scriptureBooks) > 0 && count($scriptureChapterVerses) > 0;
         if (!$showScriptureBackInForm):
         ?>
         <p class="inline-help"><a class="btn-pill btn-pill--sm btn-pill--gold" href="/?view=scripture">← Да раздзела Бібліі</a></p>
-        <?php endif; ?>
+<?php endif; ?>
       </div>
-    <?php endif; ?>
+<?php endif; ?>
 
     </div>
-  <?php endif; ?>
+<?php endif; ?>
 </body>
 <div id="toast-wrap" class="toast-wrap"></div>
 <script>
   (function () {
-    var initialMessage = <?= json_encode($message, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
-    var initialError = <?= json_encode($error, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+    var initialMessage =<?= json_encode($message, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+    var initialError =<?= json_encode($error, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 
     function initSubcategoryFilterFor(parentId, subcategoryId, blockId, keepSelection) {
       var parentSelect = document.getElementById(parentId);

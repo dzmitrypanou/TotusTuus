@@ -9,9 +9,6 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import androidx.appcompat.widget.AppCompatImageView
 
-/**
- * Просты pinch-to-zoom + drag для нот (выява спеўніка) без знешніх бібліятэк.
- */
 class ZoomableImageView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
@@ -56,8 +53,7 @@ class ZoomableImageView @JvmOverloads constructor(
         post { fitImageToView() }
     }
 
-    /** Па шырыні экрана, выраўноўванне па верхнім краі (ноты). */
-    private fun fitImageToView() {
+private fun fitImageToView() {
         val drawable = drawable ?: return
         if (viewWidth <= 0f || viewHeight <= 0f) return
         val bmWidth = drawable.intrinsicWidth.toFloat().coerceAtLeast(1f)
@@ -144,8 +140,7 @@ class ZoomableImageView @JvmOverloads constructor(
         }
     }
 
-    /** Вертыкаль: калі змест ніжэй за экран — як звычай; калі вышыня менш — прыжаты да верху. */
-    private fun fixTransTopAlignY(trans: Float, viewSize: Float, contentSize: Float): Float {
+private fun fixTransTopAlignY(trans: Float, viewSize: Float, contentSize: Float): Float {
         if (contentSize <= viewSize + 0.5f) {
             return -trans
         }

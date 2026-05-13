@@ -81,8 +81,7 @@ object AppFontFamilyStore {
         return tf
     }
 
-    /** Як загаловак h1 у WebApp: Inter weight 500 пры SANS. */
-    private fun resolveToolbarTitleTypeface(context: Context, family: Family): Typeface {
+private fun resolveToolbarTitleTypeface(context: Context, family: Family): Typeface {
         cachedToolbarTitleTypeface?.let { (f, tf) -> if (f == family) return tf }
         val tf = when (family) {
             Family.SANS -> {

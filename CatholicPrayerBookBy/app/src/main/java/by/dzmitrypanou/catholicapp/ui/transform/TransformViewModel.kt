@@ -29,8 +29,7 @@ class TransformViewModel(application: Application) : AndroidViewModel(applicatio
         val hasCache = cachedCategoriesBeforeSync.isNotEmpty()
         val silentAutoSync = !forceRefresh && hasCache
 
-        // Кэш з катэгорыямі паказваем адразу; поўнаэкранны лад толькі пры першай загрузцы без дадзеных.
-        _uiState.value = _uiState.value?.copy(
+_uiState.value = _uiState.value?.copy(
             isLoading = !hasCache,
             isSyncingInToolbar = true,
             categories = if (hasCache) cachedCategoriesBeforeSync else (_uiState.value?.categories ?: emptyList()),
@@ -106,8 +105,8 @@ data class PrayerUiState(
     val isLoading: Boolean = false,
     val isSyncingInToolbar: Boolean = false,
     val categories: List<String> = emptyList(),
-    /** Банер зверху спісу (напрыклад, афлайн, але ёсць кэш). */
+
     val bannerMessage: String? = null,
-    /** Па цэнтры вобласці спісу: няма дадзеных / няма сеткі. */
+
     val centeredEmptyMessage: String? = null
 )

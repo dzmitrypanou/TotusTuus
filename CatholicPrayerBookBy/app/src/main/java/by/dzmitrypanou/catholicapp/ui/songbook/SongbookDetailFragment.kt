@@ -75,7 +75,7 @@ class SongbookDetailFragment : Fragment() {
         val showTextScaleButtons = resolvedType == SongbookContentType.TEXT
         val smallerButton = actionView.findViewById<View>(R.id.button_reading_text_smaller)
         val largerButton = actionView.findViewById<View>(R.id.button_reading_text_larger)
-        // INVISIBLE (не GONE) — захоўваем шырыню паласы, каб закладка не «скакала» ў шапцы.
+
         smallerButton?.visibility = if (showTextScaleButtons) View.VISIBLE else View.INVISIBLE
         largerButton?.visibility = if (showTextScaleButtons) View.VISIBLE else View.INVISIBLE
         if (showTextScaleButtons) {

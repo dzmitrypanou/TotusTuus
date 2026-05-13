@@ -1,9 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * @return list<array<string, mixed>>
- */
 function fetch_active_songbook_for_api(): array
 {
     $stmt = db()->query(

@@ -13,7 +13,7 @@ import java.util.Locale
 object LiturgyCalendarRepository {
 
     private const val PREFS_NAME = "liturgy_calendar_cache"
-    /** Павялічваць пры змене сэнсу кэшаваных палёў / фармату API, каб не паказваць старыя JSON. */
+
     private const val CACHE_KEY_VERSION = "_v3"
     private const val MONTH_KEY_PREFIX = "month_"
     private const val DAY_KEY_PREFIX = "day_"

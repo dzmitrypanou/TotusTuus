@@ -1,4 +1,3 @@
-# Сакрэтныя налады — толькі require з index.php
 <IfModule mod_authz_core.c>
     <Files "proxy-secrets.php">
         Require all denied

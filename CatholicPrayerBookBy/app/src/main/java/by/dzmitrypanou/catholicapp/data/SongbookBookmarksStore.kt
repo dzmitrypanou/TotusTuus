@@ -32,13 +32,11 @@ class SongbookBookmarksStore(context: Context) {
         return next
     }
 
-    /** Пасля поўнага скіду лакальных дадзеных разам з кэшам спеўніка. */
-    fun clearAll() {
+fun clearAll() {
         prefs.edit().remove(KEY_IDS).apply()
     }
 
-    /** Пасля абнаўлення з сервера: прыбраць закладкі на запісы, якіх ужо няма. */
-    fun retainOnly(validEntryIds: Set<String>) {
+fun retainOnly(validEntryIds: Set<String>) {
         val current = HashSet(prefs.getStringSet(KEY_IDS, emptySet()).orEmpty())
         val next = current.filterTo(HashSet()) { it in validEntryIds }
         prefs.edit().putStringSet(KEY_IDS, next).apply()

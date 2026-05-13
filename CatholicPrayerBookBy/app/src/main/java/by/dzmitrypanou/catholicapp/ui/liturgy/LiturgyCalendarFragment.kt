@@ -94,7 +94,7 @@ class LiturgyCalendarFragment : Fragment() {
         PrayerBookUiTypography.applyUiSp(binding.textLiturgyCalendarNoteStarMeaning, R.dimen.text_list_row_subtitle, ctx)
         PrayerBookUiTypography.applyUiSp(binding.textLiturgyPrevMonth, 20f, ctx)
         PrayerBookUiTypography.applyUiSp(binding.textLiturgyNextMonth, 20f, ctx)
-        // Масштабуем заголовкі дзён тыдня (Нд, Пн, …)
+
         val weekdayRow = binding.layoutLiturgyWeekdayHeader
         for (i in 0 until weekdayRow.childCount) {
             (weekdayRow.getChildAt(i) as? android.widget.TextView)?.let {
@@ -179,10 +179,10 @@ class LiturgyCalendarFragment : Fragment() {
 
         val cachedMonth = LiturgyCalendarRepository.getCachedMonth(requireContext(), year, month)
         if (cachedMonth != null) {
-            // Show cached content with its real colors to avoid gray-to-color flicker on open.
+
             applyMonthDto(cachedMonth, forceGray = false)
         } else {
-            // If there is no cache, show a gray fallback month grid.
+
             dayMap = emptyMap()
             val cells = buildGridCells(forceGray = true)
             adapter.submitList(cells)
@@ -246,7 +246,7 @@ class LiturgyCalendarFragment : Fragment() {
                             }
                         }.distinctBy { it.lowercase(Locale.ROOT) }.take(3)
                     },
-                    // Як normalizeCalendarToday у вэбе: «сёння» па лакальнай дате прылады, не па полі API (часавы пояс сервера інакш дае два вылучаныя дні).
+
                     isToday = date == todayDate,
                     isImportant = apiDay?.isImportant == true,
                     hasContent = apiDay?.hasContent == true,
@@ -371,7 +371,7 @@ class LiturgyCalendarFragment : Fragment() {
                     else -> 0.05f
                 }
                 val cardBg = if (item.inCurrentMonth) {
-                    // Keep liturgical color visible; blend closer to legend swatches (vivid), less gray wash.
+
                     val tinted = ColorUtils.blendARGB(baseCardBg, primaryColor, primaryBlend)
                     ColorUtils.blendARGB(tinted, Color.WHITE, whiteWash)
                 } else {

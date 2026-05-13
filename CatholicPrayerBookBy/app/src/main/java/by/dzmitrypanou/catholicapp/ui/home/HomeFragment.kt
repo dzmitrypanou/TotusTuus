@@ -114,7 +114,7 @@ data class HomeSection(
     val title: String,
     val isAvailable: Boolean,
     val imageRes: Int,
-    /** 1 — палова шырыні сеткі, 2 — на ўсю шырыню (як два звычайныя). */
+
     val spanSize: Int = 1,
     val infoHint: String? = null,
     val tileHeightDp: Int = 132,

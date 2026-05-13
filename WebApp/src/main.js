@@ -8,11 +8,7 @@
 
     const CALENDAR_DIOCESES_KEY = 'totus_calendar_diocese_toggles';
 
-    /**
-     * Карты галоўнага экрана; тыя ж выявы, што HomeFragment (drawable у дадатку).
-     * У WebApp: WebP для падтрымліваючых браўзераў + JPEG fallback (без вялікіх PNG у сетцы).
-     */
-    const HOME_CARDS = [
+const HOME_CARDS = [
         {
             title: 'Ordo Missae',
             span: 1,
@@ -67,22 +63,22 @@
     ];
 
     const SCRIPTURE_TR_KEY = 'totus_scripture_translation_id';
-    /** Як ScriptureTestamentExpandStore: стан разгортання Новага/Старога Запавета { nt, ot }. */
+
     const SCRIPTURE_TESTAMENT_EXPAND_KEY = 'totus_scripture_testament_expand';
-    /** Як SongbookCategoryExpandStore: разгортаньне раздзелаў спеўніка. */
+
     const SONGBOOK_CATEGORY_EXPAND_KEY = 'totus_songbook_category_expand';
     const SONGBOOK_GROUP_UNCATEGORIZED = '__uncategorized__';
-    /** Як ScriptureVerseFavoritesStore / ScriptureComparisonStore у Android. */
+
     const SCRIPTURE_FAVORITES_KEY = 'totus_scripture_favorite_verses';
     const SCRIPTURE_COMPARE_VERSES_KEY = 'totus_scripture_compare_verses';
     const SCRIPTURE_COMPARE_TRS_KEY = 'totus_scripture_compare_translations';
     const SCRIPTURE_COMPARE_HINT_KEY = 'totus_scripture_compare_hint_dismissed';
     const SCRIPTURE_COMPARE_EXPAND_KEY = 'totus_scripture_compare_translations_expanded';
-    /** Як SEARCH_DEBOUNCE_MS у ScriptureWordSearchFragment. */
+
     const SCRIPTURE_WORD_SEARCH_DEBOUNCE_MS = 320;
     const SCRIPTURE_BUNDLE_BASE = 'assets/scripture';
     const SCRIPTURE_DEFAULT_TR = 'catholic_nt';
-    /** Парадак id як у ScriptureCatalog.allTranslations() (Android). */
+
     const SCRIPTURE_TRANSLATION_ORDER = [
         'catholic_nt',
         'bokun',
@@ -93,20 +89,18 @@
     ];
     const TEXT_STEP_KEY = 'totus_web_text_step';
     let solemnitiesSelectedYear = null;
-    /** sans | serif | mono — як ключы AppFontFamilyStore.Family у Android */
+
     const FONT_FAMILY_KEY = 'totus_web_font_family';
-    /** current | white | dark | beige */
+
     const APP_THEME_KEY = 'totus_web_color_theme';
 
-    /** Адзін WebP для вузкіх картак (span 1): max 480px у файле. */
-    function totusHomeCardWebpPath(rasterPath) {
+function totusHomeCardWebpPath(rasterPath) {
         if (!rasterPath) return '';
         const s = String(rasterPath);
         return s.replace(/\.(jpe?g|png)$/i, '.webp');
     }
 
-    /** Дзве выявы WebP для шырокіх картак (span 2): *-640.webp і *-928.webp. */
-    function homeCardWebpSrcset(rasterPath, span) {
+function homeCardWebpSrcset(rasterPath, span) {
         if (!rasterPath) return '';
         const s = String(rasterPath);
         if (s === 'assets/home/ordo_missae_header_image.jpg' || s === 'assets/home/kantaral_header_image.jpg') return '';
@@ -121,18 +115,13 @@
         return `${u} 480w`;
     }
 
-    /** Адметнасць шырыні для sizes у picture/img (сетка max-w 480px, gap 8px, px-2). */
-    function homeCardImageSizes(span) {
+function homeCardImageSizes(span) {
         return span === 2
             ? '(max-width: 480px) calc(100vw - 1rem), min(464px, calc(100vw - 1rem))'
             : '(max-width: 480px) calc((100vw - 1rem - 8px) / 2), min(228px, calc((100vw - 1rem - 8px) / 2))';
     }
 
-    /**
-     * @param {{ fetchPriorityHigh?: boolean, decodeSync?: boolean }} [opts] — fetchPriorityHigh для магчымага LCP (картка «Пісанне» у сетцы).
-     * Усе карты галоўнай бачныя адразу — без loading=lazy.
-     */
-    function homeCardPictureHtml(rasterPath, span, opts) {
+function homeCardPictureHtml(rasterPath, span, opts) {
         if (!rasterPath) return '';
         const high = opts && opts.fetchPriorityHigh;
         const sync = opts && opts.decodeSync;
@@ -154,8 +143,7 @@
         </picture>`;
     }
 
-    /** Лакальныя рэсурсы (PNG/JPEG/WebP, scripture/*.json) — ?v=TOTUS_WEB_APP_BUILD; API і закладкі не чапаем. */
-    function totusAssetUrl(relativePath) {
+function totusAssetUrl(relativePath) {
         const v =
             window.TOTUS_WEB_APP_BUILD != null && String(window.TOTUS_WEB_APP_BUILD) !== ''
                 ? String(window.TOTUS_WEB_APP_BUILD)
@@ -172,8 +160,7 @@
         }
     }
 
-    /** versionName з meta totus-web-build (агульна з totus-app-version.properties). */
-    function totusWebDisplayedVersion() {
+function totusWebDisplayedVersion() {
         const v =
             window.TOTUS_WEB_APP_BUILD != null && String(window.TOTUS_WEB_APP_BUILD) !== ''
                 ? String(window.TOTUS_WEB_APP_BUILD)
@@ -197,8 +184,7 @@
         'снежня',
     ];
 
-    /** Назоўны склон для загалоўка месяца ў календары (Luxon CDN без be-локалі дае англійскія назвы). */
-    const BE_MONTH_NOM = [
+const BE_MONTH_NOM = [
         '',
         'студзень',
         'люты',
@@ -236,12 +222,11 @@
         try {
             localStorage.setItem(CALENDAR_DIOCESES_KEY, JSON.stringify(t));
         } catch {
-            /* ignore */
+
         }
     }
 
-    /** GET dioceses= для API (як liturgy_calendar_diocese_options_from_request). */
-    function calendarDiocesesApiParam() {
+function calendarDiocesesApiParam() {
         const t = readCalendarDioceseToggles();
         const p = [];
         if (t.pinskaya) p.push('pinskaya');
@@ -264,8 +249,7 @@
         return `${selected.slice(0, -1).join(', ')} і ${selected[selected.length - 1]} дыяцэзіі`;
     }
 
-    /** Поўнаэкранная старонка наладаў (як settings), не модальнае акно. */
-    function calendarSettingsShellHtml() {
+function calendarSettingsShellHtml() {
         const t = readCalendarDioceseToggles();
         return `
     <div id="calendar-settings-root" class="max-w-[480px] mx-auto px-2 pb-8 pt-2">
@@ -304,15 +288,13 @@
     const TEXT_STEP_MIN = 0;
     const TEXT_STEP_MAX = 4;
     const TEXT_SCALE_STEP_DELTA = 0.25;
-    /** Як AppGlobalTextScaleStore.DEFAULT_BASE_SCALE — крок 1 ужывае гэты множнік. */
+
     const TEXT_READ_BASE_SCALE = 0.925;
 
-    /** Тэкст узору ў наладах — як strings.xml settings_global_text_preview_sample (Android). */
-    const SETTINGS_TEXT_PREVIEW_SAMPLE =
+const SETTINGS_TEXT_PREVIEW_SAMPLE =
         'Той, хто сядзеў на троне, сказаў: «Вось чыню ўсё новае». (Апакаліпсіс 21:5)';
 
-    /** Як у scriptureEnsureAllTranslationMeta() — калі API не вяртае спіс (стары скрыпт, памылка), абраць пераклад усё адно магчыма. */
-    const SCRIPTURE_TRANSLATIONS_FALLBACK = [
+const SCRIPTURE_TRANSLATIONS_FALLBACK = [
         { id: 'catholic_nt', title: 'Новы Запавет Рыма-Каталіцкага Касцёла' },
         { id: 'bokun', title: 'Біблія ў перакладзе Антонія Бокуна' },
         { id: 'semiukha', title: 'Біблія беларуская ў перакладзе Сёмухі' },
@@ -321,8 +303,7 @@
         { id: 'synodal_ru', title: 'Синодальный перевод Библии' },
     ];
 
-    /** Як ScriptureCatalog.shortTitle у Android (шапка: «Святое Пісанне: BCAT»). */
-    const SCRIPTURE_TR_SHORT = {
+const SCRIPTURE_TR_SHORT = {
         catholic_nt: 'BCAT',
         bokun: 'BBB',
         semiukha: 'BBS',
@@ -334,7 +315,7 @@
     let prayersCache = null;
     let categoriesCache = null;
     let prayersLoadError = null;
-    /** true калі апошні збой загрузкі малітваў — сетка / fetch, не HTTP-паводзіны сервера */
+
     let prayersLoadErrorIsNetwork = false;
 
     let songbookCache = null;
@@ -343,9 +324,9 @@
     let kantaralLoadError = null;
     let songbookLoadErrorIsNetwork = false;
     let kantaralLoadErrorIsNetwork = false;
-    /** Рэжым спісу «Выбранае (спеўнік)», як nav_songbook_bookmarked у Android. */
+
     let songbookBookmarksOnly = false;
-    /** list | search — як пераход паміж SongbookListFragment і SongbookSearchFragment. */
+
     let songbookView = 'list';
     let songbookSearchQuery = '';
     let songbookSearchDebounceTimer = null;
@@ -363,25 +344,24 @@
     let ordoMissaeSearchResults = [];
     let ordoMissaeSearchIndex = -1;
 
-    /** Спіс перакладаў, для якіх ёсць лакальныя JSON (bundled_translations.json + scripture_catalog.json). */
-    let scriptureTranslationsList = null;
-    /** id → { id, title, description } з scripture_catalog.json */
+let scriptureTranslationsList = null;
+
     let scriptureCatalogById = null;
     let scriptureCatalogPromise = null;
-    /** Парадак і id ўбудаваных перакладаў з bundled_translations.json */
+
     let scriptureBundledIds = null;
     let scriptureBundledPromise = null;
     let scriptureData = null;
     let scriptureSelectedId = null;
     let scBookIdx = null;
     let scChapterNum = null;
-    /** Экран выбару перакладу з шасцярэнкі ў шапцы (як ScriptureTranslationsFragment). */
+
     let scTranslationSettingsOpen = false;
-    /** null | 'favorites' | 'compare' | 'word_search' — як nav_scripture_favorites / compare / word_search. */
+
     let scPanel = null;
-    /** Пракрутка да верша пасля адкрыцця з «Выбраныя» (як ARG_FOCUS_VERSE). */
+
     let scFocusVerse = null;
-    /** Чарнавік поля пошуку па Пісанні (як у ScriptureWordSearchFragment). */
+
     let scriptureWordSearchQuery = '';
     let scriptureWordSearchRunId = 0;
     let scriptureWordSearchDebounceTimer = null;
@@ -392,8 +372,7 @@
         return;
     }
 
-    /** Прамы зварот да WebPanel/api (ключ у браўзеры — толькі калі не useServerProxy). */
-    function getResolvedDirectApiBase() {
+function getResolvedDirectApiBase() {
         const c = window.API_CONFIG || {};
         let raw = c.apiBaseUrl;
         if (raw === undefined || raw === null || String(raw) === '' || String(raw) === 'auto') {
@@ -416,8 +395,7 @@
         }
     }
 
-    /** Серверны проксі WebApp/api/index.php — ключ толькі на серверы. */
-    function getResolvedProxyBase() {
+function getResolvedProxyBase() {
         const path = window.location.pathname || '/';
         const marker = '/WebApp';
         const pos = path.indexOf(marker);
@@ -436,8 +414,7 @@
         }
     }
 
-    /** Карэнь WebPanel для медыяфайлаў (калі API ідзе праз проксі, apiBaseUrl = WebApp/api). */
-    function getResolvedWebPanelRoot() {
+function getResolvedWebPanelRoot() {
         const c = window.API_CONFIG || {};
         let raw = c.webPanelRootUrl;
         if (raw != null && String(raw).trim() !== '') {
@@ -493,8 +470,7 @@
         </div>`;
     }
 
-    /** Аднолькавыя GET у поле — адзін сеткавы запыт (паралельныя выклікі чакаюць той самы Promise). */
-    const apiFetchInflight = new Map();
+const apiFetchInflight = new Map();
 
     async function apiFetch(scriptName, params) {
         const { apiBaseUrl, apiKey, useServerProxy } = getApiConfig();
@@ -554,19 +530,14 @@
             .replace(/'/g, '&#39;');
     }
 
-    /** Як looksLikeHtml у PrayerDetailFragment.kt / SongbookDetailFragment.kt. */
-    function stringLooksLikeHtmlFragment(value) {
+function stringLooksLikeHtmlFragment(value) {
         return /<\s*\/?\s*[a-zA-Z][^>]*>/.test(String(value || ''));
     }
 
-    /**
-     * Значок параўнання — тыя ж path, што ic_compare_24 / ic_compare_outline_24 (Android vector).
-     * @param {boolean} filled true — абрадзены як у спісе параўнання; false — контур (другі стралок з празрыстасцю).
-     */
-    function scriptureCompareIconSvg(filled, extraClass = '') {
+function scriptureCompareIconSvg(filled, extraClass = '') {
         const cls = String(extraClass || '').trim();
         const classAttr = cls ? ` class="${cls}"` : '';
-        /* 1.125rem у шапцы × 1.5 — памер як дамаўляліся з карыстальнікам */
+
         const sz = 'width="1.6875rem" height="1.6875rem"';
         if (filled) {
             return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"${classAttr} ${sz} fill="currentColor" aria-hidden="true" focusable="false"><path d="M10,3L6,7l4,4V8h7V6h-7V3zM14,13v3H7v2h7v3l4,-4l-4,-4z"/></svg>`;
@@ -574,11 +545,7 @@
         return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"${classAttr} ${sz} aria-hidden="true" focusable="false"><path fill="currentColor" d="M10,3L6,7l4,4V8h7V6h-7V3z"/><path fill="currentColor" fill-opacity="0.55" d="M14,13v3H7v2h7v3l4,-4l-4,-4z"/></svg>`;
     }
 
-    /**
-     * Плоскі тэкст малітвы (без HTML): «шум» ад пашырэнняў, br/div/p → пераносы, астатнія тэгі выдаляюцца.
-     * Калі ў змесце ёсць HTML з стылямі (колер і г.д.), глядзі sanitizePrayerHtmlForWebDisplay + stringLooksLikeHtmlFragment.
-     */
-    function normalizePrayerTextForDisplay(raw) {
+function normalizePrayerTextForDisplay(raw) {
         let t = String(raw ?? '');
         if (!t) return '';
         t = t.replace(/\s*bis_skin_checked\s*=\s*"[^"]*"/gi, '');
@@ -590,17 +557,12 @@
         ta.innerHTML = t.trim();
         t = ta.value;
         t = t.replace(/\r\n/g, '\n');
-        // Пасля HTML часта «прыляпляюцца» пункты: «…Бог.2. Бог…» — ставім перанос перад нумарам
+
         t = t.replace(/([.!?])(\d{1,2}\.\s)/g, '$1\n$2');
         return t.replace(/\n{3,}/g, '\n\n').trim();
     }
 
-    /**
-     * Як sanitizePrayerHtmlPreserveLayout + stripUnsafeWebContent у PrayerDetailFragment.kt:
-     * захоўваем span[style*=color], font[color], разметку; выдаляем небяспечнае і рэдактарскі шум.
-     */
-    /** Толькі для Ordo: TinyMCE часта піша font-size у style — ламае А±. */
-    function stripOrdoInlineFontSizesFromHtml(html) {
+function stripOrdoInlineFontSizesFromHtml(html) {
         let s = String(html || '');
         s = s.replace(/\bfont-size\s*:\s*[^;]+;?/gi, '');
         s = s.replace(/;\s*;+/g, ';');
@@ -609,8 +571,7 @@
         return s;
     }
 
-    /** Прыбраць open у <details … ordo-missae-section …> — па змаўчанні ўсё згорнута. */
-    function stripOrdoDetailsOpenFromHtml(html) {
+function stripOrdoDetailsOpenFromHtml(html) {
         return String(html || '').replace(/<details\b[^>]*>/gi, (tag) => {
             if (!/ordo-missae-section/i.test(tag)) return tag;
             let t = tag.replace(/\s+open\s*=\s*(?:"[^"]*"|'[^']*')/gi, '');
@@ -619,8 +580,7 @@
         });
     }
 
-    /** Толькі светлыя колеры (як Android stripLightEditorTextColorsForOrdo); чырвоныя рубрыкі захоўваюцца. */
-    function stripOrdoLightTextColorsFromHtml(html) {
+function stripOrdoLightTextColorsFromHtml(html) {
         let s = String(html || '');
         const imp = '(?:\\s*!important)?';
         const colorDecl = [
@@ -677,8 +637,7 @@
         return s.trim();
     }
 
-    /** Падказка пры праблемах сеткі (без спасылкі на канкрэтны PHP — карыстальнік ужо бачыць адрас у наладах сервера). */
-    function apiNetworkFailureHint(apiBaseUrl) {
+function apiNetworkFailureHint(apiBaseUrl) {
         const chunks = [];
         const baseLine = `<p><strong>База API зараз:</strong> <code class="bg-black/30 px-1 rounded break-all text-[11px]">${escapeHtml(String(apiBaseUrl || '—'))}</code></p>`;
         chunks.push(baseLine);
@@ -707,7 +666,7 @@
             const n = Number(localStorage.getItem(TEXT_STEP_KEY));
             if (Number.isFinite(n)) return Math.max(TEXT_STEP_MIN, Math.min(TEXT_STEP_MAX, n));
         } catch {
-            /* ignore */
+
         }
         return 0;
     }
@@ -717,13 +676,12 @@
         try {
             localStorage.setItem(TEXT_STEP_KEY, String(s));
         } catch {
-            /* ignore */
+
         }
         return s;
     }
 
-    /** Множнік чытання як readScale() у Android; UI на фіксаваным rem (html 16px). */
-    function applyTextStep(stepIndex) {
+function applyTextStep(stepIndex) {
         const step = Math.max(TEXT_STEP_MIN, Math.min(TEXT_STEP_MAX, stepIndex));
         const scale = TEXT_READ_BASE_SCALE * (1 + step * TEXT_SCALE_STEP_DELTA);
         const root = document.documentElement;
@@ -731,8 +689,7 @@
         root.style.setProperty('--totus-read-scale', String(scale));
     }
 
-    /** Без renderApp() — толькі падпіс і кнопкі ў наладах (пазбягаем «дрыжанняў» ад поўнага перамалёўкі DOM). */
-    function syncSettingsTextStepUi() {
+function syncSettingsTextStepUi() {
         if (currentView !== 'settings') return;
         const step = readTextStep();
         const label = document.getElementById('settings-text-step-label');
@@ -743,8 +700,7 @@
         if (larger) larger.disabled = step >= TEXT_STEP_MAX;
     }
 
-    /** Сінхранізацыя выпаднага спіса шрыфта ў наладах пасля reset / знешняй змены. */
-    function syncSettingsFontFamilyUi() {
+function syncSettingsFontFamilyUi() {
         if (currentView !== 'settings') return;
         const ff = readFontFamily();
         const sel = document.getElementById('settings-font-select');
@@ -781,8 +737,7 @@
         });
     }
 
-    /** Як SettingsFragment.buttonSettingsResetTextDefaults: крок 1 памера + Sans. */
-    function resetTextAndFontToDefaults() {
+function resetTextAndFontToDefaults() {
         writeTextStep(TEXT_STEP_MIN);
         writeFontFamily('sans');
         applyTextStep(readTextStep());
@@ -799,7 +754,7 @@
             const v = localStorage.getItem(FONT_FAMILY_KEY);
             if (v === 'sans' || v === 'serif' || v === 'mono') return v;
         } catch {
-            /* ignore */
+
         }
         return 'sans';
     }
@@ -808,7 +763,7 @@
         try {
             localStorage.setItem(FONT_FAMILY_KEY, fam);
         } catch {
-            /* ignore */
+
         }
     }
 
@@ -818,7 +773,7 @@
             if (v === 'current' || v === 'dark') return 'current';
             if (v === 'beige' || v === 'white' || v === 'light') return 'beige';
         } catch {
-            /* ignore */
+
         }
         return 'current';
     }
@@ -827,7 +782,7 @@
         try {
             localStorage.setItem(APP_THEME_KEY, theme);
         } catch {
-            /* ignore */
+
         }
     }
 
@@ -835,8 +790,7 @@
         document.documentElement.setAttribute('data-app-theme', readAppTheme());
     }
 
-    /** Сінхранізуе з CSS у index.html (html[data-app-font]). */
-    function applyFontFamily() {
+function applyFontFamily() {
         const fam = readFontFamily();
         document.documentElement.setAttribute('data-app-font', fam);
     }
@@ -851,8 +805,7 @@
         { id: 'beige', title: 'Светлая' },
     ];
 
-    /** Толькі дата без дня тыдня і без колеру: «27 сакавіка 2026». */
-    function formatDateDayMonthYearBe(dt) {
+function formatDateDayMonthYearBe(dt) {
         const d = dt instanceof luxon.DateTime ? dt : luxon.DateTime.fromISO(String(dt));
         if (!d.isValid) return '—';
         const month = BE_MONTH_GEN[d.month] || '';
@@ -910,8 +863,7 @@
         }
     }
 
-    /** Іконка закладкі ў шапцы на экране запісу спеўніка (як у Android menu_songbook_detail). */
-    function syncSongbookDetailToolbarBookmark() {
+function syncSongbookDetailToolbarBookmark() {
         if (!isSongbookLikeView() || songbookDetailId == null) return;
         const id = Number(songbookDetailId);
         const btn = document.querySelector('[data-action="toolbar-songbook-detail-bookmark"]');
@@ -937,8 +889,7 @@
         }
     }
 
-    /** Іконка закладкі ў шапцы на экране малітвы (як toolbar_prayer_detail_actions у Android). */
-    function syncPrayerDetailToolbarBookmark() {
+function syncPrayerDetailToolbarBookmark() {
         if (currentView !== 'prayers' || prayerNav.screen !== 'detail') return;
         const id = Number(prayerNav.prayerId);
         const btn = document.querySelector('[data-action="toolbar-prayer-detail-bookmark"]');
@@ -949,8 +900,7 @@
         ic.className = (bm.has(id) ? 'fas fa-bookmark text-amber-400' : 'far fa-bookmark') + ' text-lg';
     }
 
-    /** Як PrayerRepository у Android: слуцельны радок для «няма падкатэгорыі» пры фільтры. */
-    const NO_CATEGORY_TITLE = 'Без катэгорыі';
+const NO_CATEGORY_TITLE = 'Без катэгорыі';
     const NO_SUBCATEGORY_TITLE = 'Без подкатегории';
 
     function normCat(value) {
@@ -1076,19 +1026,17 @@
             });
     }
 
-    /** Навігацыя малітоўніка: каранёвыя катэгорыі → падкатэгорыі → спіс малітваў (як TransformFragment у дадатку). */
-    let prayerNav = { screen: 'categories' };
-    /** list | search — як songbookView у спеўніку. */
+let prayerNav = { screen: 'categories' };
+
     let prayerView = 'list';
     let prayerSearchDebounceTimer = null;
-    /** Перад экранам малітвы: каб «Назад» вярнуў спіс/пошук і чарнавік запыту. */
+
     let prayerBeforeDetail = null;
 
-    /** Пакаленне запытаў hydrateCalendar — ігнараваць састарэлыя адказы пры хуткім пераключэнні месяца. */
-    let calendarHydrateGeneration = 0;
-    /** In-memory кэш месяца календара, каб не было «скачка» колераў пры адкрыцці. */
+let calendarHydrateGeneration = 0;
+
     const calendarMonthCache = new Map();
-    /** In-memory кэш даведніка «Урачыстасці і святы». */
+
     const solemnitiesApiItemsByYear = new Map();
     let solemnitiesHydrateGeneration = 0;
     let solemnitiesApiLoadingYear = null;
@@ -1097,33 +1045,30 @@
     let solemnitiesSettingsOpen = false;
     const SOLEMNITIES_SECTION_COLLAPSE_KEY = 'totus_solemnities_collapsed_sections';
     let solemnitiesCollapsedSections = readSolemnitiesCollapsedSections();
-    /** Адкуль адкрылі налады: 'calendar' | 'day'. */
+
     let calendarSettingsReturnView = null;
 
     let songbookDetailId = null;
-    /** { view: 'list'|'search', query: string } перад адкрыццём запісу спеўніка. */
+
     let songbookStateBeforeDetail = null;
 
     const TOOLBAR_ICON_BTN =
         'w-11 h-11 shrink-0 flex items-center justify-center rounded-xl text-app-text hover:bg-white/10 transition-colors active:bg-white/15 border-0 bg-transparent cursor-pointer';
 
-    /** Агульны стыль радкоў меню (малітоўнік, Пісанне, раскрывальныя summary). */
-    const APP_LIST_ROW_BTN_CLASS =
+const APP_LIST_ROW_BTN_CLASS =
         'w-full text-left rounded-md border border-app-stroke border-solid bg-app-elevated p-0 hover:bg-white/[0.04] transition-colors cursor-pointer text-inherit';
     const APP_LIST_ROW_INNER_CLASS =
         'flex w-full min-h-16 items-center justify-between gap-3 box-border py-3.5 px-[18px]';
 
-    /** Адзіны выгляд поля пошуку: малітоўнік і спеўнік. */
-    const APP_SEARCH_BAR_CLASS =
+const APP_SEARCH_BAR_CLASS =
         'rounded-md border border-app-stroke border-solid bg-app-bg2 px-3 py-2.5 flex items-center gap-2 focus-within:border-app-stroke/80';
     const APP_SEARCH_INPUT_CLASS =
         'flex-1 bg-transparent border-0 text-app-text text-sm placeholder:text-app-textTer outline-none min-w-0';
 
-    /** Вышыня радка шапкі (як Android toolbar_min_height_extended). */
-    const TOOLBAR_BAR_H_PX = 72;
-    /** Макс. вышыня тэксту загалоўка ўнутры шапкі — каб h1 не раздзімаў header. */
+const TOOLBAR_BAR_H_PX = 72;
+
     const TOOLBAR_TITLE_AREA_MAX_H_PX = 60;
-    /** Autosize у межах шапкі: як у Android toolbarTitleAutoSizeSpBounds (~15–22 sp). */
+
     const TOOLBAR_TITLE_MAX_PX = 20;
     const TOOLBAR_TITLE_MIN_PX = 12;
     const TOOLBAR_H1_CLASS =
@@ -1144,8 +1089,7 @@
         return (Number.isFinite(fs) ? fs : TOOLBAR_TITLE_MAX_PX) * 1.2;
     }
 
-    /** Падбор шрыфту: не больш за 3 радкі і не вышэй за [TOOLBAR_TITLE_AREA_MAX_H_PX] — шапка застаецца [TOOLBAR_BAR_H_PX]. */
-    function fitToolbarTitleH1(el) {
+function fitToolbarTitleH1(el) {
         if (!el || !el.isConnected) return;
         el.classList.remove('line-clamp-3');
         el.style.setProperty('overflow', 'visible', 'important');
@@ -1179,8 +1123,7 @@
         el.style.removeProperty('overflow');
     }
 
-    /** Спеўнік, дэталь: загаловак да 2 радкоў, катэгорыя 1 радок — памер шрыфту падбіраецца. */
-    const SONGBOOK_TB_TITLE_MAX_PX = 20;
+const SONGBOOK_TB_TITLE_MAX_PX = 20;
     const SONGBOOK_TB_TITLE_MIN_PX = 11;
     const SONGBOOK_TB_CAT_MAX_PX = 15;
     const SONGBOOK_TB_CAT_MIN_PX = 9;
@@ -1277,11 +1220,7 @@
         });
     }
 
-    /**
-     * Загаловак шапкі пры чытанні: як MainActivity для nav_scripture_chapters (толькі кніга)
-     * і nav_scripture_chapter_text («Ад Мацьвея 13»).
-     */
-    function scriptureReadingToolbarTitleText() {
+function scriptureReadingToolbarTitleText() {
         if (scPanel) return null;
         if (!scriptureSelectedId || scTranslationSettingsOpen) return null;
         if (scriptureData?.error) return null;
@@ -1383,12 +1322,11 @@
         return 'w-full max-w-[480px] mx-auto px-2 h-full min-h-0 flex items-center gap-1 py-1.5';
     }
 
-    /** А± у шапцы на экранах чытання (як ReadingTextScaleToolbar у Android). */
-    function toolbarReadingTextScaleGroupHtml() {
+function toolbarReadingTextScaleGroupHtml() {
         const step = readTextStep();
         const disSm = step <= TEXT_STEP_MIN ? ' disabled' : '';
         const disLg = step >= TEXT_STEP_MAX ? ' disabled' : '';
-        /* w-11 h-11 = 44px — як іншыя кнопкі шапкі; бліжэй паміж А− і А+ */
+
         return `<div class="flex items-center shrink-0 gap-0 [&>button+button]:-ml-1.5" role="group" aria-label="Памер тэксту чытання"><button type="button" data-action="reading-font-smaller" class="w-11 h-11 shrink-0 flex items-center justify-center rounded-xl text-app-text text-base font-bold hover:bg-white/10 border-0 bg-transparent cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed"${disSm} title="Паменшыць тэкст">А−</button><button type="button" data-action="reading-font-larger" class="w-11 h-11 shrink-0 flex items-center justify-center rounded-xl text-app-text text-base font-bold hover:bg-white/10 border-0 bg-transparent cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed"${disLg} title="Павялічыць тэкст">А+</button></div>`;
     }
 
@@ -1402,8 +1340,7 @@
         });
     }
 
-    /** Правыя дзеянні шапкі: налады толькі на галоўным (як menu_home у Android); малітоўнік/спеўнік — як menu_prayer_book / menu_songbook_book. */
-    function toolbarRightActionsHtml() {
+function toolbarRightActionsHtml() {
         if (currentView === 'home') {
             return `<div class="flex items-center shrink-0 gap-0 [&>button+button]:-ml-1.5">
                 <button type="button" data-action="open-settings" class="${TOOLBAR_ICON_BTN}" aria-label="Налады"><i class="fas fa-gear text-lg" aria-hidden="true"></i></button>
@@ -1434,7 +1371,7 @@
             const ct = entry ? String(entry.content_type || 'text').toLowerCase() : '';
             const mediaUrl = entry && ct === 'image' ? mediaAbsoluteUrl(entry.media_url) : '';
             const isImageEntry = ct === 'image' && !!mediaUrl;
-            /* Пакуль кэш не падцягнуўся (entry няма) — слот пад А± усё адно займае месца, без «прыгадку» закладкі. */
+
             const useInvisibleScaleSlot = !entry || isImageEntry;
             const scaleInner = toolbarReadingTextScaleGroupHtml();
             const scaleHtml = useInvisibleScaleSlot
@@ -1529,8 +1466,7 @@
         </div>`;
     }
 
-    /** Пасля hydrateScriptureView (без поўнага renderApp) — абнавіць А± і шасцярэнку ў шапцы. */
-    function refreshToolbarRightActions() {
+function refreshToolbarRightActions() {
         const el = document.getElementById('totus-toolbar-right');
         if (el) el.innerHTML = toolbarRightActionsHtml();
         syncReadingTextToolbarButtons();
@@ -1539,7 +1475,7 @@
 
     function renderHome() {
         const cards = HOME_CARDS.map((c) => {
-            /** Як GridLayoutManager у HomeFragment: span 2 = на ўсю шырыню сеткі (не толькі з sm). */
+
             const colSpan = c.span === 2 ? 'col-span-2' : '';
             const img = c.image
                 ? homeCardPictureHtml(c.image, c.span, {
@@ -1553,7 +1489,7 @@
                     <div class="absolute inset-0 flex items-center justify-center px-2 pointer-events-none">
                         <span class="rounded-md px-3 py-1 text-sm font-semibold" style="background-color: rgba(71, 85, 105, 0.86); color: #ffffff !important; -webkit-text-fill-color: #ffffff;">У распрацоўцы</span>
                     </div>`;
-            /** Фільтр толькі на медыя — інакш «In progress» атрымлівае той жа grayscale/brightness і выглядае шэрым. */
+
             const unavailableMediaFilterStyle = c.available ? '' : 'filter: grayscale(1) brightness(0.5) saturate(0);';
             const unavailableCardStyle = c.available
                 ? ''
@@ -1620,7 +1556,7 @@
         try {
             localStorage.setItem(SOLEMNITIES_SECTION_COLLAPSE_KEY, JSON.stringify([...solemnitiesCollapsedSections]));
         } catch {
-            /* ignore */
+
         }
     }
 
@@ -1804,8 +1740,7 @@
         </div>`;
     }
 
-    /** Грэгарыянская Вялікдзень (нядзеля), UTC — як у LiturgyDayFragment / liturgy_common.php. */
-    function gregorianEasterSundayUtc(year) {
+function gregorianEasterSundayUtc(year) {
         const a = year % 19;
         const b = Math.floor(year / 100);
         const c = year % 100;
@@ -1859,8 +1794,7 @@
             .replace(/\s+/g, ' ');
     }
 
-    /** Калі API/кэш яшчэ старыя — як у CatholicPrayerBookBy LiturgyDayFragment. */
-    function liturgyClientResolveMainTitle(apiTitle, autoTitle, dateStr) {
+function liturgyClientResolveMainTitle(apiTitle, autoTitle, dateStr) {
         const octave = paschalOctaveWeekdayDisplayTitle(dateStr);
         if (octave) return octave;
         const s = String(apiTitle || autoTitle || '').trim();
@@ -1886,8 +1820,7 @@
         });
     }
 
-    /** Прыбраць вядучыя <br> / пустыя p і div — меней «пустога радка» пад загалоўкам карткі (вэб). */
-    function trimLeadingEmptyHtmlBlocksJs(html) {
+function trimLeadingEmptyHtmlBlocksJs(html) {
         let h = String(html || '').trimStart();
         const re =
             /^(?:\s|&nbsp;)*(?:<br\s*\/?>|<p\b[^>]*>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>|<div\b[^>]*>(?:\s|&nbsp;|<br\s*\/?>)*<\/div>)+/gi;
@@ -1899,8 +1832,7 @@
         return h;
     }
 
-    /** Нармалізаваныя варыянты старога ключа лекцыянарыя для пн–сб актавы («— I/І Тыдзень Велікоднага перыяду»). */
-    function paschalOctaveLegacyTitleKeysForDate(dateStr) {
+function paschalOctaveLegacyTitleKeysForDate(dateStr) {
         if (!isPaschalOctaveWeekdayDateStr(dateStr)) return [];
         const iso = String(dateStr || '').slice(0, 10);
         const dt = luxon.DateTime.fromISO(iso, { zone: 'utc' });
@@ -1925,8 +1857,7 @@
         return [...keys];
     }
 
-    /** Эўрыстка: кароткі радок = стары загаловак тыдня ў актаве (без пераліку ўсіх злучкаў). */
-    function isPaschalOctaveLegacyEmbeddedLine(kn, dateStr) {
+function isPaschalOctaveLegacyEmbeddedLine(kn, dateStr) {
         if (!isPaschalOctaveWeekdayDateStr(dateStr)) return false;
         if (!kn.includes('тыдзень') || !kn.includes('велікоднага') || !kn.includes('перыяду')) return false;
         if (!/\s(i|і)\s+тыдзень\b/.test(kn)) return false;
@@ -1943,10 +1874,7 @@
         return !!(wdn && kn.startsWith(wdn));
     }
 
-    /**
-     * Выдаліць з HTML убудаваны дублікат «Дзень — I Тыдзень Велікоднага перыяду» (лекцыянарый у БД).
-     */
-    function stripEmbeddedLegacyPaschalOctaveTitleHtml(html, dateStr) {
+function stripEmbeddedLegacyPaschalOctaveTitleHtml(html, dateStr) {
         if (!isPaschalOctaveWeekdayDateStr(dateStr)) return String(html || '');
         const keyList = paschalOctaveLegacyTitleKeysForDate(dateStr);
         const keySet = new Set(keyList);
@@ -1984,11 +1912,7 @@
         }
     }
 
-    /**
-     * Адзіны <details> — без раскрывання; калі загаловак супадае з шапкай — без паўтору назвы.
-     * У пн–сб актавы выдаляем блокі з успамінам.
-     */
-    function flattenSingleLiturgyDetailsForWeb(html, dateStr, mainTitle) {
+function flattenSingleLiturgyDetailsForWeb(html, dateStr, mainTitle) {
         const finish = (x) =>
             trimLeadingEmptyHtmlBlocksJs(stripEmbeddedLegacyPaschalOctaveTitleHtml(String(x ?? ''), dateStr));
         let h = String(html || '');
@@ -2250,11 +2174,7 @@
         return rgb.r >= 224 && rgb.g >= 224 && rgb.b >= 224;
     }
 
-    /**
-     * 42 клеткі месяца без API: нумары дзён і шэрыя колеры (як афлайн у дадатку), затым падкарэктуем з сервера.
-     * Адлюстраванне сеткі як у liturgy_calendar_month.php: першае нядзеля да 1-га.
-     */
-    function buildPlaceholderCalendarDays(year, month) {
+function buildPlaceholderCalendarDays(year, month) {
         const first = luxon.DateTime.fromObject({ year, month, day: 1 });
         const daysFromSunday = first.weekday === 7 ? 0 : first.weekday;
         const gridStart = first.minus({ days: daysFromSunday });
@@ -2321,8 +2241,7 @@
         return 1;
     }
 
-    /** Значок «несколькі загалоўкаў»: зорачка ў правым верхнім куце. */
-    function calendarMultiLectionaryBadgeHtml(dayFg, sizePx = 12) {
+function calendarMultiLectionaryBadgeHtml(dayFg, sizePx = 12) {
         const s = sizePx;
         const insetX = Math.round((4 * s) / 12);
         const insetY = Math.round((3 * s) / 12);
@@ -2408,8 +2327,7 @@
             </button>`;
     }
 
-    /** "Сегодня" определяем на клиенте, чтобы избежать скачка при отличии часового пояса API. */
-    function normalizeCalendarToday(days) {
+function normalizeCalendarToday(days) {
         const todayIso = luxon.DateTime.now().toISODate();
         return (Array.isArray(days) ? days : []).map((d) => ({
             ...d,
@@ -2445,7 +2363,7 @@
             const days = normalizeCalendarToday(data.days || []);
             writeCachedCalendarMonthDays(year, month, dio, days);
         } catch {
-            /* ignore: prefetch should never block UI */
+
         }
     }
 
@@ -2468,7 +2386,7 @@
         if (cachedDays && cachedDays.length > 0) {
             grid.innerHTML = cachedDays.map(renderCalendarCell).join('');
         } else {
-            // Keep current grid until fresh month arrives to avoid visual jump.
+
             if (!grid.children || grid.children.length === 0) {
                 const placeholder = buildPlaceholderCalendarDays(y, m);
                 grid.innerHTML = placeholder.map(renderCalendarCell).join('');
@@ -2527,8 +2445,7 @@
         return apiFetch('liturgy_day.php', dayParams);
     }
 
-    /** Як colorIntFromName у LiturgyDayFragment.kt — для optional_memorial_color (імя з API). */
-    function liturgyColorNameToHex(name) {
+function liturgyColorNameToHex(name) {
         const n = String(name || '')
             .trim()
             .toLowerCase();
@@ -2581,14 +2498,12 @@
         return [liturgyOptionalColorHex(data)];
     }
 
-    /** Квадрат колеру дня — як сімвал ■ у шапцы LiturgyDayFragment. */
-    function liturgyDayColorSwatchHtml(hex) {
+function liturgyDayColorSwatchHtml(hex) {
         const safe = liturgySanitizeHex(hex) || '#6B7280';
         return `<span class="liturgy-day-swatch shrink-0 w-3.5 h-3.5 rounded-sm border border-app-stroke/60 mt-1.5" style="background-color:${safe}" role="img" aria-hidden="true"></span>`;
     }
 
-    /** API злучае даброўныя успаміны праз «альбо» ў адным радку — як splitOptionalMemorialTitles у LiturgyDayFragment.kt */
-    function splitOptionalMemorialTitles(combined) {
+function splitOptionalMemorialTitles(combined) {
         const raw = String(combined || '').trim();
         if (!raw) return [];
         return raw
@@ -2658,12 +2573,11 @@
         </div>`;
     }
 
-    /** Кнопка «Назад» у браўзеры / жэст: History API + існуючы goBack(). */
-    let totusHistorySyncSkipPop = false;
+let totusHistorySyncSkipPop = false;
     let totusHistoryLen = 0;
-    /** Лічыльнік «Назад» на галоўным без унутранага стэка: 1-ы — застаёмся, 2-і — confirm (без таймера). */
+
     let totusExitBackPresses = 0;
-    /** true калі экран наладаў перакладу адкрыты праз шасцярэнку (ёсць адпаведны pushState). */
+
     let scriptureTrOverlayFromGear = false;
 
     function totusHistoryMarkForward() {
@@ -2672,17 +2586,16 @@
             history.pushState({ totus: 1 }, '', window.location.pathname + window.location.search || '');
             totusHistoryLen++;
         } catch (_) {
-            /* file:// або абмежаванні асяроддзя */
+
         }
     }
 
-    /** Другі запіс у стэсе пасля replaceState — каб першы «Назад» не закрыў укладку/PWA. */
-    function totusHistoryPushExitBlocker() {
+function totusHistoryPushExitBlocker() {
         try {
             const u = window.location.pathname + window.location.search || '';
             history.pushState({ totus: 1 }, '', u || '/');
         } catch (_) {
-            /* ignore */
+
         }
     }
 
@@ -2693,7 +2606,7 @@
             const u = window.location.pathname + window.location.search || '';
             history.replaceState({ totus: 1 }, '', u || '/');
         } catch (_) {
-            /* ignore */
+
         }
         totusHistoryPushExitBlocker();
         window.addEventListener('popstate', () => {
@@ -2719,7 +2632,7 @@
                     try {
                         history.go(-1);
                     } catch (_) {
-                        /* ignore */
+
                     }
                     return;
                 }
@@ -2930,8 +2843,7 @@
         }
     }
 
-    /** Радок спісу малітваў — стыль як у item_prayer_tree; у спеўніку радкі без шэврона (акрамя разгартаючых катэгорый). */
-    function prayerTreeRowHtml(p) {
+function prayerTreeRowHtml(p) {
         const id = Number(p.id);
         const label = escapeHtml(String(p.title || '').trim() || '—');
         return `<button type="button" data-prayer-id="${id}" class="prayer-open w-full text-left rounded-md border border-app-stroke bg-app-elevated border-solid shadow-none hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors cursor-pointer text-inherit p-0">
@@ -3247,7 +3159,7 @@
             }
             localStorage.setItem(store.prefsFpKey, store.fp);
         } catch (e) {
-            /* ignore */
+
         }
     }
 
@@ -3258,7 +3170,7 @@
             if (v === '1') open = true;
             else if (v === '0') open = false;
         } catch (e) {
-            /* ignore */
+
         }
         return open;
     }
@@ -3282,8 +3194,7 @@
         });
     }
 
-    /** Запамінае разгорнутыя/згорнутыя часткі Ordo Missae (localStorage, прывязка да зместу). */
-    function ordoMissaeApplyFoldMemory(hostEl, rawOriginal) {
+function ordoMissaeApplyFoldMemory(hostEl, rawOriginal) {
         const raw = String(rawOriginal || '');
         if (!hostEl || raw.indexOf('data-ordo-section=') < 0) return;
         hostEl.__totusOrdoRaw = raw;
@@ -3301,7 +3212,7 @@
                     try {
                         localStorage.setItem(store.lsKey(k), det.open ? '1' : '0');
                     } catch (e3) {
-                        /* ignore */
+
                     }
                 },
                 { passive: true },
@@ -3734,8 +3645,7 @@
                 return;
             }
 
-            /* Раней за [data-action]: каб клік па Пісанні не трапляў у «Пошук малітоўніка» пры суцельным bar-класе і г.д. */
-            const scr = e.target.closest('[data-scripture-action]');
+const scr = e.target.closest('[data-scripture-action]');
             if (scr) {
                 const act = scr.getAttribute('data-scripture-action');
                 if (act === 'apply-tr') {
@@ -3747,7 +3657,7 @@
                         try {
                             localStorage.setItem(SCRIPTURE_TR_KEY, scriptureSelectedId);
                         } catch {
-                            /* ignore */
+
                         }
                         if (prev !== next) {
                             scriptureData = null;
@@ -3862,7 +3772,7 @@
                         try {
                             localStorage.setItem(SCRIPTURE_TR_KEY, scriptureSelectedId);
                         } catch {
-                            /* ignore */
+
                         }
                         scriptureData = null;
                         await ensureScriptureDataLoaded();
@@ -4057,7 +3967,7 @@
                     try {
                         localStorage.setItem(SCRIPTURE_COMPARE_HINT_KEY, '1');
                     } catch {
-                        /* ignore */
+
                     }
                     if (currentView === 'scripture' && scPanel === 'compare') hydrateScriptureView();
                     return;
@@ -4067,7 +3977,7 @@
                     try {
                         localStorage.setItem(SCRIPTURE_COMPARE_EXPAND_KEY, cur ? '0' : '1');
                     } catch {
-                        /* ignore */
+
                     }
                     if (currentView === 'scripture' && scPanel === 'compare') hydrateScriptureView();
                     return;
@@ -4286,7 +4196,7 @@
                         localStorage.removeItem(SCRIPTURE_COMPARE_HINT_KEY);
                         localStorage.removeItem(SCRIPTURE_COMPARE_EXPAND_KEY);
                     } catch {
-                        /* ignore */
+
                     }
                     scriptureJsonCache.clear();
                     scriptureSelectedId = null;
@@ -4592,8 +4502,7 @@
         }
     }
 
-    /** Як SongbookEntry.numberPrefix() / listLabel() у Android. */
-    function songbookNumberPrefix(e) {
+function songbookNumberPrefix(e) {
         const maj = Number(e.chapter_major) || 0;
         if (e.subchapter == null || e.subchapter === '') return `${maj}.`;
         const sub = Number(e.subchapter);
@@ -4608,8 +4517,7 @@
         return t === '' ? p : `${p} ${t}`;
     }
 
-    /** Як SongbookEntry.bookmarkListLabel() — без нумарацыі ў выбраным. */
-    function songbookBookmarkListLabel(e) {
+function songbookBookmarkListLabel(e) {
         const t = String(e.title || '').trim();
         return t !== '' ? t : songbookNumberPrefix(e);
     }
@@ -4618,14 +4526,12 @@
         return String(e && e.category != null ? e.category : '').trim();
     }
 
-    /** Падзагаловак у шапцы дэталі — як SongbookEntry.categoryToolbarSubtitle(). */
-    function songbookCategoryToolbarSubtitle(e) {
+function songbookCategoryToolbarSubtitle(e) {
         const k = songbookCategoryKey(e).replace(/\s+/g, ' ').trim();
         return k === '' ? 'Без раздзелу' : k;
     }
 
-    /** Як SongbookContentType.IMAGE. */
-    function songbookContentIsImage(e) {
+function songbookContentIsImage(e) {
         return String(e && e.content_type != null ? e.content_type : '').toLowerCase() === 'image';
     }
 
@@ -4633,8 +4539,7 @@
         return songbookContentIsImage(e) && (!e || e.show_badge !== false);
     }
 
-    /** Як songbookOrderComparator у SongbookRepository. */
-    function sortSongbookLikeAndroid(entries) {
+function sortSongbookLikeAndroid(entries) {
         return [...(entries || [])].sort((a, b) => {
             const ca = songbookCategoryKey(a);
             const cb = songbookCategoryKey(b);
@@ -4652,8 +4557,7 @@
         });
     }
 
-    /** Выбранае (спеўнік): без першасці катэгорыі — толькі глава / падглава / sort_order / id. */
-    function sortSongbookWithoutCategory(entries) {
+function sortSongbookWithoutCategory(entries) {
         return [...(entries || [])].sort((a, b) => {
             const ma = Number(a.chapter_major) || 0;
             const mb = Number(b.chapter_major) || 0;
@@ -4729,8 +4633,7 @@
         return escapeHtml(String(text || '')).replace(/\n/g, '<br/>');
     }
 
-    /** Як java.lang.String.hashCode() / Kotlin — для ключоў згодна з Android SongbookCategoryExpandStore. */
-    function javaStringHashCode(str) {
+function javaStringHashCode(str) {
         let h = 0;
         const s = String(str || '');
         for (let i = 0; i < s.length; i++) {
@@ -4752,7 +4655,7 @@
                 if (o && typeof o[storageKey] === 'boolean') return o[storageKey];
             }
         } catch {
-            /* ignore */
+
         }
         return false;
     }
@@ -4768,12 +4671,11 @@
             o[storageKey] = expanded;
             localStorage.setItem(SONGBOOK_CATEGORY_EXPAND_KEY, JSON.stringify(o));
         } catch {
-            /* ignore */
+
         }
     }
 
-    /** Групы як [SongbookCategorySection.groupedIntoCategorySections] у Android. */
-    function songbookGroupCategorySections(entries) {
+function songbookGroupCategorySections(entries) {
         const sorted = sortSongbookLikeAndroid(entries || []);
         const map = new Map();
         for (const e of sorted) {
@@ -4793,8 +4695,7 @@
         return out;
     }
 
-    /** Карта раздзела — як scriptureTestamentCardHtml + songbook_category_section.xml. */
-    function songbookCategoryCardHtml(sectionIdx, storageKey, title, items, expanded) {
+function songbookCategoryCardHtml(sectionIdx, storageKey, title, items, expanded) {
         const idBase = `songbook-cat-${sectionIdx}`;
         const songsHtml = items.map((item) => songbookTreeRowHtml(item, { tight: true })).join('');
         const chevron = expanded ? 'fa-chevron-up' : 'fa-chevron-down';
@@ -4830,8 +4731,7 @@
             .join('');
     }
 
-    /** Выбранае: адзін спіс без картачак катэгорый. */
-    function songbookBuildFlatListHtml(sortedEntries) {
+function songbookBuildFlatListHtml(sortedEntries) {
         if (!sortedEntries || sortedEntries.length === 0) return '';
         return sortedEntries.map((item) => songbookTreeRowHtml(item, { tight: true })).join('');
     }
@@ -5062,8 +4962,7 @@
         root.innerHTML = `<div class="flex flex-col gap-2">${listBody}</div>`;
     }
 
-    /** Павелічэнне па кліку і перацягванне ўнутры блока (мыш / тач). */
-    function initSongbookDetailImageZoom() {
+function initSongbookDetailImageZoom() {
         const host = document.querySelector('[data-songbook-zoom-host]');
         if (!host) return;
         const inner = host.querySelector('.songbook-image-zoom-inner');
@@ -5112,7 +5011,7 @@
                 try {
                     host.setPointerCapture(e.pointerId);
                 } catch (_) {
-                    /* ignore */
+
                 }
             }
         }
@@ -5142,7 +5041,7 @@
                 try {
                     host.releasePointerCapture(e.pointerId);
                 } catch (_) {
-                    /* ignore */
+
                 }
             }
         }
@@ -5344,8 +5243,7 @@
     </div>`;
     }
 
-    /** Як ScriptureTextRepository.getTestaments: book_id 40–66 — Новы Запавет (кананічная нумарацыя). */
-    function scriptureIsNewTestamentBookId(bookId) {
+function scriptureIsNewTestamentBookId(bookId) {
         const n = Number(bookId);
         return Number.isFinite(n) && n >= 40 && n <= 66;
     }
@@ -5364,7 +5262,7 @@
                 if (o && typeof o[sectionKey] === 'boolean') return o[sectionKey];
             }
         } catch {
-            /* ignore */
+
         }
         return false;
     }
@@ -5380,7 +5278,7 @@
             o[sectionKey] = expanded;
             localStorage.setItem(SCRIPTURE_TESTAMENT_EXPAND_KEY, JSON.stringify(o));
         } catch {
-            /* ignore */
+
         }
     }
 
@@ -5396,8 +5294,7 @@
                 </button>`;
     }
 
-    /** Карта секцыі завета — як scripture_testament_section.xml + collapse у ScriptureFragment. */
-    function scriptureTestamentCardHtml(sectionKey, title, items, expanded) {
+function scriptureTestamentCardHtml(sectionKey, title, items, expanded) {
         const idBase = `scripture-testament-${sectionKey}`;
         const booksHtml = items.map((x) => scriptureBookRowButtonHtml(x.bk, x.idx)).join('');
         const chevron = expanded ? 'fa-chevron-up' : 'fa-chevron-down';
@@ -5440,8 +5337,7 @@
         return `<div class="flex flex-col gap-2">${searchRow}${parts.join('')}</div>`;
     }
 
-    /** Літаральныя «\\n» / «\\r» ў JSON (падвоены экран) → сапраўдныя пераносы для whitespace-pre-wrap. */
-    function normalizeScriptureCatalogDescription(s) {
+function normalizeScriptureCatalogDescription(s) {
         return String(s || '')
             .replace(/\\r\\n/g, '\n')
             .replace(/\\r/g, '\n')
@@ -5471,7 +5367,7 @@
                         }
                     }
                 } catch {
-                    /* offline / file:// */
+
                 }
                 if (map.size === 0) {
                     for (const e of SCRIPTURE_TRANSLATIONS_FALLBACK) {
@@ -5540,8 +5436,7 @@
         scheduleToolbarTitleFit();
     }
 
-    /** Як ScriptureWordSearch.wholeWordRegex — цэлыя словы, без уліку рэгістра (Unicode). */
-    function buildScriptureWholeWordRegex(query) {
+function buildScriptureWholeWordRegex(query) {
         const trimmed = String(query || '').trim();
         if (!trimmed) return null;
         const escaped = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -5616,8 +5511,7 @@
         return { re, hits, totalOccurrences, versesWithMatches: hits.length };
     }
 
-    /** Вынік пошуку па Пісанні — тая ж сетка, што prayerTreeRowHtml / hydratePrayerSearchResults. */
-    function scriptureWordSearchHitRowHtml(h, re) {
+function scriptureWordSearchHitRowHtml(h, re) {
         const refLabel = `${h.bookName} ${h.chapter}:${h.verse}`;
         const a11y = `Адкрыць ${refLabel}`;
         const body = highlightScriptureWordSearchHtml(h.text, re);
@@ -5639,7 +5533,7 @@
     }
 
     function renderScriptureWordSearchShellHtml() {
-        /* Як #prayer-search-screen: тая ж разметка поля, што prayersShellHtml. */
+
         return `
         <div class="space-y-3 pb-4 min-h-[40vh]">
             <div class="${APP_SEARCH_BAR_CLASS}">
@@ -5871,7 +5765,7 @@
         try {
             localStorage.setItem(SCRIPTURE_FAVORITES_KEY, JSON.stringify(items));
         } catch {
-            /* ignore */
+
         }
     }
 
@@ -5913,7 +5807,7 @@
         try {
             localStorage.setItem(SCRIPTURE_COMPARE_VERSES_KEY, JSON.stringify(verses));
         } catch {
-            /* ignore */
+
         }
     }
 
@@ -5956,7 +5850,7 @@
         try {
             localStorage.setItem(SCRIPTURE_COMPARE_TRS_KEY, JSON.stringify([...ids]));
         } catch {
-            /* ignore */
+
         }
     }
 
@@ -6042,7 +5936,7 @@
                         }
                     }
                 } catch {
-                    /* file:// / сетка */
+
                 }
                 scriptureBundledIds = fallback;
             })();
@@ -6050,8 +5944,7 @@
         await scriptureBundledPromise;
     }
 
-    /** Усе пераклады з каталога ў парадку ScriptureCatalog (Android); убудаваныя JSON могуць быць толькі для часткі id. */
-    async function ensureScriptureTranslationsList() {
+async function ensureScriptureTranslationsList() {
         await loadScriptureCatalogOnce();
         await loadScriptureBundledIdsOnce();
         if (scriptureTranslationsList === null) {
@@ -6116,7 +6009,7 @@
             try {
                 localStorage.removeItem(SCRIPTURE_TR_KEY);
             } catch {
-                /* ignore */
+
             }
         }
 

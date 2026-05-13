@@ -91,8 +91,7 @@ object AppColorSchemeStore {
         val useLight = scheme == Scheme.LIGHT
         val flags = PackageManager.DONT_KILL_APP
 
-        // Enable the target first, then disable the other alias to avoid launcher gaps.
-        val targetAlias = if (useLight) lightAlias else darkAlias
+val targetAlias = if (useLight) lightAlias else darkAlias
         val otherAlias = if (useLight) darkAlias else lightAlias
         packageManager.setComponentEnabledSetting(
             targetAlias,

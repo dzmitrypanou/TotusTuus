@@ -2,9 +2,6 @@ package by.dzmitrypanou.catholicapp.data
 
 import android.content.Context
 
-/**
- * Множнік памеру тэксту для раздзела «Святое Пісанне» (спісы кніг, тэкст вершаў, параўнанне і г.д.).
- */
 object ScriptureUiTextScaleStore {
 
     private const val PREFS_NAME = "ui_text_settings"

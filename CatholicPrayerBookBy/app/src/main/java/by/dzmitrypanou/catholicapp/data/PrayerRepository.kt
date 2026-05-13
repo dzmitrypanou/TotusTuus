@@ -25,19 +25,14 @@ class PrayerRepository(context: Context) {
     suspend fun getPrayers(forceRefresh: Boolean = false): List<Prayer> {
         val cached = getCachedPrayers()
         if (!forceRefresh) {
-            // Пры адкрыцці раздзела малітоўніка паказваем толькі лакальны кэш.
-            // Аўтаабнаўленне запускаецца асобна пры старце праграмы (WorkManager).
-            return cached
+
+return cached
         }
-        // Прымусовае абнаўленне: заўсёды цягнуць поўны спіс з сервера — малітвы, якіх там ужо няма, знікаюць з кэша.
+
         return refreshPrayers(cached, allowHashShortCircuit = false)
     }
 
-    /**
-     * Ці ёсць на серверы іншы змест за лакальным кэшам (параўнанне хэша з API).
-     * Пусты кэш — не лічым «даступна абнаўленне» (першая загрузка праз getPrayers).
-     */
-    suspend fun checkUpdateAvailable(): Boolean {
+suspend fun checkUpdateAvailable(): Boolean {
         val cached = getCachedPrayers()
         if (cached.isEmpty()) return false
         val remoteHash = runCatching {
@@ -47,15 +42,7 @@ class PrayerRepository(context: Context) {
         return cachedHash != remoteHash
     }
 
-    /**
-     * Спачатку лёгкі [getPrayersContentHash]; поўны [getPrayers] толькі калі змест змяніўся.
-     * Калі endpoint хэша недаступны — як раней: поўная загрузка і лакальны хэш.
-     * Лакальны кэш пасля загрузкі = дакладна спіс з сервера (выдаленыя там малітвы знікаюць у дадатку).
-     *
-     * @param allowHashShortCircuit калі `true` і хэш збегаецца з захаваным — сеткавы запыт [getPrayers] не робіцца.
-     *        Калі `false` — заўсёды загружаем поўны спіс (патрэбна пры прымусовым абнаўленні, калі хэш на серверы не змяніўся, а радкі ўжо выдаленыя).
-     */
-    suspend fun refreshPrayers(
+suspend fun refreshPrayers(
         existingLocal: List<Prayer> = getCachedPrayers(),
         allowHashShortCircuit: Boolean = true
     ): List<Prayer> {
@@ -294,7 +281,7 @@ class PrayerRepository(context: Context) {
         private const val KEY_PRAYERS_HASH = "prayers_hash"
         private const val KEY_CATEGORY_META = "prayer_category_meta_json"
         const val NO_SUBCATEGORY_TITLE = "Без подкатегории"
-        /** Пазначэнне ў спісе каранёвых катэгорый малітоўніка; мусіць супадаць з @string/prayer_bucket_no_category */
+
         const val NO_CATEGORY_TITLE = "Без катэгорыі"
     }
 }

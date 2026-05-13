@@ -72,7 +72,7 @@ function ensurePrayersTable(): void
     $sortOrderExists = (int)($stmt->fetch()['cnt'] ?? 0) > 0;
     if (!$sortOrderExists) {
         db()->exec('ALTER TABLE prayers ADD COLUMN sort_order INT NOT NULL DEFAULT 0 AFTER is_active');
-        // Першы раз: парадак як раней па id (ручны парадак потым у адмінцы).
+
         db()->exec('UPDATE prayers SET sort_order = id');
     }
 }
@@ -488,9 +488,6 @@ function ensurePanelAnnouncementsSettingsTable(): void
     ensurePanelAnnouncementsSettingsExtendedColumns();
 }
 
-/**
- * Палі тыдня (панядзелак–нядзеля) і сцягі ўключэння блокаў аб’яваў.
- */
 function ensurePanelAnnouncementsSettingsExtendedColumns(): void
 {
     $after = 'include_optionals';
@@ -653,7 +650,7 @@ function ensurePanelOrdoMissaeSectionColumns(): void
             db()->exec('UPDATE panel_ordo_missae SET html_intro = html WHERE id = 1');
         }
     } catch (Throwable $e) {
-        // ignore
+
     }
 
     ensurePanelOrdoMissaeSectionTitleColumns();

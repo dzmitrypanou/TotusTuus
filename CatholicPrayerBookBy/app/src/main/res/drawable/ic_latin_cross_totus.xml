@@ -5,7 +5,7 @@
     android:height="108dp"
     android:viewportWidth="100"
     android:viewportHeight="100">
-    <!-- Каталіцкі (латынскі) крыж: доўгі ніжні канец, папярочная перакладзіна вышэй цэнтра -->
+
     <path
         android:pathData="M47,14h6v24h24v6h-24v42h-6v-42h-24v-6h24v-24z"
         android:strokeWidth="0.9"

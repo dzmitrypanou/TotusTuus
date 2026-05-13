@@ -50,8 +50,7 @@
             android:textSize="16sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Уся свабодная вышыня паміж полем перакладу і кнопкай -->
-    <com.google.android.material.card.MaterialCardView
+<com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/prayer_book_block_gap"

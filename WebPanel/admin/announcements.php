@@ -147,9 +147,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST'
     }
 }
 
-/**
- * @return array<string, mixed>
- */
 function announcements_form_to_opts(array $post): array
 {
     global $tz;
@@ -684,7 +681,7 @@ $annDioceseLabels = [
       <h1>Totus Tuus</h1>
       <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
-    <?php
+<?php
         $panelNavPage = 'announcements';
         $panelNavView = 'categories';
         $panelNavCalYear = $year;
@@ -696,19 +693,19 @@ $annDioceseLabels = [
   <div class="card">
     <h2 style="margin:0 0 8px; font-size:1rem;">Аб’явы</h2>
     <p class="muted" style="margin-top:0;">Генерацыя аб’яваў (прагляд у браўзеры, друк праз дыялог браўзера). Палі ніжэй можна захаваць у базе.</p>
-    <?php if ($saveError !== null): ?>
+<?php if ($saveError !== null): ?>
     <noscript>
       <p style="margin:0 0 12px;padding:10px 12px;border-radius:10px;font-size:14px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);color:#fecaca;"><?= htmlspecialchars($saveError, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p>
     </noscript>
-    <?php endif; ?>
+<?php endif; ?>
     <form id="ann-settings-form" method="post" action="">
-      <?= panel_csrf_field() ?>
+<?= panel_csrf_field() ?>
       <label for="bulletin_date">Дата аб’яваў (звычайна нядзеля на вокладцы)</label>
       <input id="bulletin_date" type="date" name="bulletin_date" value="<?= htmlspecialchars($bulletinDate, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" required>
       <p class="muted" id="ann-week-range-hint"<?= $dPreview === false ? ' hidden' : '' ?>>
-        <?php if ($dPreview !== false): ?>
+<?php if ($dPreview !== false): ?>
         Тыдзень у табліцы (панядзелак–нядзеля): <strong id="ann-week-range-strong"><?= htmlspecialchars($rangeHintInit, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></strong> — з панядзельніка пасля нядзелі аб’яваў.
-        <?php endif; ?>
+<?php endif; ?>
       </p>
       <p class="warn" id="ann-sunday-warn"<?= ($dPreview === false || $isSunday) ? ' hidden' : '' ?>>
         Заўвага: зазвычай бяруць нядзелю аб’яваў. Загаловак і ўводны радок для абранай даты; першы радок табліцы — панядзелак пасля бліжэйшай папярэдняй нядзелі.
@@ -721,12 +718,12 @@ $annDioceseLabels = [
         <span class="ann-diocese-label" id="ann-diocese-heading">Каляндар для аўтазапаўнення (мясцовыя святы дыяцэзій Беларусі)</span>
         <p class="hint" style="margin-top:6px;">Без галачак — агульны Рымскі каляндар для Еўропы; святы дыяцэзій не ўлічваюцца ў прапановах радкоў, даброўных успамінах і аўтазагалоўку.</p>
         <div class="ann-diocese-checkboxes" role="group" aria-labelledby="ann-diocese-heading">
-          <?php foreach (liturgy_diocese_keys() as $dk): ?>
+<?php foreach (liturgy_diocese_keys() as $dk): ?>
             <label class="ann-diocese-cb">
-              <input type="checkbox" name="ann_dioc[<?= htmlspecialchars($dk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>]" value="1" <?= !empty($annDioceseForPreview[$dk]) ? 'checked' : '' ?>>
-              <?= htmlspecialchars((string)($annDioceseLabels[$dk] ?? $dk), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+              <input type="checkbox" name="ann_dioc[<?= htmlspecialchars($dk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>]" value="1"<?= !empty($annDioceseForPreview[$dk]) ? 'checked' : '' ?>>
+<?= htmlspecialchars((string)($annDioceseLabels[$dk] ?? $dk), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
             </label>
-          <?php endforeach; ?>
+<?php endforeach; ?>
         </div>
       </div>
 
@@ -739,7 +736,7 @@ $annDioceseLabels = [
 
       <p class="muted" style="margin-top:12px;">Сем радкоў — <strong>панядзелак–нядзеля пасля нядзелі аб’яваў</strong> (першы радок заўсёды панядзелак). Загалоўкі — фактычны дзень і дата.</p>
 
-      <?php $enLead = !empty($loaded['en_lead']); ?>
+<?php $enLead = !empty($loaded['en_lead']); ?>
       <div class="ann-cblock<?= $enLead ? '' : ' ann-cblock--collapsed ann-cblock--inactive' ?>" data-ann-cblock>
         <div class="ann-cblock-head">
           <button type="button" class="ann-cblock-toggle" aria-expanded="<?= $enLead ? 'true' : 'false' ?>" aria-controls="ann-lead-body" title="Паказаць або схаваць поле">
@@ -747,18 +744,18 @@ $annDioceseLabels = [
           </button>
           <p class="ann-cblock-title">Уводны пункт спісу</p>
           <div class="field-toggle">
-            <input type="checkbox" id="en_lead" name="en_lead" value="1" <?= $enLead ? 'checked' : '' ?> data-ann-en>
+            <input type="checkbox" id="en_lead" name="en_lead" value="1"<?= $enLead ? 'checked' : '' ?> data-ann-en>
             <label for="en_lead">Уключыць у аб’явы</label>
           </div>
         </div>
-        <div id="ann-lead-body" class="ann-cblock-body" <?= $enLead ? '' : 'hidden' ?>>
+        <div id="ann-lead-body" class="ann-cblock-body"<?= $enLead ? '' : 'hidden' ?>>
           <label for="lead_sentence">Тэкст (пуста = «Сёння, …» + літургічны дзень для даты аб’яваў)</label>
           <textarea id="lead_sentence" name="lead_sentence" rows="2" placeholder=""><?= htmlspecialchars($leadSentence, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea>
         </div>
       </div>
 
       <div class="field-toggle" style="margin-top:14px;">
-        <input type="checkbox" id="include_suggested_optionals" name="include_suggested_optionals" value="1" <?= $includeOptionals ? 'checked' : '' ?>>
+        <input type="checkbox" id="include_suggested_optionals" name="include_suggested_optionals" value="1"<?= $includeOptionals ? 'checked' : '' ?>>
         <label for="include_suggested_optionals">Дадаць асобныя радкі пра ўсе даброўныя успаміны тыдня (як раней; можа дубляваць дні з табліцы)</label>
       </div>
 
@@ -769,7 +766,7 @@ $annDioceseLabels = [
           <button type="button" id="ann-week-expand-all">Разгарнуць усе дні</button>
           <button type="button" id="ann-week-collapse-inactive">Згарнуць выключаныя</button>
         </div>
-      <?php
+<?php
       $periodStartForm = $dPreview !== false ? announcements_week_table_monday($dPreview) : announcements_week_table_monday(new DateTimeImmutable('now', $tz));
       foreach (announcements_week_layout() as $i => $spec):
           $rowDate = $periodStartForm->modify(sprintf('+%d day', $i));
@@ -789,22 +786,22 @@ $annDioceseLabels = [
           <span class="week-day-badge<?= $dayActive ? ' on' : '' ?>" data-week-badge><?= $dayActive ? 'У аб’явах' : 'Выключана' ?></span>
           <div class="week-day-checks">
             <div class="field-toggle">
-              <input type="checkbox" class="js-week-en-note" id="<?= htmlspecialchars($spec['en_note'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" name="<?= htmlspecialchars($spec['en_note'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" value="1" <?= $enNote ? 'checked' : '' ?>>
+              <input type="checkbox" class="js-week-en-note" id="<?= htmlspecialchars($spec['en_note'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" name="<?= htmlspecialchars($spec['en_note'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" value="1"<?= $enNote ? 'checked' : '' ?>>
               <label for="<?= htmlspecialchars($spec['en_note'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Тэкст дня</label>
             </div>
             <div class="field-toggle">
-              <input type="checkbox" class="js-week-en-clean" id="<?= htmlspecialchars($spec['en_clean'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" name="<?= htmlspecialchars($spec['en_clean'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" value="1" <?= $enClean ? 'checked' : '' ?>>
+              <input type="checkbox" class="js-week-en-clean" id="<?= htmlspecialchars($spec['en_clean'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" name="<?= htmlspecialchars($spec['en_clean'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" value="1"<?= $enClean ? 'checked' : '' ?>>
               <label for="<?= htmlspecialchars($spec['en_clean'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Уборка</label>
             </div>
           </div>
         </div>
-        <div id="<?= htmlspecialchars($bodyId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="week-day-body" <?= $dayActive ? '' : 'hidden' ?>>
+        <div id="<?= htmlspecialchars($bodyId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="week-day-body"<?= $dayActive ? '' : 'hidden' ?>>
           <p class="week-day-hint-collapsed">Дзень выключаны з аб’яваў — палі схаваны для кампактнасці. Уключыце галачку вышэй або разгарніце стрэлкай, каб змяніць тэкст.</p>
           <div class="field-toggle">
             <span class="muted" style="margin:0;font-size:12px;">Абвестка дня</span>
           </div>
           <textarea class="ann-week-field" name="<?= htmlspecialchars($spec['note'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" rows="3" placeholder=""><?= htmlspecialchars((string)($loaded[$spec['note']] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea>
-          <div class="week-clean-fields" data-week-clean-fields <?= $enClean ? '' : 'hidden' ?>>
+          <div class="week-clean-fields" data-week-clean-fields<?= $enClean ? '' : 'hidden' ?>>
             <div class="field-toggle" style="margin-top:8px;">
               <span class="muted" style="margin:0;font-size:12px;">Тэкст уборкі</span>
             </div>
@@ -812,14 +809,14 @@ $annDioceseLabels = [
           </div>
         </div>
       </div>
-      <?php endforeach; ?>
+<?php endforeach; ?>
       </section>
 
       <section class="ann-section" aria-labelledby="ann-extra-heading">
         <h2 id="ann-extra-heading" class="ann-section-title">Дадатковыя пункты спісу</h2>
         <p class="hint" style="margin-top:0;">Фіксаваныя нумары ў аб’явах пасля тыдня. Выключаныя блокі згорнуты.</p>
 
-      <?php
+<?php
       foreach ([1 => $list1, 2 => $list2, 3 => $list3, 4 => $list4] as $n => $listVal):
           $enK = 'en_list_' . $n;
           $enOn = !empty($loaded[$enK]);
@@ -830,24 +827,24 @@ $annDioceseLabels = [
           <button type="button" class="ann-cblock-toggle" aria-expanded="<?= $enOn ? 'true' : 'false' ?>" aria-controls="<?= htmlspecialchars($bid, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" title="Паказаць або схаваць поле">
             <span class="ann-chev" aria-hidden="true">▼</span>
           </button>
-          <p class="ann-cblock-title">Пункт спісу <?= (int)$n ?></p>
+          <p class="ann-cblock-title">Пункт спісу<?= (int)$n ?></p>
           <div class="field-toggle">
-            <input type="checkbox" id="<?= htmlspecialchars($enK, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" name="<?= htmlspecialchars($enK, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" value="1" <?= $enOn ? 'checked' : '' ?> data-ann-en>
+            <input type="checkbox" id="<?= htmlspecialchars($enK, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" name="<?= htmlspecialchars($enK, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" value="1"<?= $enOn ? 'checked' : '' ?> data-ann-en>
             <label for="<?= htmlspecialchars($enK, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">Уключыць у аб’явы</label>
           </div>
         </div>
-        <div id="<?= htmlspecialchars($bid, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="ann-cblock-body" <?= $enOn ? '' : 'hidden' ?>>
-          <label for="list_<?= (int)$n ?>">Тэкст пункта <?= (int)$n ?></label>
+        <div id="<?= htmlspecialchars($bid, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" class="ann-cblock-body"<?= $enOn ? '' : 'hidden' ?>>
+          <label for="list_<?= (int)$n ?>">Тэкст пункта<?= (int)$n ?></label>
           <textarea id="list_<?= (int)$n ?>" class="ann-list-field" name="list_<?= (int)$n ?>" rows="4"><?= htmlspecialchars((string)$listVal, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea>
         </div>
       </div>
-      <?php endforeach; ?>
+<?php endforeach; ?>
       </section>
 
       <section class="ann-section" aria-labelledby="ann-pools-heading">
         <h2 id="ann-pools-heading" class="ann-section-title">Пулы (выпадковы радок)</h2>
 
-      <?php $enCp = !empty($loaded['en_cleaning_pool']); ?>
+<?php $enCp = !empty($loaded['en_cleaning_pool']); ?>
       <div class="ann-cblock<?= $enCp ? '' : ' ann-cblock--collapsed ann-cblock--inactive' ?>" data-ann-cblock>
         <div class="ann-cblock-head">
           <button type="button" class="ann-cblock-toggle" aria-expanded="<?= $enCp ? 'true' : 'false' ?>" aria-controls="ann-cleaning-body" title="Паказаць або схаваць поле">
@@ -855,18 +852,18 @@ $annDioceseLabels = [
           </button>
           <p class="ann-cblock-title">Пул уборкі</p>
           <div class="field-toggle">
-            <input type="checkbox" id="en_cleaning_pool" name="en_cleaning_pool" value="1" <?= $enCp ? 'checked' : '' ?> data-ann-en>
+            <input type="checkbox" id="en_cleaning_pool" name="en_cleaning_pool" value="1"<?= $enCp ? 'checked' : '' ?> data-ann-en>
             <label for="en_cleaning_pool">Уключыць у аб’явы</label>
           </div>
         </div>
-        <div id="ann-cleaning-body" class="ann-cblock-body" <?= $enCp ? '' : 'hidden' ?>>
+        <div id="ann-cleaning-body" class="ann-cblock-body"<?= $enCp ? '' : 'hidden' ?>>
           <label for="cleaning_pool">Шмат радкоў; выпадкова адзін радок як пункт спісу</label>
           <textarea id="cleaning_pool" class="ann-pool-field" name="cleaning_pool" rows="4"><?= htmlspecialchars($cleaningPool, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea>
           <p class="hint">Кожны варыянт з новага радка. Пуста — пункт не дадаецца.</p>
         </div>
       </div>
 
-      <?php $enTp = !empty($loaded['en_thanks_pool']); ?>
+<?php $enTp = !empty($loaded['en_thanks_pool']); ?>
       <div class="ann-cblock<?= $enTp ? '' : ' ann-cblock--collapsed ann-cblock--inactive' ?>" data-ann-cblock>
         <div class="ann-cblock-head">
           <button type="button" class="ann-cblock-toggle" aria-expanded="<?= $enTp ? 'true' : 'false' ?>" aria-controls="ann-thanks-body" title="Паказаць або схаваць поле">
@@ -874,11 +871,11 @@ $annDioceseLabels = [
           </button>
           <p class="ann-cblock-title">Удзячнасць</p>
           <div class="field-toggle">
-            <input type="checkbox" id="en_thanks_pool" name="en_thanks_pool" value="1" <?= $enTp ? 'checked' : '' ?> data-ann-en>
+            <input type="checkbox" id="en_thanks_pool" name="en_thanks_pool" value="1"<?= $enTp ? 'checked' : '' ?> data-ann-en>
             <label for="en_thanks_pool">Уключыць у аб’явы</label>
           </div>
         </div>
-        <div id="ann-thanks-body" class="ann-cblock-body" <?= $enTp ? '' : 'hidden' ?>>
+        <div id="ann-thanks-body" class="ann-cblock-body"<?= $enTp ? '' : 'hidden' ?>>
           <label for="thanks_pool" class="visually-hidden">Тэкст пулу ўдзячнасці</label>
           <textarea id="thanks_pool" class="ann-pool-field" name="thanks_pool" rows="4" aria-label="Тэкст пулу ўдзячнасці, кожны варыянт з новага радка"><?= htmlspecialchars($thanksPool, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea>
         </div>
@@ -888,7 +885,7 @@ $annDioceseLabels = [
       <section class="ann-section" aria-labelledby="ann-close-heading">
         <h2 id="ann-close-heading" class="ann-section-title">Заканчэнне аб’яваў</h2>
 
-      <?php $enSig = !empty($loaded['en_signature']); ?>
+<?php $enSig = !empty($loaded['en_signature']); ?>
       <div class="ann-cblock<?= $enSig ? '' : ' ann-cblock--collapsed ann-cblock--inactive' ?>" data-ann-cblock>
         <div class="ann-cblock-head">
           <button type="button" class="ann-cblock-toggle" aria-expanded="<?= $enSig ? 'true' : 'false' ?>" aria-controls="ann-sig-body" title="Паказаць або схаваць поле">
@@ -896,11 +893,11 @@ $annDioceseLabels = [
           </button>
           <p class="ann-cblock-title">Подпіс і пасада</p>
           <div class="field-toggle">
-            <input type="checkbox" id="en_signature" name="en_signature" value="1" <?= $enSig ? 'checked' : '' ?> data-ann-en>
+            <input type="checkbox" id="en_signature" name="en_signature" value="1"<?= $enSig ? 'checked' : '' ?> data-ann-en>
             <label for="en_signature">Уключыць подпіс і пасаду</label>
           </div>
         </div>
-        <div id="ann-sig-body" class="ann-cblock-body" <?= $enSig ? '' : 'hidden' ?>>
+        <div id="ann-sig-body" class="ann-cblock-body"<?= $enSig ? '' : 'hidden' ?>>
           <label for="signature_name">Подпіс</label>
           <input id="signature_name" type="text" name="signature_name" value="<?= htmlspecialchars($signatureName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" placeholder="кс. …">
           <label for="signature_role">Пасада</label>
@@ -908,7 +905,7 @@ $annDioceseLabels = [
         </div>
       </div>
 
-      <?php $enFoot = !empty($loaded['en_footer']); ?>
+<?php $enFoot = !empty($loaded['en_footer']); ?>
       <div class="ann-cblock<?= $enFoot ? '' : ' ann-cblock--collapsed ann-cblock--inactive' ?>" data-ann-cblock>
         <div class="ann-cblock-head">
           <button type="button" class="ann-cblock-toggle" aria-expanded="<?= $enFoot ? 'true' : 'false' ?>" aria-controls="ann-footer-body" title="Паказаць або схаваць поле">
@@ -916,11 +913,11 @@ $annDioceseLabels = [
           </button>
           <p class="ann-cblock-title">Радок з сайтам</p>
           <div class="field-toggle">
-            <input type="checkbox" id="en_footer" name="en_footer" value="1" <?= $enFoot ? 'checked' : '' ?> data-ann-en>
+            <input type="checkbox" id="en_footer" name="en_footer" value="1"<?= $enFoot ? 'checked' : '' ?> data-ann-en>
             <label for="en_footer">Уключыць у аб’явы</label>
           </div>
         </div>
-        <div id="ann-footer-body" class="ann-cblock-body" <?= $enFoot ? '' : 'hidden' ?>>
+        <div id="ann-footer-body" class="ann-cblock-body"<?= $enFoot ? '' : 'hidden' ?>>
           <label for="footer_website">Сайт у заключным радку</label>
           <input id="footer_website" type="text" name="footer_website" value="<?= htmlspecialchars($footerWebsite, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" placeholder="www.example.by">
         </div>
@@ -936,7 +933,7 @@ $annDioceseLabels = [
   </div>
   </div>
   <script>
-  window.__ANN_BOOT_TOAST__ = <?= $saveError !== null
+  window.__ANN_BOOT_TOAST__ =<?= $saveError !== null
       ? json_encode(['type' => 'err', 'text' => $saveError], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
       : 'null' ?>;
   </script>
@@ -974,7 +971,7 @@ $annDioceseLabels = [
         var q = u.searchParams.toString();
         window.history.replaceState({}, '', u.pathname + (q ? '?' + q : '') + u.hash);
       }
-    } catch (e2) { /* IE or file:// */ }
+    } catch (e2) {  }
 
     var annForm = document.getElementById('ann-settings-form');
     if (annForm) {
@@ -1042,7 +1039,7 @@ $annDioceseLabels = [
                   var q = u.searchParams.toString();
                   window.history.replaceState({}, '', u.pathname + (q ? '?' + q : '') + u.hash);
                 }
-              } catch (e3) { /* ignore */ }
+              } catch (e3) {  }
               return;
             }
             var errText;

@@ -21,19 +21,11 @@ import by.dzmitrypanou.catholicapp.databinding.ItemPrayerTreeBinding
 import by.dzmitrypanou.catholicapp.ui.PrayerBookUiTypography
 import kotlinx.coroutines.launch
 
-/**
- * Fragment that demonstrates a responsive layout pattern where the format of the content
- * transforms depending on the size of the screen. Specifically this Fragment shows items in
- * the [RecyclerView] using LinearLayoutManager in a small screen
- * and shows items using GridLayoutManager in a large screen.
- */
 class TransformFragment : Fragment(), PrayerBookToolbarActions {
 
     private var _binding: FragmentTransformBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
+private val binding get() = _binding!!
 
     private lateinit var categoryAdapter: CategoryAdapter
     private lateinit var transformViewModel: TransformViewModel
@@ -58,7 +50,7 @@ class TransformFragment : Fragment(), PrayerBookToolbarActions {
                 lifecycleScope.launch {
                     val subcategories = repository.getSubcategoryNames(category)
                     if (subcategories.isEmpty()) {
-                        // No visible subcategories: open category prayers directly.
+
                         findNavController().navigate(
                             R.id.action_nav_transform_to_nav_prayer_list,
                             bundleOf(

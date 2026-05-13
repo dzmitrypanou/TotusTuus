@@ -1,27 +1,18 @@
-# Загалоўкі бяспекі для статычнага франтэнда (патрэбны mod_headers).
 <IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options "SAMEORIGIN"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
     Header set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
-    # Раскаментуйце пры пастаянным HTTPS:
-    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
 </IfModule>
 
-# Не аддаваць файлы з назвай, што пачынаецца з кропкі (апрач таго, што апрацоўвае сам Apache).
 <IfModule mod_authz_core.c>
     <FilesMatch "^\.">
         Require all denied
     </FilesMatch>
 </IfModule>
 
-# Адключыць спіс каталогаў.
 Options -Indexes
 
-# /privacy-policy — кананічны URL без канчатковага слэша.
-# Важна: няма каталогу privacy-policy/ на серверы — іначай mod_dir дае рэдырэкт са слэшам і ўзнікае петля.
-# Аддаём адзін файл privacy-policy.html.
-# RewriteBase прымусова фіксуем у "/" каб Apache не падстаўляў фізічны шлях сервера ў redirect Location.
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
@@ -29,10 +20,6 @@ Options -Indexes
     RewriteRule ^privacy-policy$ /privacy-policy.html [L]
 </IfModule>
 
-# Кэшаванне (Lighthouse: Use efficient cache lifetimes).
-# main.js, api-config.js, assets/* — у кодзе дадаецца ?v=TOTUS_WEB_APP_BUILD → бяспечна max-age=v long + immutable.
-# index.html — без доўгага кэшу, каб заўсёды падхапляць новую зборку з meta totus-web-build.
-# tailwind-config.js, totus-boot.js — падлучаюцца з index без ?v= — кароткі кэш, каб абнаўленні даходзілі за гадзіны.
 <IfModule mod_headers.c>
     <FilesMatch "\.(html|htm)$">
         Header set Cache-Control "no-cache, must-revalidate"

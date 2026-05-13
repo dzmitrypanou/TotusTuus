@@ -1,18 +1,11 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Ідэнтыфікатары дыяцэзій Беларусі (угодныя святы — у liturgy_common праз liturgy_apply_regional_belarus_calendar).
- */
-
 const LITURGY_DIOCESE_PINSK = 'pinskaya';
 const LITURGY_DIOCESE_MINSK_MOGILEV = 'minsk_mogilev';
 const LITURGY_DIOCESE_VITEBSK = 'vitebskaya';
 const LITURGY_DIOCESE_GRODNO = 'grodzenskaya';
 
-/**
- * @return list<string>
- */
 function liturgy_diocese_keys(): array
 {
     return [
@@ -23,18 +16,11 @@ function liturgy_diocese_keys(): array
     ];
 }
 
-/**
- * @return array<string, bool>
- */
 function liturgy_diocese_options_default(): array
 {
     return array_fill_keys(liturgy_diocese_keys(), false);
 }
 
-/**
- * @param array<string, mixed> $raw
- * @return array<string, bool>
- */
 function liturgy_normalize_diocese_options(array $raw): array
 {
     $out = liturgy_diocese_options_default();
@@ -48,11 +34,6 @@ function liturgy_normalize_diocese_options(array $raw): array
     return $out;
 }
 
-/**
- * GET dioceses=pinskaya,minsk_mogilev,vitebskaya,grodzenskaya
- *
- * @return array<string, bool>
- */
 function liturgy_calendar_diocese_options_from_request(): array
 {
     $raw = liturgy_diocese_options_default();
@@ -70,11 +51,6 @@ function liturgy_calendar_diocese_options_from_request(): array
     return $raw;
 }
 
-/**
- * Чацвер пасля Пятрыдзесятніцы — у агульным Рымскім календары.
- *
- * @return array<string, array{0:string,1:string}> Y-m-d => [title, color]
- */
 function liturgy_particular_calendar_movable_important(DateTimeImmutable $pentecost): array
 {
     $christEternalHighPriest = $pentecost->modify('+4 day');

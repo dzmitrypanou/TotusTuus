@@ -2,7 +2,6 @@ package by.dzmitrypanou.catholicapp.data
 
 import android.content.Context
 
-/** Сігнал для [by.dzmitrypanou.catholicapp.ui.transform.TransformFragment]: прымусова абнавіць з сервера. */
 object PrayerRefreshRequestStore {
 
     private const val PREFS = "prayer_app_prefs"

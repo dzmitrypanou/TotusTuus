@@ -17,11 +17,7 @@ object SyncScheduler {
     private const val INITIAL_SYNC_WORK = "prayer_initial_sync"
     private const val ONE_SHOT_CHECK = "prayer_update_check_once"
 
-    /**
-     * Улічвае налады: пры адмове ад аўтаабнаўлення адмяняе фонавыя задачы.
-     * Пры згодзе — перыядычнае поўнае абнаўленне кэша малітваў (кожныя 6 г) і аднаразова пасля ўключэння.
-     */
-    fun applyConsent(context: Context) {
+fun applyConsent(context: Context) {
         val app = context.applicationContext
         val wm = WorkManager.getInstance(app)
         if (!PrayerAutoUpdateConsentStore.isGranted(app)) {

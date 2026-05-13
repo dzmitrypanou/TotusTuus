@@ -8,6 +8,6 @@ data class Prayer(
     val subcategory: String? = null,
     val language: String? = null,
     val additionalCategories: List<String> = emptyList(),
-    /** Парадак у асноўнай катэгорыі (з сервера); пры роўных — па [id]. */
+
     val sortOrder: Int = 0
 )

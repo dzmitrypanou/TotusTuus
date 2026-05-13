@@ -10,23 +10,16 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.File
 
-/**
- * Кэш JSON Бібліі з сервера (файл + хэш), па тым жа прынцыпе, што молітвы: scripture_hash.php → scripture.php.
- * Без файла кэша [ScriptureTextRepository] чытае ўбудаваныя assets.
- *
- * Вынік [refreshTranslation]: калі `DiskCacheUpdated` — запісаны новы JSON і скінуты памятны кэш рэпазіторыя,
- * варта перамаляваць экран; інакш лакальныя дадзеныя ўжо актуальныя для паказу.
- */
 object ScriptureRemoteSync {
 
     enum class Result {
-        /** Аўтаабнаўленне выключана — сетку не чапаем */
+
         SkippedNoConsent,
-        /** Хэш як у кэша, файл на месцы — поўная загрузка не патрэбна */
+
         Unchanged,
-        /** Запісаны новы JSON з сервера */
+
         DiskCacheUpdated,
-        /** Не ўдалося атрымаць хэш або поўны файл */
+
         SyncFailed
     }
 
@@ -58,12 +51,7 @@ object ScriptureRemoteSync {
             .apply()
     }
 
-    /**
-     * Падцягванне перакладу з API: спачатку лёгкі хэш, поўны JSON толькі калі змяніўся або няма валіднага файла.
-     *
-     * @param forceRefresh калі `true` — спроба сеткі незалежна ад згоды (фонавы worker ужо праверыў згоду).
-     */
-    suspend fun refreshTranslation(
+suspend fun refreshTranslation(
         context: Context,
         translationId: String,
         forceRefresh: Boolean = false
@@ -98,11 +86,7 @@ object ScriptureRemoteSync {
         Result.DiskCacheUpdated
     }
 
-    /**
-     * Фон: абраны пераклад; згода ўжо правераная ў [PrayerSyncWorker].
-     * Павертае `true`, калі аперацыя завершана без фатальнай памылкі сеткі (уключна без змены па хэшы).
-     */
-    suspend fun downloadIfChanged(context: Context): Boolean {
+suspend fun downloadIfChanged(context: Context): Boolean {
         val id = ScriptureTranslationStore.getSelectedTranslationId(context.applicationContext)
         return refreshTranslation(context, id, forceRefresh = true) != Result.SyncFailed
     }

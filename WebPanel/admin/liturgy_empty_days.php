@@ -281,7 +281,7 @@ ksort($emptyByTitle, SORT_NATURAL | SORT_FLAG_CASE);
       <h1>Totus Tuus</h1>
       <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
-    <?php
+<?php
         $panelNavPage = 'liturgy_empty';
         $panelNavView = 'categories';
         $panelNavCalYear = $fromYear;
@@ -305,7 +305,7 @@ ksort($emptyByTitle, SORT_NATURAL | SORT_FLAG_CASE);
       </div>
     </form>
 
-    <p class="muted" style="margin-top:0;">Перыяд: <?= htmlspecialchars((string)$fromYear, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?> — <?= htmlspecialchars((string)$toYear, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>. У табліцы толькі ўнікальныя назвы дзён без чытанняў.</p>
+    <p class="muted" style="margin-top:0;">Перыяд:<?= htmlspecialchars((string)$fromYear, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?> —<?= htmlspecialchars((string)$toYear, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>. У табліцы толькі ўнікальныя назвы дзён без чытанняў.</p>
 
     <table>
       <thead>
@@ -318,11 +318,11 @@ ksort($emptyByTitle, SORT_NATURAL | SORT_FLAG_CASE);
         </tr>
       </thead>
       <tbody>
-      <?php if ($emptyByTitle === []): ?>
+<?php if ($emptyByTitle === []): ?>
         <tr><td colspan="5" class="muted">Пустых дзён у гэтым дыяпазоне не знойдзена.</td></tr>
-      <?php else: ?>
-        <?php foreach ($emptyByTitle as $row): ?>
-          <?php
+<?php else: ?>
+<?php foreach ($emptyByTitle as $row): ?>
+<?php
           $fdObj = DateTimeImmutable::createFromFormat('Y-m-d', (string)$row['first_date'], new DateTimeZone('UTC'));
           $titleShown = $fdObj instanceof DateTimeImmutable
               ? liturgy_title_with_weekday_for_display($fdObj, (string)$row['title'])
@@ -335,8 +335,8 @@ ksort($emptyByTitle, SORT_NATURAL | SORT_FLAG_CASE);
             <td><?= htmlspecialchars((string)$row['last_date'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
             <td><a class="btn" href="/admin/lectionary.php?prefill_title=<?= urlencode((string)$row['title']) ?>">Стварыць чытанне</a></td>
           </tr>
-        <?php endforeach; ?>
-      <?php endif; ?>
+<?php endforeach; ?>
+<?php endif; ?>
       </tbody>
     </table>
   </div>

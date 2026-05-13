@@ -5,19 +5,11 @@ import java.util.Calendar
 import java.util.TimeZone
 import kotlin.math.ceil
 
-/**
- * Размеркаванне ўсіх главаў бягучага перакладу на 365 слотаў (каляндарны год).
- * Кожны слот — спіс главаў на гэты «дзень плана» (1…365).
- */
 object ScriptureYearReadingPlan {
 
     const val PLAN_LENGTH: Int = 365
 
-    /**
-     * Апраксіматыўны парадак кніг паводле гістарычнага (паводлеўнага) бегу падзей.
-     * Кнігі, якіх няма ў перакладзе, прапускаюцца; недакладныя id дадаюцца ў канцы па book_id.
-     */
-    private val CHRONOLOGICAL_BOOK_ORDER: List<Int> = listOf(
+private val CHRONOLOGICAL_BOOK_ORDER: List<Int> = listOf(
         1, 18,
         2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         77, 73, 17,
@@ -31,15 +23,13 @@ object ScriptureYearReadingPlan {
         58, 59, 60, 65, 61, 62, 63, 64, 66
     )
 
-    /** Індэкс 0…364 для бягучай даты (366-ы дзень у высакосным годзе → апошні слот). */
-    fun planDayIndexFromCalendar(): Int {
+fun planDayIndexFromCalendar(): Int {
         val cal = Calendar.getInstance()
         val dayOfYear = cal.get(Calendar.DAY_OF_YEAR)
         return (dayOfYear - 1).coerceIn(0, PLAN_LENGTH - 1)
     }
 
-    /** Пачатак мясцовага каляндарнага дня (00:00). */
-    fun startOfLocalDayMillis(
+fun startOfLocalDayMillis(
         zone: TimeZone = TimeZone.getDefault(),
         dayOffset: Int = 0
     ): Long {
@@ -54,11 +44,7 @@ object ScriptureYearReadingPlan {
         return c.timeInMillis
     }
 
-    /**
-     * Нумар дня плана 0…364 ад якасці (пачатак першага дня плана ў мясцовым часе).
-     * Дзень старту = 0 (у інтэрфейсе «дзень 1»).
-     */
-    fun planDayIndexFromAnchorDayMillis(anchorLocalDayStartMs: Long): Int {
+fun planDayIndexFromAnchorDayMillis(anchorLocalDayStartMs: Long): Int {
         val todayStart = startOfLocalDayMillis()
         val deltaDays = ((todayStart - anchorLocalDayStartMs) / 86_400_000L).toInt()
         return deltaDays.coerceIn(0, PLAN_LENGTH - 1)
@@ -105,11 +91,7 @@ object ScriptureYearReadingPlan {
         return result
     }
 
-    /**
-     * Змешаны план: штодня прагрэс у трох дарожках — СЗ без Псалмаў і Прытчаў, НЗ,
-     * і Псалмы+Прытчы. Дарожкі без кніг (напрыклад, толькі НЗ) проста не даюць чытанняў.
-     */
-    private fun buildMixedDailyBuckets(context: Context, translationId: String): List<List<ScriptureChapterRef>> {
+private fun buildMixedDailyBuckets(context: Context, translationId: String): List<List<ScriptureChapterRef>> {
         val all = ScriptureTextRepository.getAllChaptersInCanonicalOrder(context, translationId)
         if (all.isEmpty()) return empty365()
 

@@ -37,7 +37,6 @@ function panel_invalidate_user_cache(): void
     unset($GLOBALS['panel_current_user_cache']);
 }
 
-/** @return array<string, mixed>|null */
 function panel_current_user(): ?array
 {
     if (array_key_exists('panel_current_user_cache', $GLOBALS)) {
@@ -88,7 +87,6 @@ function panel_users_count(): int
     return (int)db()->query('SELECT COUNT(*) FROM panel_users')->fetchColumn();
 }
 
-/** @return array<string, mixed>|null */
 function panel_find_user_by_login(string $login): ?array
 {
     $stmt = db()->prepare('SELECT * FROM panel_users WHERE login = :l LIMIT 1');
@@ -109,9 +107,6 @@ function panel_legacy_admin_password_hash(): ?string
     return (string)$row['password_hash'];
 }
 
-/**
- * @return array{ok:bool, error:?string, user_id:?int}
- */
 function panel_attempt_login(string $login, string $password): array
 {
     if ($password === '') {
@@ -166,7 +161,6 @@ function panel_ensure_first_admin_user(string $passwordHash, string $login = 'ad
     return (int)db()->lastInsertId();
 }
 
-/** @return list<string> */
 function panel_user_section_grants(int $userId): array
 {
     static $cache = [];

@@ -29,7 +29,7 @@ function lo_obs_bulk_replace(string $text, string $find, string $replace, bool $
     if ($caseSensitive) {
         return str_replace($find, $replace, $text);
     }
-    // str_ireplace() is not Unicode-safe for Cyrillic (UTF-8); /iu + preg_quote gives true case-folding.
+
     $pattern = '/' . preg_quote($find, '/') . '/iu';
 
     return (string)preg_replace_callback(
@@ -41,9 +41,6 @@ function lo_obs_bulk_replace(string $text, string $find, string $replace, bool $
     );
 }
 
-/**
- * @return list<array<string, mixed>>
- */
 function lo_obs_bulk_load_rows(bool $scopeFiltered, string $filterKindForScope): array
 {
     $sql = 'SELECT * FROM liturgy_observances WHERE 1=1';
@@ -59,9 +56,6 @@ function lo_obs_bulk_load_rows(bool $scopeFiltered, string $filterKindForScope):
     return $stmt->fetchAll();
 }
 
-/**
- * @return array{error: string|null, changes: list<array<string, mixed>>}
- */
 function lo_obs_bulk_compute(
     string $find,
     string $replace,
@@ -104,10 +98,6 @@ function lo_obs_bulk_compute(
     return ['error' => null, 'changes' => $changes];
 }
 
-/**
- * @param list<array<string, mixed>> $changes
- * @return list<array<string, mixed>>
- */
 function lo_obs_bulk_json_rows_for_preview(array $changes, int $maxRows, int $maxChars): array
 {
     $slice = array_slice($changes, 0, $maxRows);
@@ -132,9 +122,6 @@ function lo_obs_bulk_json_rows_for_preview(array $changes, int $maxRows, int $ma
     return $out;
 }
 
-/**
- * @return list<array<string, mixed>>
- */
 function lo_observances_rows_for_list_kind(string $kind): array
 {
     $kind = trim($kind);
@@ -154,9 +141,6 @@ function lo_observances_rows_for_list_kind(string $kind): array
     return $stmt->fetchAll();
 }
 
-/**
- * @param list<array<string, mixed>> $rows
- */
 function lo_observances_table_rows_html(array $rows): string
 {
     ob_start();
@@ -189,14 +173,14 @@ function lo_observances_table_rows_html(array $rows): string
                 <div class="day-actions-row">
                   <a href="/admin/liturgy_observances_edit.php?id=<?= (int)$r['id'] ?>" class="btn">Змена</a>
                   <form method="post" style="margin:0;" onsubmit="return confirm('Выдаліць?');">
-                    <?= panel_csrf_field() ?>
+<?= panel_csrf_field() ?>
                     <input type="hidden" name="delete_id" value="<?= (int)$r['id'] ?>">
                     <button type="submit" class="danger" style="padding:6px 10px;font-size:12px;">Выдаліць</button>
                   </form>
                 </div>
               </td>
             </tr>
-        <?php
+<?php
     }
 
     return (string)ob_get_clean();
@@ -675,7 +659,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       padding-top: 0;
       border-top: none;
     }
-    /* Згортванне ў стылі дзён у аб’явах (announcements.php) */
+
     .bulk-fold {
       border: 1px solid var(--line);
       border-radius: var(--radius-sm);
@@ -1035,7 +1019,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       <h1>Totus Tuus</h1>
       <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
-    <?php
+<?php
         $panelNavPage = 'liturgy_observances';
         $panelNavView = 'categories';
         $panelNavCalYear = $year;
@@ -1043,8 +1027,8 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
         ?>
   </div>
 
-  <?php if ($message !== null): ?><p class="msg ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
-  <?php if ($error !== null): ?><p class="msg err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
+<?php if ($message !== null): ?><p class="msg ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
+<?php if ($error !== null): ?><p class="msg err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
 
   <div class="toolbar-row">
     <a class="btn-pill" href="/admin/liturgy_observances_edit.php">+ Новы запіс</a>
@@ -1059,7 +1043,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
           </div>
           <div id="bulk-main-body" class="bulk-fold-body" hidden>
         <form method="post" id="bulk-form" class="bulk-form" onsubmit="return false;">
-          <?= panel_csrf_field() ?>
+<?= panel_csrf_field() ?>
           <input type="hidden" name="bulk_filter_kind" value="<?= htmlspecialchars($filterKind, ENT_QUOTES, 'UTF-8') ?>">
           <div class="bulk-form-grid">
             <div class="bulk-field">
@@ -1122,7 +1106,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
           </tr>
           </thead>
           <tbody id="obs-list-tbody">
-          <?= lo_observances_table_rows_html($rows) ?>
+<?= lo_observances_table_rows_html($rows) ?>
           </tbody>
         </table>
       </div>
@@ -1154,7 +1138,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       mainToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
       try {
         window.localStorage.setItem(BULK_OPEN_KEY, expanded ? '1' : '0');
-      } catch (e) { /* ignore */ }
+      } catch (e) {  }
     }
 
     if (mainFold && mainBody && mainToggle) {

@@ -65,9 +65,6 @@ function lec_bulk_replace(string $text, string $find, string $replace, bool $cas
     );
 }
 
-/**
- * @return list<array<string, mixed>>
- */
 function lec_bulk_load_rows(bool $scopeFiltered, string $searchQ): array
 {
     $searchQ = trim($searchQ);
@@ -94,9 +91,6 @@ function lec_bulk_load_rows(bool $scopeFiltered, string $searchQ): array
     return $stmt->fetchAll();
 }
 
-/**
- * @return array{error: string|null, changes: list<array<string, mixed>>}
- */
 function lec_bulk_compute(
     string $find,
     string $replace,
@@ -136,9 +130,6 @@ function lec_bulk_compute(
     return ['error' => null, 'changes' => $changes];
 }
 
-/**
- * @param list<array<string, mixed>> $changes
- */
 function lec_bulk_validate_final_lookup_keys_global(array $changes): ?string
 {
     $stmt = db()->query('SELECT id, title FROM liturgy_lectionary_entries WHERE is_active = 1 ORDER BY id ASC');
@@ -169,10 +160,6 @@ function lec_bulk_validate_final_lookup_keys_global(array $changes): ?string
     return null;
 }
 
-/**
- * @param list<array<string, mixed>> $changes
- * @return list<array<string, mixed>>
- */
 function lec_bulk_json_rows_for_preview(array $changes, int $maxRows, int $maxChars): array
 {
     $slice = array_slice($changes, 0, $maxRows);
@@ -1052,7 +1039,7 @@ if ($obsFilterApplied) {
       <h1>Totus Tuus</h1>
       <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
-    <?php
+<?php
         $panelNavPage = 'lectionary';
         $panelNavView = 'categories';
         $panelNavCalYear = $obsYear;
@@ -1073,7 +1060,7 @@ if ($obsFilterApplied) {
         </div>
         <div id="lec-bulk-main-body" class="bulk-fold-body" hidden>
           <form method="post" id="lec-bulk-form" class="bulk-form" onsubmit="return false;">
-            <?= panel_csrf_field() ?>
+<?= panel_csrf_field() ?>
             <input type="hidden" name="bulk_search_q" value="<?= htmlspecialchars($search, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
             <div class="bulk-form-grid">
               <div class="bulk-field">
@@ -1091,7 +1078,7 @@ if ($obsFilterApplied) {
                 <label class="bulk-chip"><input type="checkbox" name="bulk_col_title" value="1" checked><span>Назва (title)</span></label>
                 <label class="bulk-chip"><input type="checkbox" name="bulk_col_text" value="1"><span>Тэкст (HTML)</span></label>
                 <label class="bulk-chip"><input type="checkbox" name="bulk_case_sensitive" value="1"><span>Улічваць рэгістр</span></label>
-                <label class="bulk-chip"><input type="checkbox" name="bulk_scope_filtered" value="1" <?= $search !== '' ? 'checked' : '' ?>><span>Толькі вынікі бягучага пошуку<?= $search !== '' ? ' («' . htmlspecialchars(mb_substr($search, 0, 40), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . (mb_strlen($search) > 40 ? '…' : '') . '»)' : '' ?></span></label>
+                <label class="bulk-chip"><input type="checkbox" name="bulk_scope_filtered" value="1"<?= $search !== '' ? 'checked' : '' ?>><span>Толькі вынікі бягучага пошуку<?= $search !== '' ? ' («' . htmlspecialchars(mb_substr($search, 0, 40), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . (mb_strlen($search) > 40 ? '…' : '') . '»)' : '' ?></span></label>
               </div>
             </fieldset>
           </form>
@@ -1113,21 +1100,21 @@ if ($obsFilterApplied) {
       <h2 style="margin:0 0 8px; font-size:1rem;">Запісы лекцыянарыя</h2>
       <p class="muted" style="margin-top:0;">Падбор у каляндары ідзе па назве дня і, калі ёсць, па назве «успаміну». Кнопка «Святы з БД без чытанняў» вышэй — спіс optional-свят без непустога тэксту ў лекцыянарыі (варынт «альбо» па ключы назвы).</p>
       <form method="get" class="search-row">
-        <?php if ($obsHideNonDiocesan): ?>
+<?php if ($obsHideNonDiocesan): ?>
           <input type="hidden" name="obs_hide_general" value="1">
-        <?php endif; ?>
-        <?php if ($obsFilterApplied): ?>
+<?php endif; ?>
+<?php if ($obsFilterApplied): ?>
           <input type="hidden" name="obs_filter" value="1">
           <input type="hidden" name="obs_period" value="<?= htmlspecialchars($obsPeriod, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
           <input type="hidden" name="obs_year" value="<?= (int)$obsYear ?>">
           <input type="hidden" name="obs_year_from" value="<?= (int)$obsYearFrom ?>">
           <input type="hidden" name="obs_year_to" value="<?= (int)$obsYearTo ?>">
-          <?php foreach (liturgy_diocese_keys() as $dk): ?>
-            <?php if (!empty($dioceseOpts[$dk])): ?>
+<?php foreach (liturgy_diocese_keys() as $dk): ?>
+<?php if (!empty($dioceseOpts[$dk])): ?>
               <input type="hidden" name="d[<?= htmlspecialchars($dk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>]" value="1">
-            <?php endif; ?>
-          <?php endforeach; ?>
-        <?php endif; ?>
+<?php endif; ?>
+<?php endforeach; ?>
+<?php endif; ?>
         <div>
           <label for="q" style="margin-top:0;">Пошук</label>
           <input id="q" type="search" name="q" value="<?= htmlspecialchars($search, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" placeholder="Частка назвы">
@@ -1145,7 +1132,7 @@ if ($obsFilterApplied) {
         </tr>
         </thead>
         <tbody>
-        <?php foreach ($entries as $row): ?>
+<?php foreach ($entries as $row): ?>
           <tr>
             <td><?= (int)$row['id'] ?></td>
             <td>
@@ -1154,10 +1141,10 @@ if ($obsFilterApplied) {
             </td>
             <td><a class="btn-pill" href="/admin/lectionary.php?edit_id=<?= (int)$row['id'] ?>">Адкрыць</a></td>
           </tr>
-        <?php endforeach; ?>
-        <?php if ($entries === []): ?>
+<?php endforeach; ?>
+<?php if ($entries === []): ?>
           <tr><td colspan="3" class="muted">Нічога не знойдзена.</td></tr>
-        <?php endif; ?>
+<?php endif; ?>
         </tbody>
       </table>
     </div>
@@ -1165,7 +1152,7 @@ if ($obsFilterApplied) {
     <div class="card">
       <h2 style="margin:0 0 8px; font-size:1rem;"><?= $editEntry !== null ? 'Рэдагаванне запісу' : 'Новы запіс' ?></h2>
       <form method="post" id="lectionary-form" class="js-ajax-form" data-refresh="1">
-        <?= panel_csrf_field() ?>
+<?= panel_csrf_field() ?>
         <input type="hidden" name="lectionary_id" value="<?= (int)($editEntry['id'] ?? 0) ?>">
 
         <label for="lectionary_title">Назва *</label>
@@ -1177,10 +1164,10 @@ if ($obsFilterApplied) {
 
         <label for="lectionary_liturgical_color">Колер літургічнага дня</label>
         <select id="lectionary_liturgical_color" name="lectionary_liturgical_color">
-          <option value="" <?= $currentLiturgicalColor === '' ? 'selected' : '' ?>>Сістэмны (па сезоне / календары)</option>
-          <?php foreach (['green', 'red', 'purple', 'white', 'rose', 'black'] as $c): ?>
-            <option value="<?= htmlspecialchars($c, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" <?= $currentLiturgicalColor === $c ? 'selected' : '' ?>><?= htmlspecialchars((string)($colorLabels[$c] ?? $c), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
-          <?php endforeach; ?>
+          <option value=""<?= $currentLiturgicalColor === '' ? 'selected' : '' ?>>Сістэмны (па сезоне / календары)</option>
+<?php foreach (['green', 'red', 'purple', 'white', 'rose', 'black'] as $c): ?>
+            <option value="<?= htmlspecialchars($c, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= $currentLiturgicalColor === $c ? 'selected' : '' ?>><?= htmlspecialchars((string)($colorLabels[$c] ?? $c), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
+<?php endforeach; ?>
         </select>
         <p class="muted" style="margin:6px 0 0;">Ужываецца, калі гэты запіс дае чытанні для дня: мае прыярытэт над аўтакалерам, але саступае падмене колеру ў «Календары».</p>
 
@@ -1234,10 +1221,10 @@ if ($obsFilterApplied) {
 
         <div class="actions">
           <button type="submit" name="save_lectionary_entry" value="1">Захаваць</button>
-          <?php if ($editEntry !== null): ?>
+<?php if ($editEntry !== null): ?>
             <button type="submit" class="danger" name="delete_lectionary_entry" value="1" onclick="return confirm('Выдаліць гэты запіс?')">Выдаліць</button>
             <a href="/admin/lectionary.php" class="btn-pill">Новы запіс</a>
-          <?php endif; ?>
+<?php endif; ?>
         </div>
       </form>
     </div>
@@ -1257,8 +1244,8 @@ if ($obsFilterApplied) {
 
   <div id="toast-wrap" class="toast-wrap"></div>
   <script>
-    var initialMessage = <?= json_encode($message, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
-    var initialError = <?= json_encode($error, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+    var initialMessage =<?= json_encode($message, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+    var initialError =<?= json_encode($error, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 
     function showToast(type, text) {
       var wrap = document.getElementById('toast-wrap');

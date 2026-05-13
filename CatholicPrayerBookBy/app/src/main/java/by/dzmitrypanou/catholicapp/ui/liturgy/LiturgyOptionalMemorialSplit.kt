@@ -1,8 +1,5 @@
 package by.dzmitrypanou.catholicapp.ui.liturgy
 
-/**
- * Некалькі даброўных успамінаў у адным радку з API: аднолькавае раскладванне ў календары і на экране дня.
- */
 internal object LiturgyOptionalMemorialSplit {
 
     private val COMBINED_TITLES_REGEX = Regex(

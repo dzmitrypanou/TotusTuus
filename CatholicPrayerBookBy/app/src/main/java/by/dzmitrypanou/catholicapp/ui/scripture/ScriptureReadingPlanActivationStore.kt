@@ -3,10 +3,6 @@ package by.dzmitrypanou.catholicapp.ui.scripture
 import android.content.Context
 import java.util.Calendar
 
-/**
- * Стан плана чытання: пачаці / прыпыненне нагадванняў / адмова.
- * Якар — пачатак мясцовага каляндарнага дня старту; ад яго лічыцца «дзень 1, 2…».
- */
 object ScriptureReadingPlanActivationStore {
 
     private const val PREFS = "scripture_reading_plan_activation"
@@ -31,11 +27,7 @@ object ScriptureReadingPlanActivationStore {
         return if (v > 0L) v else null
     }
 
-    /**
-     * Для ўжо актыўнага плана без якасці (абноўленне дадатка): якар такі,
-     * каб бягучы «дзень плана» супаў з ранейшым каляндарным індэксам 0…364.
-     */
-    fun ensurePlanAnchorForActive(context: Context) {
+fun ensurePlanAnchorForActive(context: Context) {
         val app = context.applicationContext
         val p = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         if (!p.getBoolean(KEY_ACTIVE, false)) return

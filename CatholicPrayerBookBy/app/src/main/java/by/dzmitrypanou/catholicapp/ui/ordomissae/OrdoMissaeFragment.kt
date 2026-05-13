@@ -50,7 +50,7 @@ class OrdoMissaeFragment : Fragment() {
     private var searchResultIndex: Int = -1
     private var pageLoaded: Boolean = false
     private var viewDestroyed: Boolean = false
-    /** Для перазагрузкі WebView пасля пераключэння светлай/цёмнай тэмы. */
+
     private var lastOrdoThemeSignature: Int? = null
 
     override fun onCreateView(
@@ -67,7 +67,7 @@ class OrdoMissaeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupSearchUi()
-        // Лакальны кэш — адразу, як малітоўнік; сетка толькі калі змяніўся updated_at на серверы.
+
         bodyRaw = OrdoMissaeRepository(requireContext().applicationContext).getCachedHtml()
         reloadWebContent()
         loadFromNetwork()
@@ -82,7 +82,7 @@ class OrdoMissaeFragment : Fragment() {
         }
         lastOrdoThemeSignature = themeSig
         val px = PrayerBodyTextSizeStore.readPx(ctx, resources)
-        // Толькі калі ўжо былі паказаны даныя: інакш NaN дацягне перазагрузку з пустым bodyRaw да адказу сеткі → «прыганне» тэксту.
+
         if (lastLoadedBodyPx.isFinite() && abs(px - lastLoadedBodyPx) > 0.5f) {
             applyOrdoBodyFontToWebView(px)
         }
@@ -102,7 +102,7 @@ class OrdoMissaeFragment : Fragment() {
         w.isVerticalScrollBarEnabled = false
         w.isHorizontalScrollBarEnabled = false
         w.settings.apply {
-            // Лакальны HTML Ordo: патрэбна для надзейнага раскрыцця <details> (у WebView часта зламана без JS).
+
             javaScriptEnabled = true
             domStorageEnabled = true
             builtInZoomControls = false
@@ -110,13 +110,12 @@ class OrdoMissaeFragment : Fragment() {
             setSupportZoom(false)
             loadsImagesAutomatically = true
             blockNetworkImage = false
-            // Лакальны HTML з meta viewport: без «overview» менш рывкоў маштабу пры першым малюнку.
+
             loadWithOverviewMode = false
             useWideViewPort = true
         }
-        // Як у PrayerDetailFragment: маштаб ужо ў збудаваным CSS — без onPageFinished і паўторнага JS,
-        // каб не было рыўка раскладкі пасля першай адмалёўкі.
-        w.webViewClient = object : WebViewClient() {
+
+w.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 if (viewDestroyed || _binding == null) return
@@ -432,7 +431,6 @@ class OrdoMissaeFragment : Fragment() {
         applyOrdoBodyFontToWebView(px)
     }
 
-    /** Абнавіць памер тэксту без loadData — каб не скідваць пракрутку і не «прыгалі» ўверх. */
     private fun applyOrdoBodyFontToWebView(bodyFontPx: Float) {
         if (viewDestroyed || _binding == null) return
         val density = resources.displayMetrics.density.coerceAtLeast(0.5f)
@@ -464,10 +462,6 @@ class OrdoMissaeFragment : Fragment() {
         return s.trim()
     }
 
-    /** Кэш/legacy HTML з атрыбутам open — прыбіраем, каб па змаўчанні ўсе секцыі былі згорнутыя. */
-    /**
-     * Пачатковы атрыбут [open] у HTML — без «спачатку ўсе закрыць, потым адкрыць» у JS (без рыўка раскладкі).
-     */
     private fun applyOrdoSectionOpenAttributes(html: String, openMap: Map<String, Boolean>): String =
         Regex("""(?i)<details(\s[^>]*?)>""").replace(html) { m ->
             val attrs = m.groupValues[1]
@@ -493,10 +487,6 @@ class OrdoMissaeFragment : Fragment() {
             t
         }
 
-    /**
-     * Толькі вельмі светлыя колеры з рэдактара (white/#fff і г.д.) — каб у светлай тэме тэкст чытаўся.
-     * Чырвоныя і іншыя насычаныя колеры ў `style` / `<font color>` не чапаем.
-     */
     private fun stripLightEditorTextColorsForOrdo(html: String): String {
         var s = html
         val imp = """(?:\s*!important)?"""
@@ -537,8 +527,7 @@ class OrdoMissaeFragment : Fragment() {
         return s
     }
 
-    /** TinyMCE часта піша font-size у style — тады не працуе маштаб чытання. */
-    private fun stripInlineFontSizeDeclarations(html: String): String {
+private fun stripInlineFontSizeDeclarations(html: String): String {
         var s = html.replace(Regex("""(?i)\bfont-size\s*:\s*[^;]+;?"""), "")
         s = s.replace(Regex(""";\s*;+"""), ";")
         s = s.replace(Regex("""(?i)\sstyle\s*=\s*"\s*;*\s*""""), "")
@@ -633,7 +622,6 @@ class OrdoMissaeFragment : Fragment() {
             details.ordo-missae-section:first-of-type { margin-top: 0; }
             section.ordo-missae-section + section.ordo-missae-section { margin-top: 0.25rem; }
             section.ordo-missae-section:first-child { margin-top: 0; }
-            /* WebView: UA на <details> + явная зменная — маштаб без перазагрузкі HTML (evaluateJavascript). */
             details.ordo-missae-section,
             section.ordo-missae-section {
               font-family: $cssFontFamily !important;

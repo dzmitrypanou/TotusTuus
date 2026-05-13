@@ -390,7 +390,7 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
       <h1>Totus Tuus</h1>
       <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
-    <?php
+<?php
         $panelNavPage = 'liturgy';
         $panelNavView = 'categories';
         $panelNavCalYear = $year;
@@ -398,8 +398,8 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
         ?>
   </div>
 
-    <?php if ($message !== null): ?><p class="msg ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
-    <?php if ($error !== null): ?><p class="msg err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
+<?php if ($message !== null): ?><p class="msg ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
+<?php if ($error !== null): ?><p class="msg err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
 
     <div class="toolbar-back">
       <a class="btn" href="<?= htmlspecialchars($liturgyCalendarHref, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">← Да календара</a>
@@ -412,14 +412,14 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
           <span class="dot" style="background:<?= htmlspecialchars(liturgy_color_hex($autoColorKey), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>;flex-shrink:0;margin-top:3px;"></span>
           <span>Аўта: <strong><?= htmlspecialchars((string)$auto['title'] !== '' ? (string)$auto['title'] : 'Звычайны дзень', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></strong>,
           колер <strong><?= htmlspecialchars($autoColorLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></strong>
-          (<?= htmlspecialchars(liturgy_weekday_name($selectedDateObj), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>, <?= htmlspecialchars($selectedDateObj->format('d.m.Y'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>).
-          <?php if ($lectionaryKeyValue !== ''): ?>
+          (<?= htmlspecialchars(liturgy_weekday_name($selectedDateObj), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>,<?= htmlspecialchars($selectedDateObj->format('d.m.Y'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>).
+<?php if ($lectionaryKeyValue !== ''): ?>
             <br>Лекцыянар: <code><?= htmlspecialchars($lectionaryKeyValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></code>
-            <?php if ($lectionarySourceValue !== ''): ?>(<code><?= htmlspecialchars($lectionarySourceValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></code>)<?php endif; ?>.
-          <?php endif; ?>
+<?php if ($lectionarySourceValue !== ''): ?>(<code><?= htmlspecialchars($lectionarySourceValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></code>)<?php endif; ?>.
+<?php endif; ?>
           </span>
         </p>
-        <?php
+<?php
         $editKindShort = [
             'manual' => 'Запіс',
             'main' => 'Асноўн.',
@@ -428,12 +428,12 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
             'special' => 'Імша',
         ];
         ?>
-        <?php if (count($selectedReadingSlots) > 0): ?>
+<?php if (count($selectedReadingSlots) > 0): ?>
         <div class="readings-slots" style="margin-bottom:14px;">
           <div class="readings-slots-h">Усе чытанні за дзень (лекцыянарый)</div>
-          <?php foreach ($selectedReadingSlots as $eslot): ?>
-            <?php if (!is_array($eslot)) { continue; } ?>
-            <?php
+<?php foreach ($selectedReadingSlots as $eslot): ?>
+<?php if (!is_array($eslot)) { continue; } ?>
+<?php
             $esk = (string)($eslot['kind'] ?? '');
             $eslab = (string)($editKindShort[$esk] ?? $esk);
             $eslabel = (string)($eslot['label'] ?? '');
@@ -445,16 +445,16 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
               <div class="reading-slot-label"><?= htmlspecialchars($eslabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></div>
               <div class="reading-slot-meta">
                 <span class="<?= $ehas ? 'reading-slot-ok' : 'reading-slot-miss' ?>"><?= $ehas ? 'ёсць' : 'няма' ?></span>
-                <?php if ($elk !== ''): ?>
+<?php if ($elk !== ''): ?>
                   <a class="reading-slot-link" href="/admin/lectionary.php?prefill_title=<?= urlencode($elk) ?>">лекцыянарый</a>
-                <?php endif; ?>
+<?php endif; ?>
               </div>
             </div>
-          <?php endforeach; ?>
+<?php endforeach; ?>
         </div>
-        <?php endif; ?>
+<?php endif; ?>
         <form method="post" action="<?= htmlspecialchars($liturgyDayEditPostAction, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
-          <?= panel_csrf_field() ?>
+<?= panel_csrf_field() ?>
           <label for="liturgy_date">Дата</label>
           <input id="liturgy_date" type="date" name="liturgy_date" value="<?= htmlspecialchars($selectedDate, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" required>
 
@@ -463,13 +463,13 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
 
           <label for="color_override">Колер літургічнага дня (неабавязкова)</label>
           <select id="color_override" name="color_override">
-            <?php
+<?php
             $currColor = is_array($entry) ? (string)($entry['color_override'] ?? '') : '';
             ?>
-            <option value="" <?= $currColor === '' ? 'selected' : '' ?>>Аўта</option>
-            <?php foreach (['green', 'red', 'purple', 'white', 'rose', 'black'] as $c): ?>
-              <option value="<?= $c ?>" <?= $currColor === $c ? 'selected' : '' ?>><?= htmlspecialchars((string)($colorLabels[$c] ?? $c), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
-            <?php endforeach; ?>
+            <option value=""<?= $currColor === '' ? 'selected' : '' ?>>Аўта</option>
+<?php foreach (['green', 'red', 'purple', 'white', 'rose', 'black'] as $c): ?>
+              <option value="<?= $c ?>"<?= $currColor === $c ? 'selected' : '' ?>><?= htmlspecialchars((string)($colorLabels[$c] ?? $c), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
+<?php endforeach; ?>
           </select>
 
           <label for="readings_full">Поўны тэкст дня (цалкам, для API)</label>

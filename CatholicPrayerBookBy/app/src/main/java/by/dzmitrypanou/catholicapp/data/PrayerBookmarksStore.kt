@@ -37,8 +37,7 @@ class PrayerBookmarksStore(context: Context) {
         return next
     }
 
-    /** Пасля абнаўлення з сервера: прыбраць закладкі на малітвы, якіх ужо няма ў базе. */
-    fun retainOnly(validPrayerIds: Set<Long>) {
+fun retainOnly(validPrayerIds: Set<Long>) {
         val current = HashSet(prefs.getStringSet(KEY_IDS, emptySet()).orEmpty())
         val next = current.filterTo(HashSet()) { idStr -> idStr.toLongOrNull() in validPrayerIds }
         prefs.edit().putStringSet(KEY_IDS, next).apply()

@@ -73,8 +73,7 @@ class SongbookRepository(
             runCatching { catalog.remoteHash() }.getOrNull()
         }
 
-    /** Скід кэша спеўніка: JSON, хэш, файлы выяў, закладкі на песні. */
-    fun clearCache() {
+fun clearCache() {
         prefs.edit().clear().apply()
             if (catalog == Catalog.SONGBOOK) {
                 SongbookBookmarksStore(appContext).clearAll()
@@ -88,11 +87,7 @@ class SongbookRepository(
         }
     }
 
-    /**
-     * Кэш з сервера. Без сеткі — толькі лакальнае.
-     * З [allowNetwork]: [refreshFromApi] з хэшам — поўны JSON толькі калі змест на серверы змяніўся або трэба дакачаць медыя.
-     */
-    suspend fun getEntries(
+suspend fun getEntries(
         forceRefresh: Boolean = false,
         allowNetwork: Boolean = false
     ): List<SongbookEntry> = withContext(Dispatchers.IO) {
@@ -103,10 +98,7 @@ class SongbookRepository(
         refreshFromApi(cached, allowHashShortCircuit = true, allowNetwork = true)
     }
 
-    /**
-     * Хэш з [songbook_hash.php]: пры супадзенні з кэшам і цэласці файлаў — поўны [songbook.php] не запытваецца.
-     */
-    suspend fun refreshFromApi(
+suspend fun refreshFromApi(
         existingLocal: List<SongbookEntry> = getCachedEntries(),
         allowHashShortCircuit: Boolean = true,
         allowNetwork: Boolean = false,
@@ -227,8 +219,7 @@ class SongbookRepository(
         val neededMediaName: String?
     )
 
-    /** Адна пазіцыя каталога: медыя качаецца тут — выклікаецца паралельна ў межах [MAX_PARALLEL_SONGBOOK_MEDIA_DOWNLOADS]. */
-    private fun syncOneSongbookDto(
+private fun syncOneSongbookDto(
         dto: SongbookDto,
         oldRevisions: Map<String, String>
     ): SongbookSyncRow {
@@ -271,8 +262,7 @@ class SongbookRepository(
         }
     }
 
-    /** Калі ў кэшы ёсць выявы без файлаў — нельга скакаць поўную сінхранізацыю па хэшы. */
-    private fun cachedSongbookMediaFilesIntact(entries: List<SongbookEntry>): Boolean {
+private fun cachedSongbookMediaFilesIntact(entries: List<SongbookEntry>): Boolean {
         for (e in entries) {
             if (e.contentType == SongbookContentType.TEXT) continue
             val name = e.mediaFileName ?: return false

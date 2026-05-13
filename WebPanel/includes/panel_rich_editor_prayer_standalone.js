@@ -1,7 +1,5 @@
-/**
- * Той жа рэдактар, што ў admin/index.php (initRichEditors / syncRichEditors).
- * Глабальныя функцыі для onsubmit формы.
- */
+
+
 'use strict';
 
 function decodeBase64Unicode(value) {

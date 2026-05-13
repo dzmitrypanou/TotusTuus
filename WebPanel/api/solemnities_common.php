@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/liturgy_common.php';
 
-/** @return array<string, string> */
 function solemnities_movable_labels(int $year): array
 {
     $easter = liturgy_easter_sunday($year);
@@ -49,9 +48,6 @@ function solemnities_date_label_be(DateTimeImmutable $date): string
     return (int)$date->format('j') . ' ' . ($months[$month] ?? $date->format('m')) . '*';
 }
 
-/**
- * @return list<array<string, mixed>>
- */
 function fetch_active_solemnities_for_api(?int $year = null): array
 {
     $year = $year ?? (int)date('Y');

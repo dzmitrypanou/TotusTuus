@@ -25,10 +25,7 @@ class ScriptureChaptersFragment : Fragment(), ScriptureToolbarActions {
     private val binding get() = _binding!!
     private var pendingArgHighlightChapter: Int = -1
 
-    /**
-     * Каб пры кожным onResume не рабіць removeAllViews — гэта ўспрымалася як «мігценне» плашак глав.
-     */
-    private data class ChaptersRenderFingerprint(
+private data class ChaptersRenderFingerprint(
         val bookId: Int,
         val translationId: String,
         val chapterCount: Int,
@@ -74,8 +71,7 @@ class ScriptureChaptersFragment : Fragment(), ScriptureToolbarActions {
         renderChapters(force = true)
     }
 
-    /** Без здымку з savedState — каб можна было параўнаць fingerprint і прапусціць перамалёўку. */
-    private fun peekHighlightChapter(): Int {
+private fun peekHighlightChapter(): Int {
         pendingArgHighlightChapter.takeIf { it > 0 }?.let { return it }
         return findNavController().currentBackStackEntry?.savedStateHandle
             ?.get<Int>(KEY_CHAPTER_HIGHLIGHT) ?: -1
@@ -181,9 +177,8 @@ class ScriptureChaptersFragment : Fragment(), ScriptureToolbarActions {
                     y += p.top
                     p = p.parent as? View
                 }
-                // y уже посчитан относительно контейнера; не добавляем container.top,
-                // чтобы первая глава не уезжала под шапку при возврате назад.
-                scroll.smoothScrollTo(0, y.coerceAtLeast(0))
+
+scroll.smoothScrollTo(0, y.coerceAtLeast(0))
             }
         }
     }

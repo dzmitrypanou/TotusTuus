@@ -29,13 +29,13 @@
         <item name="colorOnSurface">?attr/totusColorTextPrimary</item>
         <item name="android:textColorPrimary">?attr/totusColorTextPrimary</item>
         <item name="android:textColorSecondary">?attr/totusColorTextSecondary</item>
-        <!-- Без жоўтага падсвятлення пры націску / вылучэнні тэксту (стандарт тэмы) -->
+
         <item name="android:textColorHighlight">?attr/totusColorRipple</item>
         <item name="android:colorControlHighlight">?attr/totusColorRipple</item>
         <item name="colorControlHighlight">?attr/totusColorRipple</item>
         <item name="android:windowBackground">@drawable/bg_gradient_dark</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <!-- Edge-to-edge: ніжняя панель праозрачная, адступы праз WindowInsets у актывітэтах -->
+
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 

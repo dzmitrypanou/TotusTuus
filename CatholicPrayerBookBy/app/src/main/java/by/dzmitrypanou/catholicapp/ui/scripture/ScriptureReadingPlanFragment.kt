@@ -252,8 +252,7 @@ class ScriptureReadingPlanFragment : Fragment(), ScriptureToolbarActions {
         dialog.show()
     }
 
-    /** Пасля адмовы — спіс планаў (хаб), а не экран аднаго плана з уводзінамі. */
-    private fun navigateToPlansHubAfterDecline() {
+private fun navigateToPlansHubAfterDecline() {
         if (!isAdded) return
         val nav = findNavController()
         if (nav.popBackStack(R.id.nav_scripture_reading_plans_hub, false)) {
@@ -281,8 +280,7 @@ class ScriptureReadingPlanFragment : Fragment(), ScriptureToolbarActions {
         updateBackToScriptureInterceptEnabled()
     }
 
-    /** Пасля «Пачаць план» — «Назад» адразу ў каталог Пісання, не праз хаб. */
-    private fun updateBackToScriptureInterceptEnabled() {
+private fun updateBackToScriptureInterceptEnabled() {
         if (!::backToScriptureWhenPlanActive.isInitialized) return
         val ctx = context ?: return
         backToScriptureWhenPlanActive.isEnabled =

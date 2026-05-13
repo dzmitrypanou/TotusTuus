@@ -104,8 +104,7 @@ class SubcategoriesFragment : Fragment(), PrayerBookToolbarActions {
             subcategory = PrayerRepository.NO_SUBCATEGORY_TITLE
         )
 
-        // Показываем баннер только если в категории нет ни подкатегорий, ни молитв.
-        binding.textSubcategoriesEmpty.visibility =
+binding.textSubcategoriesEmpty.visibility =
             if (subcategories.isEmpty() && categoryPrayers.isEmpty()) View.VISIBLE else View.GONE
 
         val rows = buildList {

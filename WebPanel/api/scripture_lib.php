@@ -1,10 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Біблія: нармалізаванае захоўванне, імпарт/экспарт JSON у фармаце дадатку.
- */
-
 require_once __DIR__ . '/db.php';
 
 function scriptureEnsureSchema(): void
@@ -55,10 +51,6 @@ function scriptureEnsureSchema(): void
     );
 }
 
-/**
- * Мэта-радкі перакладаў: upsert, каб новыя id (напрыклад synodal_ru) з’яўляліся і на існуючых БД.
- * description і source_url не перазапісваюцца пры паўторным выкліку.
- */
 function scriptureEnsureAllTranslationMeta(): void
 {
     $rows = [
@@ -86,9 +78,6 @@ function scriptureEnsureAllTranslationMeta(): void
     }
 }
 
-/**
- * @return array<string, mixed>|null
- */
 function scriptureDecodeJsonFile(string $json): ?array
 {
     try {
@@ -99,11 +88,6 @@ function scriptureDecodeJsonFile(string $json): ?array
     }
 }
 
-/**
- * Поўная замена зместу перакладу з каранёвага JSON (як у assets дадатку).
- *
- * @param array<string, mixed> $root
- */
 function scriptureImportFromArray(string $translationId, array $root): void
 {
     if (!isset($root['books']) || !is_array($root['books'])) {
@@ -240,9 +224,6 @@ function scriptureHasData(string $translationId): bool
     return (bool)$stmt->fetch();
 }
 
-/**
- * @return array<string, mixed>
- */
 function scriptureExportToArray(string $translationId): array
 {
     $stmt = db()->prepare('SELECT source_url FROM scripture_translation_meta WHERE id = :id LIMIT 1');
@@ -346,9 +327,6 @@ function scriptureComputeHash(string $translationId): ?string
     return hash('sha256', $json);
 }
 
-/**
- * @return list<array{id: string, title: string}>
- */
 function scriptureListTranslations(): array
 {
     $stmt = db()->query(
@@ -358,9 +336,6 @@ function scriptureListTranslations(): array
     return is_array($rows) ? $rows : [];
 }
 
-/**
- * @return list<array{book_id: int, book_name: string, chapter_count: int}>
- */
 function scriptureListBooks(string $translationId): array
 {
     $stmt = db()->prepare(
@@ -374,9 +349,6 @@ function scriptureListBooks(string $translationId): array
     return is_array($rows) ? $rows : [];
 }
 
-/**
- * @return list<int>
- */
 function scriptureListChapters(string $translationId, int $bookId): array
 {
     $stmt = db()->prepare(
@@ -393,9 +365,6 @@ function scriptureListChapters(string $translationId, int $bookId): array
     return array_map('intval', $rows);
 }
 
-/**
- * @return list<array{verse: int, text: string}>
- */
 function scriptureGetChapterVerses(string $translationId, int $bookId, int $chapter): array
 {
     $stmt = db()->prepare(
@@ -428,7 +397,7 @@ function scriptureUpdateVerseText(
         ':ch' => $chapter,
         ':vn' => $verse,
     ]);
-    // MySQL можа вярнуць rowCount() = 0, калі тэкст не змяніўся — гэта не «верш не знойдзены».
+
     if ($stmt->rowCount() > 0) {
         return;
     }

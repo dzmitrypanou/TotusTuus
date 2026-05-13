@@ -1,7 +1,5 @@
-/**
- * Стылі WYSIWYG як у admin/index.php (форма малітвы): :root + rich-*.
- * Падключаецца на асобных старонках (напр. ordo_missae.php).
- */
+
+
 :root {
   --bg-deep: #0a0c14;
   --bg-mid: #12182a;
@@ -28,7 +26,7 @@
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  /* overflow:hidden абрэзае position:absolute палітру — выгляд «тонкай палоскі» */
+
   overflow: visible;
   background: rgba(10, 12, 20, 0.45);
 }
@@ -59,7 +57,7 @@
   border-right: 1px solid var(--line);
   flex: 0 0 auto;
 }
-/* Палітра на асобным поўным радку (клас у разметцы — без :has(), працуе ўсюды) */
+
 .rich-toolbar-group--row-break {
   flex: 1 1 100%;
   flex-basis: 100%;
@@ -153,7 +151,7 @@
   left: 0;
   z-index: 200;
   display: none;
-  /* Не % ад вузкага flex-бацькі — інакш сетка сціскаецца ў «лінію» */
+
   width: min(264px, calc(100vw - 32px));
   min-width: 200px;
   box-sizing: border-box;

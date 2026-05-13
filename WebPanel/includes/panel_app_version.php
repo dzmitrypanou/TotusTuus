@@ -1,9 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Версія кліента Totus Tuus — тое ж, што ў totus-app-version.properties у карані рэпазіторыя (Android + вэб).
- */
 function panel_totus_app_version(): array
 {
     static $cache = null;

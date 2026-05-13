@@ -13,8 +13,7 @@ import java.util.concurrent.TimeUnit
 object PrayerApiClient {
     private const val BASE_URL = "https://api.kasciolhomiel.by/api/"
 
-    /** Той жа ключ, што на серверы (X-Totus-Api-Key). */
-    private const val HEADER_API_KEY = "X-Totus-Api-Key"
+private const val HEADER_API_KEY = "X-Totus-Api-Key"
 
     private val apiKeyInterceptor = Interceptor { chain ->
         val key = BuildConfig.PUBLIC_API_KEY
@@ -25,16 +24,14 @@ object PrayerApiClient {
         chain.proceed(builder.build())
     }
 
-    /** Карань сайта для WebView: адносныя `src`/`href` ў HTML з панэлі. */
-    val siteOriginForHtml: String
+val siteOriginForHtml: String
         get() {
             val base = BASE_URL.trimEnd('/')
             val idx = base.lastIndexOf("/api")
             return if (idx >= 0) base.substring(0, idx) + "/" else "$base/"
         }
 
-    /** Адносны шлях ад караня сайта (напрыклад uploads/songbook/12.webp) → поўны URL для загрузкі. */
-    fun absoluteUrlForSitePath(path: String): String {
+fun absoluteUrlForSitePath(path: String): String {
         val p = path.trim()
         if (p.startsWith("http://", ignoreCase = true) || p.startsWith("https://", ignoreCase = true)) {
             return p
@@ -60,8 +57,7 @@ object PrayerApiClient {
             .build()
     }
 
-    /** Вялікія JSON Бібліі — больш таймаўт чытання. */
-    private val httpClientLongRead: OkHttpClient by lazy {
+private val httpClientLongRead: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .addInterceptor(apiKeyInterceptor)
             .connectTimeout(20, TimeUnit.SECONDS)
@@ -89,11 +85,7 @@ object PrayerApiClient {
             .create(ScriptureApiService::class.java)
     }
 
-    /**
-     * Загрузка файлаў медыя спеўніка. OkHttp над надзейней за [java.net.HttpURLConnection]
-     * (рэдырэкты, User-Agent, вялікія файлы — даўжэйшы read timeout).
-     */
-    fun downloadBinaryToFile(url: String, dest: File): Boolean =
+fun downloadBinaryToFile(url: String, dest: File): Boolean =
         runCatching {
             val reqBuilder = Request.Builder()
                 .url(url)

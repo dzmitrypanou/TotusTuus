@@ -2,12 +2,10 @@ package by.dzmitrypanou.catholicapp.ui.songbook
 
 import android.content.Context
 
-/** Запамінае разгортанне раздзелаў спеўніка (як [by.dzmitrypanou.catholicapp.ui.scripture.ScriptureTestamentExpandStore]). */
 object SongbookCategoryExpandStore {
     private const val PREFS = "songbook_category_expand"
 
-    /** Ключ групы для песень без поля «катэгорыя». */
-    const val GROUP_KEY_UNCATEGORIZED: String = "__uncategorized__"
+const val GROUP_KEY_UNCATEGORIZED: String = "__uncategorized__"
 
     fun preferenceKeyForGroup(groupKey: String): String =
         when (groupKey) {

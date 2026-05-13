@@ -6,7 +6,6 @@ import com.google.android.material.button.MaterialButton
 import by.dzmitrypanou.catholicapp.R
 import by.dzmitrypanou.catholicapp.data.AppGlobalTextScaleStore
 
-/** Кнопкі А± у шапцы на экранах чытання (малітва, спеўнік, Пісанне, лекцыянарый). */
 object ReadingTextScaleToolbar {
     private const val MIN_STEP = 0
     private const val MAX_STEP = 4

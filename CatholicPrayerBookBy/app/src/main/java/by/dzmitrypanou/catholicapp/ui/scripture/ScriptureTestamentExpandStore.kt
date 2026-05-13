@@ -3,7 +3,6 @@ package by.dzmitrypanou.catholicapp.ui.scripture
 import android.content.Context
 import by.dzmitrypanou.catholicapp.R
 
-/** Запамінае, разгорнуты спіс кніг у Новым / Старым Запавеце на экране Бібліі. */
 object ScriptureTestamentExpandStore {
     private const val PREFS = "scripture_testament_expand"
     private const val KEY_NT = "nt"

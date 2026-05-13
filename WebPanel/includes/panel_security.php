@@ -1,10 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Безопасность админ-панели: сессия, заголовки, CSRF для POST.
- */
-
 function panel_is_https_request(): bool
 {
     if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
@@ -43,14 +39,12 @@ function panel_rotate_csrf_token(): void
     $_SESSION['panel_csrf'] = bin2hex(random_bytes(32));
 }
 
-/** Значение токена для meta / JS (после session_start + ensure). */
 function panel_csrf_token_value(): string
 {
     panel_ensure_csrf_token();
     return (string)$_SESSION['panel_csrf'];
 }
 
-/** Скрытое поле для форм POST. */
 function panel_csrf_field(): string
 {
     $t = htmlspecialchars(panel_csrf_token_value(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');

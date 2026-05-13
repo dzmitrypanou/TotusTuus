@@ -335,7 +335,7 @@ $optPrefixAutoChecked = $editRow === null
       <h1>Totus Tuus</h1>
       <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
-    <?php
+<?php
         $panelNavPage = 'liturgy_observances';
         $panelNavView = 'categories';
         $panelNavCalYear = $year;
@@ -343,33 +343,33 @@ $optPrefixAutoChecked = $editRow === null
         ?>
   </div>
 
-  <?php if ($message !== null): ?><p class="msg ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
-  <?php if ($error !== null): ?><p class="msg err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
+<?php if ($message !== null): ?><p class="msg ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
+<?php if ($error !== null): ?><p class="msg err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
 
   <div class="toolbar-row">
     <a class="btn-pill" href="/admin/liturgy_observances.php">← Да спісу свят БД</a>
-    <?php if ($editRow && $editId > 0): ?>
-      <span class="muted">id <?= $editId ?></span>
-    <?php endif; ?>
+<?php if ($editRow && $editId > 0): ?>
+      <span class="muted">id<?= $editId ?></span>
+<?php endif; ?>
   </div>
 
-  <?php if ($editId > 0 && $editRow === null && $error !== null): ?>
+<?php if ($editId > 0 && $editRow === null && $error !== null): ?>
     <p class="muted">Вярнуцца да <a href="/admin/liturgy_observances.php">спісу</a>.</p>
-  <?php else: ?>
+<?php else: ?>
   <div class="card">
       <h2><?= $editRow ? 'Рэдагаванне запісу' : 'Новы запіс' ?></h2>
       <p class="muted" style="margin-top:0;">Табліца <code>liturgy_observances</code>. Ключы дыяцэзій: <code>pinskaya</code>, <code>minsk_mogilev</code>, <code>vitebskaya</code>, <code>grodzenskaya</code>.</p>
 
       <form method="post">
-        <?= panel_csrf_field() ?>
+<?= panel_csrf_field() ?>
         <input type="hidden" name="save_observance" value="1">
         <input type="hidden" name="id" value="<?= (int)($editRow['id'] ?? 0) ?>">
 
         <label for="rule_type">Тып правіла</label>
         <select id="rule_type" name="rule_type">
-            <?php foreach ($ruleTypes as $k => $lab): ?>
-                <option value="<?= htmlspecialchars($k, ENT_QUOTES, 'UTF-8') ?>" <?= (($editRow['rule_type'] ?? 'fixed_md') === $k) ? 'selected' : '' ?>><?= htmlspecialchars($lab, ENT_QUOTES, 'UTF-8') ?></option>
-            <?php endforeach; ?>
+<?php foreach ($ruleTypes as $k => $lab): ?>
+                <option value="<?= htmlspecialchars($k, ENT_QUOTES, 'UTF-8') ?>"<?= (($editRow['rule_type'] ?? 'fixed_md') === $k) ? 'selected' : '' ?>><?= htmlspecialchars($lab, ENT_QUOTES, 'UTF-8') ?></option>
+<?php endforeach; ?>
         </select>
 
         <label>Месяц / дзень (фіксаваная дата)</label>
@@ -384,9 +384,9 @@ $optPrefixAutoChecked = $editRow === null
 
         <label for="observance_kind">Від запісу</label>
         <select id="observance_kind" name="observance_kind">
-            <?php foreach ($kinds as $k => $lab): ?>
-                <option value="<?= htmlspecialchars($k, ENT_QUOTES, 'UTF-8') ?>" <?= (($editRow['observance_kind'] ?? 'optional') === $k) ? 'selected' : '' ?>><?= htmlspecialchars($lab, ENT_QUOTES, 'UTF-8') ?></option>
-            <?php endforeach; ?>
+<?php foreach ($kinds as $k => $lab): ?>
+                <option value="<?= htmlspecialchars($k, ENT_QUOTES, 'UTF-8') ?>"<?= (($editRow['observance_kind'] ?? 'optional') === $k) ? 'selected' : '' ?>><?= htmlspecialchars($lab, ENT_QUOTES, 'UTF-8') ?></option>
+<?php endforeach; ?>
         </select>
 
         <label for="regional_rank">Ранг (solemnity / feast / memorial)</label>
@@ -397,7 +397,7 @@ $optPrefixAutoChecked = $editRow === null
 
         <div id="optional-prefix-block" class="optional-prefix-block" hidden>
           <label class="checkbox-row" style="margin-top:14px;">
-            <input type="checkbox" name="optional_title_prefix_auto" value="1" <?= $optPrefixAutoChecked ? 'checked' : '' ?>>
+            <input type="checkbox" name="optional_title_prefix_auto" value="1"<?= $optPrefixAutoChecked ? 'checked' : '' ?>>
             Аўтаматычна дадаваць «Успамін —» у дадатку / API, калі ў загалоўку няма тыпу (Успамін / Свята / …)
           </label>
           <p class="muted" style="margin:6px 0 0 2.2rem; max-width:40rem;">Калі зняць гэтае птушка: паказваецца менавіта тэкст загалоўка з БД (пасля прыбірання «Панядзелак — …» з аўта-радка дня). Можаце самі ўпісаць «Успамін — …», «Свята — …» або пакінуць без прэфікса.</p>
@@ -405,16 +405,16 @@ $optPrefixAutoChecked = $editRow === null
 
         <label for="liturgical_color">Колер</label>
         <select id="liturgical_color" name="liturgical_color">
-            <?php foreach ($colors as $k => $lab): ?>
-                <option value="<?= htmlspecialchars($k, ENT_QUOTES, 'UTF-8') ?>" <?= (($editRow['liturgical_color'] ?? 'white') === $k) ? 'selected' : '' ?>><?= htmlspecialchars($k . ' — ' . $lab, ENT_QUOTES, 'UTF-8') ?></option>
-            <?php endforeach; ?>
+<?php foreach ($colors as $k => $lab): ?>
+                <option value="<?= htmlspecialchars($k, ENT_QUOTES, 'UTF-8') ?>"<?= (($editRow['liturgical_color'] ?? 'white') === $k) ? 'selected' : '' ?>><?= htmlspecialchars($k . ' — ' . $lab, ENT_QUOTES, 'UTF-8') ?></option>
+<?php endforeach; ?>
         </select>
 
         <label for="source_tag">source_tag</label>
         <select id="source_tag" name="source_tag">
-            <?php foreach ($sourceTags as $k => $_): ?>
-                <option value="<?= htmlspecialchars($k, ENT_QUOTES, 'UTF-8') ?>" <?= (($editRow['source_tag'] ?? 'fixed') === $k) ? 'selected' : '' ?>><?= htmlspecialchars($k, ENT_QUOTES, 'UTF-8') ?></option>
-            <?php endforeach; ?>
+<?php foreach ($sourceTags as $k => $_): ?>
+                <option value="<?= htmlspecialchars($k, ENT_QUOTES, 'UTF-8') ?>"<?= (($editRow['source_tag'] ?? 'fixed') === $k) ? 'selected' : '' ?>><?= htmlspecialchars($k, ENT_QUOTES, 'UTF-8') ?></option>
+<?php endforeach; ?>
         </select>
 
         <label for="require_any_of">require_any_of (CSV)</label>
@@ -432,7 +432,7 @@ $optPrefixAutoChecked = $editRow === null
         <label for="sort_order">sort_order</label>
         <input id="sort_order" type="number" name="sort_order" step="1" value="<?= htmlspecialchars((string)($editRow['sort_order'] ?? '0'), ENT_QUOTES, 'UTF-8') ?>">
 
-        <label class="checkbox-row"><input type="checkbox" name="is_active" value="1" <?= !isset($editRow['is_active']) || (int)$editRow['is_active'] === 1 ? 'checked' : '' ?>> Актыўны</label>
+        <label class="checkbox-row"><input type="checkbox" name="is_active" value="1"<?= !isset($editRow['is_active']) || (int)$editRow['is_active'] === 1 ? 'checked' : '' ?>> Актыўны</label>
 
         <label for="patch_append_to_mmdd">patch_append_to_mmdd (MM-DD)</label>
         <input id="patch_append_to_mmdd" type="text" name="patch_append_to_mmdd" value="<?= htmlspecialchars((string)($editRow['patch_append_to_mmdd'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
@@ -444,15 +444,15 @@ $optPrefixAutoChecked = $editRow === null
           <button type="submit">Захаваць</button>
         </div>
       </form>
-      <?php if ($editRow && $editId > 0): ?>
+<?php if ($editRow && $editId > 0): ?>
       <form method="post" class="actions" style="margin-top:8px;" onsubmit="return confirm('Выдаліць гэты запіс?');">
-        <?= panel_csrf_field() ?>
+<?= panel_csrf_field() ?>
         <input type="hidden" name="delete_id" value="<?= $editId ?>">
         <button type="submit" class="danger">Выдаліць запіс</button>
       </form>
-      <?php endif; ?>
+<?php endif; ?>
   </div>
-  <?php endif; ?>
+<?php endif; ?>
   <script>
   (function () {
     var kind = document.getElementById('observance_kind');

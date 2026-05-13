@@ -1,14 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Адзіны ключ для публічных GET API (прыкладанне).
- * Крыніцы: глядзі totus_effective_public_api_key() у totus_repo_public_key.php
- * (env → .properties у некалькіх месцах → убудаваны рэзерв для дэплою без караня рэпа).
- *
- * Загаловак запыту: X-Totus-Api-Key
- */
-
 const TOTUS_API_KEY_HEADER = 'HTTP_X_TOTUS_API_KEY';
 
 require_once __DIR__ . '/totus_repo_public_key.php';
@@ -18,7 +10,6 @@ function totus_public_api_key(): string
     return totus_effective_public_api_key();
 }
 
-/** Агульныя загалоўкі бяспекі для JSON API (OWASP / baseline). */
 function api_public_security_headers(): void
 {
     if (headers_sent()) {
@@ -55,7 +46,6 @@ function api_public_guard_json_error(int $httpCode, string $errorCode, string $m
     exit;
 }
 
-/** Выклікаць у публічных API да db.php і любых вывадаў. */
 function api_public_guard_enforce(): void
 {
     $method = (string)($_SERVER['REQUEST_METHOD'] ?? 'GET');

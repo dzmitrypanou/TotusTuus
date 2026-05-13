@@ -1,4 +1,3 @@
-# Загалоўкі бяспекі для адказаў з /api/ (дапаўняюць api_public_security_headers() у PHP).
 <IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options "DENY"
@@ -8,7 +7,6 @@
 
 Options -Indexes
 
-# Закрыть прямой HTTP-доступ к внутренним скриптам (подключаются только через require)
 <IfModule mod_authz_core.c>
     <Files "db.php">
         Require all denied

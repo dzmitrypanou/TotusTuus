@@ -1,11 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Аднольковы набор радкоў для prayers.php і prayers_hash.php.
- *
- * @return list<array<string, mixed>>
- */
 function fetch_active_prayers_for_api(): array
 {
     $stmt = db()->query(
@@ -32,11 +27,6 @@ function fetch_active_prayers_for_api(): array
     return $stmt->fetchAll();
 }
 
-/**
- * Актыўныя катэгорыі ў тым жа парадку, што ў адмінцы (sort_order).
- *
- * @return list<array<string, mixed>>
- */
 function fetch_active_prayer_categories_for_api(): array
 {
     $stmt = db()->query(

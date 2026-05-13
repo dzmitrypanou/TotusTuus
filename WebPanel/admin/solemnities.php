@@ -148,7 +148,7 @@ if (!is_array($rows)) {
       <h1>Totus Tuus</h1>
       <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
-    <?php
+<?php
         $panelNavPage = 'solemnities';
         $panelNavView = 'categories';
         $panelNavCalYear = (int)date('Y');
@@ -156,8 +156,8 @@ if (!is_array($rows)) {
         ?>
   </div>
 
-  <?php if ($message !== null): ?><p class="msg msg--ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
-  <?php if ($error !== null): ?><p class="msg msg--err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
+<?php if ($message !== null): ?><p class="msg msg--ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
+<?php if ($error !== null): ?><p class="msg msg--err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
 
   <div class="toolbar-row" style="margin-bottom:12px;">
     <a class="btn-pill" href="/admin/solemnities_edit.php">+ Новы запіс</a>
@@ -184,7 +184,7 @@ if (!is_array($rows)) {
           <a class="btn-pill btn-pill--muted" href="/admin/solemnities.php">Скід</a>
         </div>
       </form>
-      <p class="muted">Паказана: <?= count($rows) ?>.</p>
+      <p class="muted">Паказана:<?= count($rows) ?>.</p>
       <div class="table-wrap">
         <table class="table">
           <thead>
@@ -200,10 +200,10 @@ if (!is_array($rows)) {
             </tr>
           </thead>
           <tbody>
-          <?php if ($rows === []): ?>
+<?php if ($rows === []): ?>
             <tr><td colspan="8" class="muted">Запісаў няма.</td></tr>
-          <?php endif; ?>
-          <?php foreach ($rows as $row): ?>
+<?php endif; ?>
+<?php foreach ($rows as $row): ?>
             <tr>
               <td><?= (int)$row['id'] ?></td>
               <td><?= (int)$row['sort_order'] ?></td>
@@ -216,14 +216,14 @@ if (!is_array($rows)) {
                 <div class="row-actions">
                   <a class="btn-pill btn-pill--muted" href="/admin/solemnities_edit.php?id=<?= (int)$row['id'] ?>">Змена</a>
                   <form method="post" action="/admin/solemnities.php" onsubmit="return confirm('Выдаліць запіс?');">
-                    <?= panel_csrf_field() ?>
+<?= panel_csrf_field() ?>
                     <input type="hidden" name="delete_id" value="<?= (int)$row['id'] ?>">
                     <button type="submit" class="danger">Выдаліць</button>
                   </form>
                 </div>
               </td>
             </tr>
-          <?php endforeach; ?>
+<?php endforeach; ?>
           </tbody>
         </table>
       </div>

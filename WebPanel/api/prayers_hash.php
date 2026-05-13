@@ -1,10 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Лёгкая праверка зменаў: SHA-256 ад таго ж JSON, што аддае prayers.php.
- */
-
 require_once __DIR__ . '/api_public_guard.php';
 api_public_guard_enforce();
 

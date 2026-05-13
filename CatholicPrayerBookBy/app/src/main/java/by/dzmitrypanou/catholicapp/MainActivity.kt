@@ -171,9 +171,8 @@ class MainActivity : AppCompatActivity() {
         navigationInitialized = true
         val navController = navHostFragment.navController
         appBarConfiguration = AppBarConfiguration(setOf(R.id.nav_home))
-        // НЕ выкарыстоўваць setupActionBarWithNavController: яго ActionBarOnDestinationChangedListener
-        // пры кожным пераходзе робіць actionBar.title і дэлегат шапкі — ламае кастомны загаловак і insets.
-        currentDestinationId = navController.currentDestination?.id ?: R.id.nav_home
+
+currentDestinationId = navController.currentDestination?.id ?: R.id.nav_home
         navController.addOnDestinationChangedListener(
             NavController.OnDestinationChangedListener { _, destination, arguments ->
                 currentDestinationId = destination.id
@@ -214,10 +213,8 @@ class MainActivity : AppCompatActivity() {
         val toolbar = binding.appBarMain.toolbar
         removeToolbarCustomRow()
         toolbar.minimumHeight = resources.getDimensionPixelSize(R.dimen.toolbar_min_height_extended)
-        // Не скідваць contentInset да «дафолту» перад кастомным загалоўкам — адзін кад з вялікім
-        // inset+іншай вышыняй слота дае няправільнае вертыкальнае размяшчэнне (акрамя галоўнага экрана).
 
-        var usesCustomTitleRow = true
+var usesCustomTitleRow = true
         when (destinationId) {
             R.id.nav_home -> attachHomeToolbarRow()
             R.id.nav_prayer_detail -> {
@@ -470,7 +467,7 @@ class MainActivity : AppCompatActivity() {
         if (usesCustomTitleRow) {
             applyToolbarContentInsetsForDestination(destinationId)
         }
-        // Пасля вяртання з раздзела меню перамалёўвае Toolbar — адзін кад пазней стабілізуе брэнд у шапцы.
+
         if (usesCustomTitleRow && destinationId == R.id.nav_home) {
             val tbar = binding.appBarMain.toolbar
             tbar.post {
@@ -486,10 +483,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Іконка «назад» і слухач без лішніх выклікаў ActionBar.setTitle з Navigation UI.
-     */
-    private fun syncToolbarWithNavController(navController: NavController) {
+private fun syncToolbarWithNavController(navController: NavController) {
         val toolbar = binding.appBarMain.toolbar
         val dest = navController.currentDestination ?: return
         if (appBarConfiguration.isTopLevelDestination(dest)) {
@@ -613,9 +607,7 @@ class MainActivity : AppCompatActivity() {
         toolbar.contentInsetStartWithNavigation =
             resources.getDimensionPixelSize(R.dimen.toolbar_title_gap_after_nav)
 
-        // Слот ActionBar customView — стабільная зона для загалоўка; addView у Toolbar пасля
-        // змены меню/навігацыі дае зсоў і абрэзку тэксту.
-        val tv = createSectionToolbarTitleTextView(titleTextDimen)
+val tv = createSectionToolbarTitleTextView(titleTextDimen)
         tv.text = titleText.ifBlank { fallback }
         val lp = ActionBar.LayoutParams(
             ActionBar.LayoutParams.MATCH_PARENT,
@@ -635,8 +627,7 @@ class MainActivity : AppCompatActivity() {
         toolbar.contentInsetStartWithNavigation =
             resources.getDimensionPixelSize(R.dimen.toolbar_home_content_inset_start)
 
-        // Той жа слот customView, што і загаловак раздзела — без Toolbar.addView (інакш брэнд абразаецца знізу).
-        val row = LinearLayout(this).apply {
+val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             isBaselineAligned = false
@@ -674,8 +665,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** Да 3 радкоў + autosize ад dimen (раздзелы; галоўная — асобна). */
-    private fun createSectionToolbarTitleTextView(@DimenRes textDimen: Int): AppCompatTextView {
+private fun createSectionToolbarTitleTextView(@DimenRes textDimen: Int): AppCompatTextView {
         return TotusToolbarTitleTextView(this).apply {
             setTextColor(themeColor(R.attr.totusColorTextPrimary))
             maxLines = 3

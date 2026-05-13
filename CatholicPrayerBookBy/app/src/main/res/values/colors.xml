@@ -19,12 +19,12 @@
     <color name="surface_elevated">#252B42</color>
     <color name="scripture_verse_highlight_fill">#2F354F</color>
     <color name="scripture_verse_highlight_stroke">#E2D5B8</color>
-    <!-- Кнопкі навігацыі па главах — тон як у радкоў кніг (bg_dark_secondary + surface_stroke) -->
+
     <color name="scripture_chapter_nav_button_fill">@color/bg_dark_secondary</color>
     <color name="scripture_chapter_nav_button_stroke">@color/surface_stroke</color>
     <color name="scripture_chapter_nav_button_fill_disabled">@color/purple_700</color>
     <color name="scripture_chapter_nav_button_stroke_disabled">#303648</color>
-    <!-- Totus Tuus — як у ToolbarBrandTitleTextView -->
+
     <color name="brand_totus_mist">#FFF1F5F9</color>
     <color name="brand_totus_gold">#FFE2D5B8</color>
     <color name="brand_totus_lavender">#FFC7D2FE</color>

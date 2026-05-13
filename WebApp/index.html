@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="be" data-app-font="sans" data-app-theme="current">
 <head>
-    <!-- Версія зборкі: як versionName у sibling-файле ../totus-app-version.properties (meta і ?v= ніжэй). -->
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="manifest" href="site.webmanifest">
@@ -10,10 +10,10 @@
     <link rel="apple-touch-icon" href="favicon.png">
     <title>Totus Tuus</title>
     <meta name="description" content="Totus Tuus — малітоўнік, спеўнік, Святое Пісанне ў беларускіх перакладах і літургічны каляндар. Працуе ў браўзеры без усталёўкі.">
-    <!-- Першыя карткі галоўнага экрана: preload + JPEG замест PNG памяншаюць flash фону пры refresh. -->
+
     <link rel="preload" as="image" href="assets/home/ordo_missae_header_image.jpg?v=1.4.3" imagesizes="(max-width: 480px) calc((100vw - 1rem - 8px) / 2), min(228px, calc((100vw - 1rem - 8px) / 2))">
     <link rel="preload" as="image" href="assets/home/kantaral_header_image.jpg?v=1.4.3" imagesizes="(max-width: 480px) calc((100vw - 1rem - 8px) / 2), min(228px, calc((100vw - 1rem - 8px) / 2))">
-    <!-- LCP: карта «Святое Пісанне» (span 1, каля спеўніка); абноўліце ?v= разам з meta totus-web-build. -->
+
     <link rel="preload" as="image" href="assets/home/scripture_header_bible.webp?v=1.4.3" imagesizes="(max-width: 480px) calc((100vw - 1rem - 8px) / 2), min(228px, calc((100vw - 1rem - 8px) / 2))">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,7 +30,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons@3.3.1/css/regular/rounded.css" crossorigin>
     <link rel="stylesheet" href="assets/totus-tailwind.css?v=1.4.3">
     <style>
-        /* Адна вобласць пракруткі ўнутры дадатка — без пракруткі ўсяго акна (мабільныя браўзеры менш «схоўваюць» палі URL). */
+
         html {
             height: 100%;
             height: 100dvh;
@@ -48,9 +48,8 @@
             display: flex;
             flex-direction: column;
         }
-        /* Без адлюстравання скролбараў (колца/свайп працуе як раней).
-           scrollbar-width толькі ў @supports — Safari / стары Chrome не падтрымліваюць уласцівасць, але хаваюць скрол праз ::-webkit-scrollbar ніжэй. */
-        * {
+
+* {
             -ms-overflow-style: none;
         }
         @supports (scrollbar-width: none) {
@@ -63,7 +62,7 @@
             width: 0;
             height: 0;
         }
-        /* Фон як bg_gradient_dark.xml (315°) */
+
         .bg-app-gradient {
             background: linear-gradient(315deg, #0E1020 0%, #171A2A 100%);
             min-height: 0;
@@ -78,7 +77,7 @@
         .bg-drawer-header {
             background: linear-gradient(135deg, #0E1020 0%, #171A2A 50%, #13172C 100%);
         }
-        /* Шрыфт усяго дадатка (як AppFontFamilyStore у Android) */
+
         html[data-app-font='sans'] body {
             font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
@@ -95,7 +94,7 @@
             font-weight: 600;
             margin-top: 0.75rem;
             margin-bottom: 0.35rem;
-            /* Успадкоўваем text-app-text (цёмная/светлая/бэжавая тэма), без жорсткага белага */
+
             color: inherit;
         }
         .readings-content > h1:first-child,
@@ -107,14 +106,14 @@
             margin-bottom: 0.65rem;
             color: inherit;
         }
-        /* Адступ тэксту чытанняў ад загалоўка <details>/<summary> */
+
         .readings-content details > div {
             margin-top: 0.5rem;
         }
         .readings-content details + details {
             margin-top: 0.65rem;
         }
-        /* Фіксаваны памер як на тэлефоне — без vw, каб на ПК не раздзімаўся да max clamp. */
+
         .home-toolbar-brand-title {
             font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
             font-weight: 600;
@@ -131,11 +130,11 @@
                 color: transparent;
             }
         }
-        /* Загаловак шапкі: стартавы памер да JS; рэальны — пасля fitToolbarTitleH1 (не больш за вышыню шапкі). */
+
         .totus-toolbar-title-autosize {
             font-size: 14px;
         }
-        /* Тэкст запісу спеўніка ў WebView (SongbookDetailFragment.buildHtmlDocument) */
+
         .songbook-detail-plain,
         .songbook-detail-html,
         .prayer-detail-html {
@@ -145,14 +144,14 @@
             -webkit-text-size-adjust: 100%;
             text-size-adjust: 100%;
         }
-        /* Межстрочный интервал чтения: как в песеннике. */
+
         .totus-reading-detail {
             line-height: 1.2;
         }
         .songbook-detail-plain .song-plain {
             white-space: normal;
         }
-        /* Спеўнік: перацягванне выявы — без сіняга вылучэння тэксту / вобласці (Windows, WebKit) */
+
         .songbook-image-zoom-host,
         .songbook-image-zoom-host * {
             -webkit-user-select: none;
@@ -189,7 +188,7 @@
             border-left: 3px solid #39415e;
             color: #b8c0d9;
         }
-        /* Ordo Missae: сварочныя часткі (details); стары section — рэзерв для кэшу */
+
         .prayer-detail-html details.ordo-missae-section + details.ordo-missae-section,
         .prayer-detail-html section.ordo-missae-section + section.ordo-missae-section {
             margin-top: 0.25rem;
@@ -198,14 +197,14 @@
         .prayer-detail-html section.ordo-missae-section:first-child {
             margin-top: 0;
         }
-        /* Як .totus-read-18: змест секцыі маштабуецца з --totus-read-scale; summary застаецца 1rem. */
+
         .prayer-detail-html details.ordo-missae-section,
         .prayer-detail-html section.ordo-missae-section {
             font-family: inherit !important;
             font-size: calc(18px * var(--totus-read-scale, 0.925)) !important;
             line-height: 1.38 !important;
         }
-        /* Пасля strip светлых inline color — успадкаванне ад .text-app-text на абгортцы */
+
         .prayer-detail-html details.ordo-missae-section > :not(summary),
         .prayer-detail-html section.ordo-missae-section {
             color: inherit;
@@ -270,14 +269,14 @@
             color: #1f1600;
             box-shadow: 0 0 0 2px rgba(255, 209, 102, 0.34);
         }
-        /* Кастомны выпадны спіс перакладу Пісання */
+
         .scripture-tr-open .scripture-tr-chevron-wrap i {
             transform: rotate(180deg);
         }
         .scripture-tr-chevron-wrap i {
             transition: transform 0.2s ease;
         }
-        /* Кнопкі верша (выбранае / параўнанне) — слупком, як у Android ScriptureChapterTextFragment. */
+
         .totus-scripture-verse-actions {
             display: flex;
             flex-direction: column;
@@ -287,11 +286,8 @@
             gap: 0;
             width: 2.75rem;
         }
-        /*
-         * Памер чытання: --totus-read-scale як AppGlobalTextScaleStore (0.925 × (1 + крок×0.25)).
-         * !important — каб Tailwind text-* не перабіваў font-size на тым жа элеменце.
-         */
-        .totus-read-15 {
+
+.totus-read-15 {
             font-size: calc(15px * var(--totus-read-scale, 0.925)) !important;
         }
         .totus-read-16 {
@@ -303,11 +299,11 @@
         .totus-read-18 {
             font-size: calc(18px * var(--totus-read-scale, 0.925)) !important;
         }
-        /* Інфармацыя: gap у main.js не праз Tailwind arbitrary (не трапляе ў totus-tailwind.css) */
+
         .totus-about-card {
             gap: 0.5rem;
         }
-        /* Цветовые схемы приложения (current | white | dark | beige). */
+
         html[data-app-theme='white'] .bg-app-gradient {
             background: linear-gradient(315deg, #eef2f7 0%, #f8fafc 100%) !important;
         }
@@ -447,13 +443,13 @@
                 var scale = base * (1 + n * 0.25);
                 document.documentElement.style.setProperty('--totus-read-scale', String(scale));
                 document.documentElement.style.fontSize = '16px';
-            } catch (e) { /* ignore */ }
+            } catch (e) {  }
         })();
     </script>
 </head>
 <body class="bg-app-gradient text-app-text antialiased m-0">
     <div id="app"></div>
-    <!-- Пасля Font Awesome (solid+regular): swap замест block у базавым CSS. -->
+
     <style>
         @font-face {
             font-family: "Font Awesome 6 Free";
@@ -471,8 +467,7 @@
         }
     </style>
 
-    <!-- totus-web-build → window.TOTUS_WEB_APP_BUILD (?v= для лакальных рэсурсаў у main.js). -->
-    <script>
+<script>
         (function () {
             var m = document.querySelector('meta[name="totus-web-build"]');
             window.TOTUS_WEB_APP_BUILD = (m && m.getAttribute('content')) || '0';

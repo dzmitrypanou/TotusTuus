@@ -26,8 +26,7 @@ class PrayerDetailFragment : Fragment() {
     private var _binding: FragmentPrayerDetailBinding? = null
     private val binding get() = _binding!!
 
-    /** Каб не перазагружаць WebView у onResume, калі памер не змяніўся (захоўваем пракрутку). */
-    private var lastLoadedBodyPx: Float = Float.NaN
+private var lastLoadedBodyPx: Float = Float.NaN
 
     private var prayerId: Long = -1L
     private var prayerRawText: String = ""
@@ -66,7 +65,7 @@ class PrayerDetailFragment : Fragment() {
     private fun setupWebView() {
         val w = binding.webPrayerBody
         w.setBackgroundColor(Color.TRANSPARENT)
-        // false: пракрутка толькі ўнутры WebView на ўсю вышыню вобласці пад шапкай (без «акна» ў NestedScrollCoordinator).
+
         w.isNestedScrollingEnabled = false
         w.isVerticalScrollBarEnabled = false
         w.isHorizontalScrollBarEnabled = false
@@ -117,7 +116,7 @@ class PrayerDetailFragment : Fragment() {
 
     private fun buildPrayerHtmlDocument(bodyInnerHtml: String, fontPx: Float): String {
         val density = resources.displayMetrics.density.coerceAtLeast(0.5f)
-        // readPx() — шчыльнасць Android (як TextView PX); у WebView CSS px ≈ dp, таму дзелім на density.
+
         val cssBodyFontPx = fontPx / density
         val padPx = resources.getDimension(R.dimen.prayer_card_padding) / density
         val cssFontFamily = when (AppFontFamilyStore.readFamily(requireContext())) {
@@ -160,7 +159,6 @@ class PrayerDetailFragment : Fragment() {
             ul { list-style-type: disc; }
             ol { list-style-type: decimal; }
             li { margin: 0.25em 0; }
-            /* foreColor з рэдактара: span[style*=color] і font[color] — рухавік прымяняе сам */
             strong, b { font-weight: 700; }
             em, i { font-style: italic; }
             u { text-decoration: underline; }
@@ -193,8 +191,7 @@ class PrayerDetailFragment : Fragment() {
     private fun colorHex(@ColorInt color: Int): String =
         String.format("#%06X", 0xFFFFFF and color)
 
-    /** Падобна да браўзера / вэб-рэдактара: захоўваем разметку, без «сплюшчвання» абзацаў. */
-    private fun sanitizePrayerHtmlPreserveLayout(html: String, title: String, category: String, subcategory: String): String {
+private fun sanitizePrayerHtmlPreserveLayout(html: String, title: String, category: String, subcategory: String): String {
         val hiddenKeys = buildHiddenHeaderKeys(title, category, subcategory)
         val categoryMetaKeys = buildCategoryMetaKeys(category, subcategory)
         var cleaned = html
@@ -287,14 +284,12 @@ class PrayerDetailFragment : Fragment() {
             .trim()
     }
 
-    /** Пасля змены кроку памеру з шапкі экрана малітвы. */
-    fun reloadBodyForCurrentTextScale() {
+fun reloadBodyForCurrentTextScale() {
         lastLoadedBodyPx = Float.NaN
         reloadPrayerWebContent()
     }
 
-    /** Падлучэнне кнопак у кастомным action layout шапкі (з MainActivity.onPrepareOptionsMenu). */
-    fun bindPrayerDetailToolbarActions(actionView: View) {
+fun bindPrayerDetailToolbarActions(actionView: View) {
         ReadingTextScaleToolbar.bind(actionView, requireActivity()) {
             reloadBodyForCurrentTextScale()
         }

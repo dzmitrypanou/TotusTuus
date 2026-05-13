@@ -1,13 +1,11 @@
 <?php
 declare(strict_types=1);
 
-/** @return list<string> */
 function panel_content_section_keys(): array
 {
     return ['prayers', 'songbook', 'kantaral', 'scripture', 'liturgy', 'lectionary', 'solemnities', 'announcements'];
 }
 
-/** @return array<string, string> */
 function panel_section_labels_be(): array
 {
     return [
@@ -27,7 +25,6 @@ function panel_valid_section_key(string $key): bool
     return in_array($key, panel_content_section_keys(), true);
 }
 
-/** Раздзел для падстаронкі галоўнай панэлі (?view=). */
 function panel_view_section(string $view): ?string
 {
     static $map = [

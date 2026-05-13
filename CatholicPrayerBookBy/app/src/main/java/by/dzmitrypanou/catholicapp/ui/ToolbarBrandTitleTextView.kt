@@ -15,10 +15,6 @@ import by.dzmitrypanou.catholicapp.data.AppColorSchemeStore
 import by.dzmitrypanou.catholicapp.data.PreservesOwnTypeface
 import kotlin.math.max
 
-/**
- * Загаловак «Totus Tuus» на галоўным экране: як у вэб-панэлі — Cormorant Garamond semibold
- * і градыент `linear-gradient(120deg, #f1f5f9, #e2d5b8, #c7d2fe)`.
- */
 class ToolbarBrandTitleTextView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -34,7 +30,7 @@ class ToolbarBrandTitleTextView @JvmOverloads constructor(
 
     init {
         maxLines = 1
-        // Иначе визуально тянет строку вниз относительно иконки в тулбаре.
+
         includeFontPadding = false
         letterSpacing = 0.02f
         setPadding(paddingLeft, 0, paddingRight, 0)

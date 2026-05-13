@@ -12,12 +12,10 @@ object PrayerBodyTextSizeStore {
     fun defaultPx(resources: Resources): Float =
         resources.getDimension(R.dimen.text_prayer_body)
 
-    /** Памер тэксту малітвы: база з dimen × [AppGlobalTextScaleStore]. */
-    fun readPx(context: Context, resources: Resources): Float =
+fun readPx(context: Context, resources: Resources): Float =
         defaultPx(resources) * AppGlobalTextScaleStore.readScale(context)
 
-    /** Выдаліць legacy-значэнне змены базы (да адзінай глабальнай налады). */
-    fun resetStoredToDefault(context: Context) {
+fun resetStoredToDefault(context: Context) {
         context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
             .remove(KEY_BODY_TEXT_PX)
             .apply()

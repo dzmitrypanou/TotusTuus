@@ -77,8 +77,7 @@ class LiturgyDayFragment : Fragment() {
         lastLiturgyDioceseCacheKey = key
     }
 
-    /** Пасля А± у шапцы: перамаляваць чытанні з новым [PrayerBookUiTypography.applyContentSp]. */
-    fun applyReadingTextScaleFromToolbar() {
+fun applyReadingTextScaleFromToolbar() {
         bindTypography()
         val day = lastLiturgyDayDto ?: return
         showDay(day, forceGrayColor = false)
@@ -94,7 +93,7 @@ class LiturgyDayFragment : Fragment() {
     private fun loadDay(date: String) {
         val cached = LiturgyCalendarRepository.getCachedDay(requireContext(), date)
         if (cached != null) {
-            // Show cached data with real colors to avoid gray-to-color flicker on open.
+
             showDay(cached, forceGrayColor = false)
         }
         viewLifecycleOwner.lifecycleScope.launch {
@@ -192,8 +191,7 @@ class LiturgyDayFragment : Fragment() {
         binding.textLiturgyDayReadings.isVisible = false
     }
 
-    /** HTML па-за ўсімі &lt;details&gt;…&lt;/details&gt; (часта — аб'яўленні перад варыянтамі чытанняў). */
-    private fun htmlOutsideDetailsBlocks(html: String): String =
+private fun htmlOutsideDetailsBlocks(html: String): String =
         Regex("(?is)<details\\b[^>]*>.*?</details>").replace(html) { "" }.trim()
 
     private fun prependReadingsIntroHtml(container: LinearLayout, outsideHtml: String) {
@@ -212,8 +210,7 @@ class LiturgyDayFragment : Fragment() {
         container.addView(introView, 0)
     }
 
-    /** Выдаляе з HTML блокі <details> з успамінам (другая імша) у дні пн–сб актавы Пасхі. */
-    private fun preprocessReadingsHtmlForPaschalOctave(html: String, dateRaw: String): String {
+private fun preprocessReadingsHtmlForPaschalOctave(html: String, dateRaw: String): String {
         if (!isPaschalOctaveWeekday(dateRaw)) return html
         val detailsRegex = Regex("(?is)<details\\b[^>]*>.*?</details>")
         return detailsRegex.replace(html) { match ->
@@ -265,8 +262,7 @@ class LiturgyDayFragment : Fragment() {
         return withoutOpen.replaceFirst(closingDiv, "").trim()
     }
 
-    /** Адна секцыя чытанняў — без раскрывання: загаловак дадаём толькі калі ён яшчэ не ў шапцы экрана. */
-    private fun renderSingleReadingSectionPlain(
+private fun renderSingleReadingSectionPlain(
         section: ReadingsSection,
         mainDisplayTitle: String?
     ): CharSequence? {
@@ -371,11 +367,7 @@ class LiturgyDayFragment : Fragment() {
         }
     }
 
-    /**
-     * В API-тэксце могуць прыходзіць html-памеры (h1/font-size), якія перабіваюць глабальны маштаб.
-     * Выдаляем size-span і inline-колеры, каб у светлай тэме тэкст не заставаўся белым з цёмнага рэдактара.
-     */
-    private fun stripHtmlFontSizeSpans(content: CharSequence): CharSequence {
+private fun stripHtmlFontSizeSpans(content: CharSequence): CharSequence {
         val styled = SpannableStringBuilder(content)
         styled.getSpans(0, styled.length, AbsoluteSizeSpan::class.java).forEach(styled::removeSpan)
         styled.getSpans(0, styled.length, RelativeSizeSpan::class.java).forEach(styled::removeSpan)
@@ -451,8 +443,7 @@ class LiturgyDayFragment : Fragment() {
         }
     }
 
-    /** API злучае некалькі даброўных успамінаў — [LiturgyOptionalMemorialSplit] (як у календары). */
-    private fun splitOptionalMemorialTitles(combined: String): List<String> =
+private fun splitOptionalMemorialTitles(combined: String): List<String> =
         LiturgyOptionalMemorialSplit.split(combined)
 
     private fun createLiturgyOptionRow(ctx: Context, title: String, colorInt: Int): LinearLayout {
@@ -508,8 +499,7 @@ class LiturgyDayFragment : Fragment() {
         }
     }
 
-    /** Загаловак як у API: у пн–сб актавы Пасхі заўсёды «Дзень ў актаве Пасхі», без альтэрнатыў з БД. */
-    private fun mainLiturgyDisplayTitle(sourceTitle: String, dateRaw: String): String {
+private fun mainLiturgyDisplayTitle(sourceTitle: String, dateRaw: String): String {
         val ordinary = normalizeOrdinaryWeekTitle(sourceTitle, dateRaw)
         if (isPaschalOctaveWeekday(dateRaw)) {
             val wd = calendarWeekdayNameBe(dateRaw) ?: return normalizePaschalOctaveLegacyTitle(ordinary, dateRaw)
@@ -529,8 +519,7 @@ class LiturgyDayFragment : Fragment() {
             else -> null
         }
 
-    /** Секцыя чытанняў для даброўнага успаміна (другая імша) — у актаве Пасхі не паказваем. */
-    private fun isOptionalMemorialReadingsSummary(summaryPlain: String): Boolean {
+private fun isOptionalMemorialReadingsSummary(summaryPlain: String): Boolean {
         val t = summaryPlain.lowercase(Locale.forLanguageTag("be"))
         return t.contains("успамін") || t.contains("успамінам")
     }
@@ -565,8 +554,7 @@ class LiturgyDayFragment : Fragment() {
         RegexOption.IGNORE_CASE
     )
 
-    /** API / кэш могуць утрымліваць старую форму — нармалізуем як у WebPanel («ў актаве Пасхі»). */
-    private fun normalizePaschalOctaveLegacyTitle(title: String, dateRaw: String): String {
+private fun normalizePaschalOctaveLegacyTitle(title: String, dateRaw: String): String {
         if (!isPaschalOctaveWeekday(dateRaw)) return title
         val base = stripLiturgicalYearSuffix(title)
         if (!paschalOctaveLegacyTitleRegex.matches(base) && !paschalOctaveLegacyShortRegex.matches(base)) return title
@@ -761,7 +749,7 @@ class LiturgyDayFragment : Fragment() {
     private fun restoreScroll() {
         binding.scrollLiturgyDay.post {
             binding.scrollLiturgyDay.scrollTo(0, preservedScrollY)
-            // Some layout passes happen after text updates; restore again on next frame.
+
             binding.scrollLiturgyDay.post {
                 binding.scrollLiturgyDay.scrollTo(0, preservedScrollY)
             }

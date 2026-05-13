@@ -206,7 +206,7 @@ $formRow = $editRow ?: [
       <h1>Totus Tuus</h1>
       <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
-    <?php
+<?php
         $panelNavPage = 'solemnities_edit';
         $panelNavView = 'categories';
         $panelNavCalYear = (int)date('Y');
@@ -214,23 +214,23 @@ $formRow = $editRow ?: [
         ?>
   </div>
 
-  <?php if ($message !== null): ?><p class="msg msg--ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
-  <?php if ($error !== null): ?><p class="msg msg--err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
+<?php if ($message !== null): ?><p class="msg msg--ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
+<?php if ($error !== null): ?><p class="msg msg--err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
 
   <div class="toolbar-row" style="margin-bottom:12px;">
     <a class="btn-pill btn-pill--muted" href="/admin/solemnities.php">← Да спісу</a>
-    <?php if ($editRow): ?><a class="btn-pill btn-pill--muted" href="/admin/solemnities_edit.php">+ Новы запіс</a><?php endif; ?>
+<?php if ($editRow): ?><a class="btn-pill btn-pill--muted" href="/admin/solemnities_edit.php">+ Новы запіс</a><?php endif; ?>
   </div>
 
   <section class="card">
     <h2><?= $editRow ? 'Рэдагаваць запіс' : 'Новы запіс' ?></h2>
     <p class="muted">Для рухомых дат API разлічвае подпіс па абраным годзе.</p>
     <form method="post" action="/admin/solemnities_edit.php<?= $editRow ? '?id=' . (int)$editRow['id'] : '' ?>">
-      <?= panel_csrf_field() ?>
+<?= panel_csrf_field() ?>
       <input type="hidden" name="id" value="<?= (int)$formRow['id'] ?>">
 
       <label for="date_kind">Тып даты</label>
-      <?php $formDateKind = (string)($formRow['date_kind'] ?? 'fixed'); ?>
+<?php $formDateKind = (string)($formRow['date_kind'] ?? 'fixed'); ?>
       <select id="date_kind" name="date_kind">
         <option value="fixed"<?= $formDateKind !== 'movable' ? ' selected' : '' ?>>Фіксаваны подпіс</option>
         <option value="movable"<?= $formDateKind === 'movable' ? ' selected' : '' ?>>Рухомая дата з літургічнага календара</option>
@@ -240,12 +240,12 @@ $formRow = $editRow ?: [
       <input id="date_label" type="text" name="date_label" value="<?= htmlspecialchars((string)$formRow['date_label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" placeholder="1 студзеня або запасны подпіс для рухомай даты">
 
       <label for="movable_key">Рухомая дата</label>
-      <?php $formMovableKey = (string)($formRow['movable_key'] ?? ''); ?>
+<?php $formMovableKey = (string)($formRow['movable_key'] ?? ''); ?>
       <select id="movable_key" name="movable_key">
         <option value="">— не выбрана —</option>
-        <?php foreach ($solemnityMovableOptions as $mk => $ml): ?>
+<?php foreach ($solemnityMovableOptions as $mk => $ml): ?>
           <option value="<?= htmlspecialchars($mk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= $formMovableKey === $mk ? ' selected' : '' ?>><?= htmlspecialchars($ml, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
-        <?php endforeach; ?>
+<?php endforeach; ?>
       </select>
 
       <label for="title">Назва</label>
@@ -258,7 +258,7 @@ $formRow = $editRow ?: [
       <input id="sort_order" type="number" name="sort_order" value="<?= (int)$formRow['sort_order'] ?>" step="1">
 
       <div class="checkbox-row">
-        <input id="is_active" type="checkbox" name="is_active" value="1" <?= ((int)$formRow['is_active'] !== 0) ? 'checked' : '' ?>>
+        <input id="is_active" type="checkbox" name="is_active" value="1"<?= ((int)$formRow['is_active'] !== 0) ? 'checked' : '' ?>>
         <label for="is_active">Паказваць у API</label>
       </div>
 

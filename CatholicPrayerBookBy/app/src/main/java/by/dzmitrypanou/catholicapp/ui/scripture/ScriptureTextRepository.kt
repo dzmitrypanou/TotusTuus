@@ -26,8 +26,7 @@ object ScriptureTextRepository {
     @Volatile
     private var cache: MutableMap<String, List<ScriptureBookData>> = mutableMapOf()
 
-    /** Толькі метаданыя кніг (без стыхаў) — для экрана «Святое Пісанне» і лічыльнікаў глав. */
-    @Volatile
+@Volatile
     private var metaCache: MutableMap<String, List<ScriptureBookMeta>> = mutableMapOf()
 
     fun clearMemoryCache() {
@@ -37,8 +36,7 @@ object ScriptureTextRepository {
         }
     }
 
-    /** Спачатку лакальны файл пасля scripture.php/scripture_hash.php; калі няма — убудаваны JSON у assets. */
-    private fun loadJsonString(context: Context, translationId: String): String? {
+private fun loadJsonString(context: Context, translationId: String): String? {
         val f = File(context.filesDir, "scripture_cache/$translationId.json")
         if (f.isFile && f.length() > 0L) {
             runCatching { f.readText() }.getOrNull()?.let { return it }
@@ -65,11 +63,7 @@ object ScriptureTextRepository {
         }
     }
 
-    /**
-     * Фонавы прагрэў кэша метаданых і спіса заветаў/кніг — каб экран «Святое Пісанне» адмалёўваўся без чакання парсінгу.
-     * Выклікаць з галоўнага экрана ці ў onCreate ScriptureFragment.
-     */
-    suspend fun warmTestamentUiCatalog(context: Context) {
+suspend fun warmTestamentUiCatalog(context: Context) {
         val app = context.applicationContext
         val id = ScriptureTranslationStore.getSelectedTranslationId(app)
         withContext(Dispatchers.Default) {
@@ -77,8 +71,7 @@ object ScriptureTextRepository {
         }
     }
 
-    /** Прагрэў лічыльніка глав для кнігі (плашкі глав) да адкрыцця [ScriptureChaptersFragment]. */
-    suspend fun warmChapterCountForBook(context: Context, translationId: String, bookId: Int) {
+suspend fun warmChapterCountForBook(context: Context, translationId: String, bookId: Int) {
         val app = context.applicationContext
         withContext(Dispatchers.Default) {
             getChapterCountById(app, translationId, bookId)
@@ -91,8 +84,7 @@ object ScriptureTextRepository {
     fun getChapterCountById(context: Context, translationId: String, bookId: Int): Int =
         loadBooksMetadata(context, translationId).firstOrNull { it.bookId == bookId }?.chapterCount ?: 0
 
-    /** Усе главы перакладу: сартаванне па book_id, потым нумар главы (для годовага плана чытання). */
-    fun getAllChaptersInCanonicalOrder(context: Context, translationId: String): List<ScriptureChapterRef> =
+fun getAllChaptersInCanonicalOrder(context: Context, translationId: String): List<ScriptureChapterRef> =
         loadBooksMetadata(context, translationId)
             .sortedBy { it.bookId }
             .flatMap { meta ->
@@ -155,8 +147,7 @@ object ScriptureTextRepository {
         return chapterData.verses.firstOrNull { it.number == verse }?.text
     }
 
-    /** Пошук слова па ўсім тэксце бягучага перакладу (цэлыя словы). */
-    fun searchWord(
+fun searchWord(
         context: Context,
         translationId: String,
         rawQuery: String
@@ -204,11 +195,7 @@ object ScriptureTextRepository {
         return context.assets.open(assetFile)
     }
 
-    /**
-     * Ідэнтыфікатар крыніцы JSON для кэша метаданых (.meta.json).
-     * Пры змене файла (або версіі APK для asset) — поўны стрым-парсінг яшчэ раз, потым зноў хуткі чытанне meta.
-     */
-    private fun scriptureSourceFingerprint(context: Context, translationId: String): String? {
+private fun scriptureSourceFingerprint(context: Context, translationId: String): String? {
         val f = File(context.filesDir, "scripture_cache/$translationId.json")
         if (f.isFile && f.length() > 0L) {
             return "f:${f.length()}:${f.lastModified()}"
@@ -371,7 +358,6 @@ object ScriptureTextRepository {
     }
 }
 
-/** Адна глава ў парадку book_id для плана чытання. */
 data class ScriptureChapterRef(
     val bookId: Int,
     val bookTitle: String,

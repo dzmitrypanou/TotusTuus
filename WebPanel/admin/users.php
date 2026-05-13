@@ -44,7 +44,6 @@ function panel_count_admin_accounts(): int
     return (int)db()->query("SELECT COUNT(*) FROM panel_users WHERE role = 'admin'")->fetchColumn();
 }
 
-/** @param list<string> $postedKeys */
 function panel_sanitize_grant_keys(array $postedKeys): array
 {
     $out = [];
@@ -58,7 +57,6 @@ function panel_sanitize_grant_keys(array $postedKeys): array
     return array_keys($out);
 }
 
-/** @param list<string> $grants */
 function panel_save_user_grants(int $userId, array $grants): void
 {
     db()->prepare('DELETE FROM panel_user_section_grants WHERE user_id = :id')->execute([':id' => $userId]);
@@ -432,7 +430,6 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
       background-color: rgba(10, 12, 20, 0.55);
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
-    /* Як у галоўнай панэлі: адступ справа і SVG-стрэлка, не сістэмная ў краі */
     select:not([multiple]) {
       appearance: none;
       -webkit-appearance: none;
@@ -524,7 +521,6 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
       margin-top: 4px;
       -webkit-overflow-scrolling: touch;
     }
-    /* Адначасова сетка для шапкі і радкоў; слупкі ролі/статусу — аднолькавая шырыня ў усіх радкоў */
     .users-sheet {
       --users-cols:
         minmax(9rem, 1.35fr)
@@ -721,7 +717,7 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
       <h1>Totus Tuus</h1>
       <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
-    <?php
+<?php
         $panelNavPage = 'users';
         $panelNavView = 'categories';
         $panelNavCalYear = (int)date('Y');
@@ -729,8 +725,8 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
         ?>
   </div>
   <div id="dynamic-sections">
-    <?php if ($message !== null): ?><p class="msg ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
-    <?php if ($error !== null): ?><p class="msg err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
+<?php if ($message !== null): ?><p class="msg ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
+<?php if ($error !== null): ?><p class="msg err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
 
     <div class="card">
       <h2>Новы карыстальнік</h2>
@@ -749,9 +745,9 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
         </select>
         <p class="muted" style="margin-top:14px;margin-bottom:4px;">Раздзелы для ролі «карыстальнік»:</p>
         <div class="grant-grid">
-          <?php foreach ($sectionKeys as $sk): ?>
-            <label><input type="checkbox" name="new_grant[]" value="<?= htmlspecialchars($sk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"> <?= htmlspecialchars($labels[$sk] ?? $sk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></label>
-          <?php endforeach; ?>
+<?php foreach ($sectionKeys as $sk): ?>
+            <label><input type="checkbox" name="new_grant[]" value="<?= htmlspecialchars($sk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><?= htmlspecialchars($labels[$sk] ?? $sk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></label>
+<?php endforeach; ?>
         </div>
         <button type="submit">Стварыць</button>
       </form>
@@ -760,9 +756,9 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
     <div class="card">
       <h2>Карыстальнікі</h2>
       <p class="muted" style="margin:0 0 12px;">Націсніце радок карыстальніка, каб раскрыць налады (роля, раздзелы, пароль, выдаленне).</p>
-      <?php if (count($usersList) === 0): ?>
+<?php if (count($usersList) === 0): ?>
         <p class="muted">Няма запісаў.</p>
-      <?php else: ?>
+<?php else: ?>
         <div class="table-wrap">
           <div class="users-sheet" role="table" aria-label="Спіс карыстальнікаў">
             <div class="users-sheet-head" role="row">
@@ -772,8 +768,8 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
               <span role="columnheader">Раздзелы</span>
               <span class="users-sheet-h-chev" role="columnheader" aria-hidden="true">▼</span>
             </div>
-              <?php foreach ($usersList as $urow): ?>
-                <?php
+<?php foreach ($usersList as $urow): ?>
+<?php
                 $uid = (int)$urow['id'];
                 $g = $grantsByUser[$uid] ?? [];
                 $isAdminRow = (string)$urow['role'] === 'admin';
@@ -784,32 +780,32 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
                       <summary class="user-edit-summary-grid">
                         <span class="cell-login"><?= $loginEsc ?> <span class="muted" style="font-weight:400;font-size:0.8rem;">#<?= $uid ?></span></span>
                         <span class="cell-role">
-                          <?php if ($isAdminRow): ?>
+<?php if ($isAdminRow): ?>
                             <span class="badge badge-role-admin">Адмін</span>
-                          <?php else: ?>
+<?php else: ?>
                             <span class="badge badge-role-user">Карыстальнік</span>
-                          <?php endif; ?>
+<?php endif; ?>
                         </span>
                         <span class="cell-status">
-                          <?php if ((int)$urow['is_active']): ?>
+<?php if ((int)$urow['is_active']): ?>
                             <span class="badge badge-on">Актыўны</span>
-                          <?php else: ?>
+<?php else: ?>
                             <span class="badge badge-off">Адключаны</span>
-                          <?php endif; ?>
+<?php endif; ?>
                         </span>
                         <span class="cell-sections">
                           <span class="user-badges">
-                            <?php if ($isAdminRow): ?>
+<?php if ($isAdminRow): ?>
                               <span class="badge badge-sec badge-all">Усе раздзелы</span>
-                            <?php elseif (count($g) === 0): ?>
+<?php elseif (count($g) === 0): ?>
                               <span class="muted" style="font-size:0.8125rem;">няма доступу</span>
-                            <?php else: ?>
-                              <?php foreach ($sectionKeys as $sk): ?>
-                                <?php if (in_array($sk, $g, true)): ?>
+<?php else: ?>
+<?php foreach ($sectionKeys as $sk): ?>
+<?php if (in_array($sk, $g, true)): ?>
                                   <span class="badge badge-sec"><?= htmlspecialchars($labelsShort[$sk] ?? $sk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
-                                <?php endif; ?>
-                              <?php endforeach; ?>
-                            <?php endif; ?>
+<?php endif; ?>
+<?php endforeach; ?>
+<?php endif; ?>
                           </span>
                         </span>
                         <span class="cell-chev" aria-hidden="true">▼</span>
@@ -829,9 +825,9 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
                           </label>
                           <p class="muted" style="margin-top:12px;margin-bottom:4px;">Раздзелы (для карыстальніка; у адміна ўсе раздзелы без абмежаванняў):</p>
                           <div class="grant-grid">
-                            <?php foreach ($sectionKeys as $sk): ?>
-                              <label><input type="checkbox" name="edit_grant[]" value="<?= htmlspecialchars($sk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= in_array($sk, $g, true) ? ' checked' : '' ?>> <?= htmlspecialchars($labels[$sk] ?? $sk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></label>
-                            <?php endforeach; ?>
+<?php foreach ($sectionKeys as $sk): ?>
+                              <label><input type="checkbox" name="edit_grant[]" value="<?= htmlspecialchars($sk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= in_array($sk, $g, true) ? ' checked' : '' ?>><?= htmlspecialchars($labels[$sk] ?? $sk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></label>
+<?php endforeach; ?>
                           </div>
                           <button type="submit" class="btn-mini secondary">Захаваць змены</button>
                         </form>
@@ -845,20 +841,20 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
                           <input name="pwd_new_confirm" type="password" minlength="8" required autocomplete="new-password">
                           <button type="submit" class="btn-mini secondary">Змяніць пароль</button>
                         </form>
-                        <?php if ($uid !== (int)(panel_current_user()['id'] ?? 0)): ?>
+<?php if ($uid !== (int)(panel_current_user()['id'] ?? 0)): ?>
                         <p class="form-section-title">Небяспечныя дзеянні</p>
                         <form method="post" onsubmit="return confirm('Выдаліць карыстальніка?');"><?= panel_csrf_field() ?>
                           <input type="hidden" name="panel_delete_user" value="1">
                           <input type="hidden" name="delete_user_id" value="<?= $uid ?>">
                           <button type="submit" class="btn-mini danger">Выдаліць уліковы запіс</button>
                         </form>
-                        <?php endif; ?>
+<?php endif; ?>
                       </div>
                     </details>
-              <?php endforeach; ?>
+<?php endforeach; ?>
           </div>
         </div>
-      <?php endif; ?>
+<?php endif; ?>
     </div>
   </div>
   <script>

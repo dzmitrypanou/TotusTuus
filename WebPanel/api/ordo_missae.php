@@ -10,11 +10,11 @@ require_once __DIR__ . '/../includes/ordo_missae_sections.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
-// Не кэшаваць у праксі як «вечны» адказ — пасля рэдагавання ў панэлі павінен падцягвацца новы змест.
+
 header('Cache-Control: private, max-age=0, must-revalidate');
 
 try {
-    // Толькі табліца Ordo: поўны ensureSchemaAndSeed() робіць дзясяткі міграцый і сіў — прыкладанні «віснуць» на GET.
+
     ensurePanelOrdoMissaeTable();
     $stmt = db()->query('SELECT * FROM panel_ordo_missae WHERE id = 1 LIMIT 1');
     $row = $stmt->fetch();

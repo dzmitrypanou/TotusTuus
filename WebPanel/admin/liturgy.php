@@ -479,7 +479,7 @@ foreach ($monthDayMeta as $k => $meta) {
       <h1>Totus Tuus</h1>
       <p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p>
     </div>
-    <?php
+<?php
         $panelNavPage = 'liturgy';
         $panelNavView = 'categories';
         $panelNavCalYear = $year;
@@ -489,20 +489,20 @@ foreach ($monthDayMeta as $k => $meta) {
 
     <div class="grid">
       <div class="card">
-        <h2 style="margin:0 0 8px; font-size:1rem;">Дні <?= htmlspecialchars($monthStart->format('m.Y'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
+        <h2 style="margin:0 0 8px; font-size:1rem;">Дні<?= htmlspecialchars($monthStart->format('m.Y'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></h2>
         <p class="muted" style="margin-top:0;">* Важныя даты лічацца аўтаматычна. Ніжэй для кожнага дня паказаны ўсе варыянты чытанняў з лекцыянарыя (асноўны дзень, прывязка па датце, кожны успамін асобна, дадатковыя імшы), калі яны ўжываюцца да гэтага дня. Тут жа можна пераазначыць тэкст і колер у запісе дня. <strong>Дыяцэзіі:</strong> адлюстроўваюцца святы з БД з улікам поляў any/all/forbid для абраных дыяцэзій (як у публічным API).</p>
         <div class="status-row">
-          <span class="status-chip ok">Ёсць чытанні: <?= (int)$daysWithReadingsCount ?></span>
-          <span class="status-chip empty">Пустыя дні: <?= (int)$daysWithoutReadingsCount ?></span>
+          <span class="status-chip ok">Ёсць чытанні:<?= (int)$daysWithReadingsCount ?></span>
+          <span class="status-chip empty">Пустыя дні:<?= (int)$daysWithoutReadingsCount ?></span>
         </div>
         <form method="get" class="month-picker">
           <input type="hidden" name="liturgy_dioc_filter" value="1">
           <div>
             <label for="month">Месяц</label>
             <select id="month" name="month">
-              <?php for ($m = 1; $m <= 12; $m++): ?>
-                <option value="<?= $m ?>" <?= $month === $m ? 'selected' : '' ?>><?= htmlspecialchars(sprintf('%02d', $m), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
-              <?php endfor; ?>
+<?php for ($m = 1; $m <= 12; $m++): ?>
+                <option value="<?= $m ?>"<?= $month === $m ? 'selected' : '' ?>><?= htmlspecialchars(sprintf('%02d', $m), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
+<?php endfor; ?>
             </select>
           </div>
           <div>
@@ -512,12 +512,12 @@ foreach ($monthDayMeta as $k => $meta) {
           <div style="grid-column: 1 / -1;">
             <span class="diocese-cal-label">Адлюстроўваць святы дыяцэзій (з БД)</span>
             <div class="diocese-checkboxes-cal">
-              <?php foreach (liturgy_diocese_keys() as $dk): ?>
+<?php foreach (liturgy_diocese_keys() as $dk): ?>
                 <label class="diocese-cb-cal">
-                  <input type="checkbox" name="d[<?= htmlspecialchars($dk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>]" value="1" <?= !empty($dioceseOpts[$dk]) ? 'checked' : '' ?>>
-                  <?= htmlspecialchars((string)($dioceseLabels[$dk] ?? $dk), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+                  <input type="checkbox" name="d[<?= htmlspecialchars($dk, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>]" value="1"<?= !empty($dioceseOpts[$dk]) ? 'checked' : '' ?>>
+<?= htmlspecialchars((string)($dioceseLabels[$dk] ?? $dk), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
                 </label>
-              <?php endforeach; ?>
+<?php endforeach; ?>
             </div>
             <p class="muted" style="margin:8px 0 0; font-size:12px;">Калі старонка адкрыта без параметраў фільтра, усе дыяцэзіі ўключаныя. Пасля «Перайсці» ў адрас дадаецца звычайны рэжым фільтра.</p>
           </div>
@@ -535,7 +535,7 @@ foreach ($monthDayMeta as $k => $meta) {
             </tr>
           </thead>
           <tbody>
-          <?php
+<?php
           $iter = $monthStart;
           while ($iter <= $monthEnd):
               $k = $iter->format('Y-m-d');
@@ -547,7 +547,7 @@ foreach ($monthDayMeta as $k => $meta) {
               $rawEffectiveTitle = is_array($dayMeta)
                   ? (string)($dayMeta['effective_title'] ?? (string)($autoDay['title'] ?? ''))
                   : ((is_array($row) ? trim((string)($row['title_override'] ?? '')) : '') ?: (string)($autoDay['title'] ?? ''));
-              // Як у JSON API: аднолькавае адлюстраванне (актава Пасхі, без дубля дня тыдня ў загалоўку).
+
               $title = liturgy_title_with_weekday_for_display($iter, $rawEffectiveTitle);
               $lectionaryPrefillTitle = $rawEffectiveTitle;
               $hasReadings = is_array($dayMeta) ? (bool)($dayMeta['has_readings'] ?? false) : false;
@@ -584,20 +584,20 @@ foreach ($monthDayMeta as $k => $meta) {
                   <div class="day-title-text"><?= htmlspecialchars($title !== '' ? $title : 'Звычайны дзень', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></div>
                 </div>
                 <div class="readings-row" style="margin-bottom:6px;">
-                  <span class="readings-chip <?= $hasReadings ? 'ok' : 'empty' ?>"><?= $hasReadings ? 'API: чытанні ёсць' : 'API: без чытанняў' ?></span>
-                  <?php if ($slotsTotal > 0): ?>
-                    <span class="readings-chip <?= $slotsFilled === $slotsTotal ? 'ok' : 'empty' ?>" style="font-weight:700;">Лекцыянарый: <?= (int)$slotsFilled ?>/<?= (int)$slotsTotal ?></span>
-                  <?php endif; ?>
-                  <?php if ($readingsSource !== ''): ?>
+                  <span class="readings-chip<?= $hasReadings ? 'ok' : 'empty' ?>"><?= $hasReadings ? 'API: чытанні ёсць' : 'API: без чытанняў' ?></span>
+<?php if ($slotsTotal > 0): ?>
+                    <span class="readings-chip<?= $slotsFilled === $slotsTotal ? 'ok' : 'empty' ?>" style="font-weight:700;">Лекцыянарый:<?= (int)$slotsFilled ?>/<?= (int)$slotsTotal ?></span>
+<?php endif; ?>
+<?php if ($readingsSource !== ''): ?>
                     <span class="readings-src"><?= htmlspecialchars($readingsSource, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
-                  <?php endif; ?>
+<?php endif; ?>
                 </div>
-                <?php if ($slotsTotal > 0): ?>
+<?php if ($slotsTotal > 0): ?>
                 <div class="readings-slots">
                   <div class="readings-slots-h">Чытанні па варыянтах</div>
-                  <?php foreach ($readingSlots as $slot): ?>
-                    <?php if (!is_array($slot)) { continue; } ?>
-                    <?php
+<?php foreach ($readingSlots as $slot): ?>
+<?php if (!is_array($slot)) { continue; } ?>
+<?php
                     $sk = (string)($slot['kind'] ?? '');
                     $slab = (string)($kindShort[$sk] ?? $sk);
                     $slabel = (string)($slot['label'] ?? '');
@@ -609,16 +609,16 @@ foreach ($monthDayMeta as $k => $meta) {
                       <div class="reading-slot-label"><?= htmlspecialchars($slabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></div>
                       <div class="reading-slot-meta">
                         <span class="<?= $hasT ? 'reading-slot-ok' : 'reading-slot-miss' ?>"><?= $hasT ? 'ёсць' : 'няма' ?></span>
-                        <?php if ($lk !== ''): ?>
+<?php if ($lk !== ''): ?>
                           <a class="reading-slot-link" href="/admin/lectionary.php?prefill_title=<?= urlencode($lk) ?>">лекцыянарый</a>
-                        <?php endif; ?>
+<?php endif; ?>
                       </div>
                     </div>
-                  <?php endforeach; ?>
+<?php endforeach; ?>
                 </div>
-                <?php else: ?>
+<?php else: ?>
                 <p class="readings-slots-empty">Няма дадатковых радкоў лекцыянарыя для гэтага дня.</p>
-                <?php endif; ?>
+<?php endif; ?>
               </td>
               <td>
                 <div class="day-actions">
@@ -629,7 +629,7 @@ foreach ($monthDayMeta as $k => $meta) {
                 </div>
               </td>
             </tr>
-          <?php
+<?php
               $iter = $iter->modify('+1 day');
           endwhile;
           ?>

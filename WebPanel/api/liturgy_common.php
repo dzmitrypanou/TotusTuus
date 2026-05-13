@@ -1,21 +1,9 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Аўтавылічэнне літургічнага календара (важныя даты + колер дня)
- * і дапаможныя метады для API/адмінкі.
- */
-
 require_once __DIR__ . '/liturgy_particular_calendar.php';
 require_once __DIR__ . '/liturgy_observances_lib.php';
 
-/**
- * @return array{
- *   epiphany_transfer_to_sunday:bool,
- *   ascension_on_sunday:bool,
- *   corpus_christi_on_sunday:bool
- * }
- */
 function liturgy_calendar_transfers(): array
 {
     static $cache = null;
@@ -34,7 +22,6 @@ function liturgy_calendar_transfers(): array
     return $cache;
 }
 
-/** Дата ўрачыстасці Аб'яўлення (6 студзеня або нядзеля 2–8.01 пры пераносе). */
 function liturgy_epiphany_observance_date(int $year): DateTimeImmutable
 {
     $tz = new DateTimeZone('UTC');
@@ -86,14 +73,12 @@ function liturgy_color_hex(string $color): string
 
 function liturgy_easter_sunday(int $year): DateTimeImmutable
 {
-    // Important: avoid timestamp-based conversion (easter_date),
-    // which may shift by one day depending on server timezone.
-    $base = new DateTimeImmutable(sprintf('%04d-03-21', $year), new DateTimeZone('UTC'));
+
+$base = new DateTimeImmutable(sprintf('%04d-03-21', $year), new DateTimeZone('UTC'));
     $offset = easter_days($year, CAL_EASTER_ALWAYS_GREGORIAN);
     return $base->modify(sprintf('+%d day', $offset));
 }
 
-/** Вялікі панядзелак — Вялікдзень уключна (для загалоўкаў без «Панядзелак — …» у календары і API). */
 function liturgy_is_great_monday_through_easter_sunday(DateTimeImmutable $date): bool
 {
     $easter = liturgy_easter_sunday((int)$date->format('Y'));
@@ -106,15 +91,14 @@ function liturgy_is_great_monday_through_easter_sunday(DateTimeImmutable $date):
 function liturgy_first_advent_sunday(int $year): DateTimeImmutable
 {
     $start = new DateTimeImmutable(sprintf('%04d-11-27', $year), new DateTimeZone('UTC'));
-    $dow = (int)$start->format('w'); // 0=Sun
+    $dow = (int)$start->format('w');
     return $start->modify(sprintf('+%d day', (7 - $dow) % 7));
 }
 
 function liturgy_baptism_of_lord(int $year): DateTimeImmutable
 {
-    // Пасля даты Аб'яўлення (гл. liturgy_epiphany_observance_date): калі Аб'яўленне ў нядзелю — Крэшчанне ў панядзелак;
-    // інакш — бліжэйшая нядзеля пасля гэтай даты.
-    $epiphany = liturgy_epiphany_observance_date($year);
+
+$epiphany = liturgy_epiphany_observance_date($year);
     $dow = (int)$epiphany->format('w');
     if ($dow === 0) {
         return $epiphany->modify('+1 day');
@@ -132,7 +116,7 @@ function liturgy_is_baptism_of_lord(DateTimeImmutable $date): bool
 
 function liturgy_resolve_effective_color(DateTimeImmutable $date, string $overrideColor, string $autoColor): string
 {
-    // Keep Feast of Baptism of the Lord white even if stale manual override exists.
+
     if (liturgy_is_baptism_of_lord($date)) {
         return 'white';
     }
@@ -145,10 +129,6 @@ function liturgy_normalize_liturgical_color_string(string $raw): string
     return array_key_exists($c, liturgy_color_palette()) ? $c : '';
 }
 
-/**
- * Колер успаміна па назве (фіксаваны спіс усё яшчэ «white» у крыніцы даных;
- * мучанікі — red, Усе душы — black).
- */
 function liturgy_infer_optional_memorial_color(string $title): string
 {
     $t = mb_strtolower(trim($title), 'UTF-8');
@@ -165,13 +145,6 @@ function liturgy_infer_optional_memorial_color(string $title): string
     return 'white';
 }
 
-/**
- * Expand a combined optional memorial title into alternative variants.
- * Example: "Успамін св. Юрыя..., і св. Адальбэрта..." ->
- * ["Успамін св. Юрыя...", "Успамін св. Адальбэрта..."].
- *
- * @return array<int, string>
- */
 function liturgy_expand_optional_memorial_title_variants(string $title): array
 {
     $raw = trim($title);
@@ -204,10 +177,6 @@ function liturgy_expand_optional_memorial_title_variants(string $title): array
     return $variants !== [] ? $variants : [$raw];
 }
 
-/**
- * @param array<int, string> $titles
- * @return array<int, string>
- */
 function liturgy_optional_memorial_colors_for_titles(array $titles): array
 {
     $colors = [];
@@ -232,23 +201,12 @@ function liturgy_regional_feast_rank(string $rank): int
     };
 }
 
-/**
- * Угодныя святы дыяцэзій Беларусі (пасля базавых картаў важных дзён і даброўных успамінаў).
- *
- * @param array<string, array{title:string,color:string,is_important:bool,source:string,rank?:string}> $important
- * @param array<string, array{title:string,color:string}> $optional
- * @param array<string, bool> $dioceseOpts
- */
 function liturgy_apply_regional_belarus_calendar(int $year, array &$important, array &$optional, array $dioceseOpts): void
 {
-    // Рэгіянальныя і агульныя ўводзіны — у табліцы liturgy_observances (адмінка /admin/liturgy_observances.php).
+
     unset($year, $important, $optional, $dioceseOpts);
 }
 
-/**
- * Прыарытэт: падмена ў календары → колер з запісу лекцыянарыя → аўтакалер.
- * Хрост Пана заўсёды белы.
- */
 function liturgy_resolve_liturgical_color_for_day(
     DateTimeImmutable $date,
     string $calendarOverride,
@@ -269,9 +227,6 @@ function liturgy_resolve_liturgical_color_for_day(
     return $autoColor;
 }
 
-/**
- * @param array<string, array<string,mixed>> $lectionaryMap
- */
 function liturgy_lectionary_row_liturgical_color(array $lectionaryMap, string $lookupKey): string
 {
     if ($lookupKey === '' || !isset($lectionaryMap[$lookupKey])) {
@@ -317,9 +272,6 @@ function liturgy_append_cycle_suffix(string $title, string $cycle): string
     return $trimmed . ', Год ' . $cycle;
 }
 
-/**
- * @return array<string,bool>
- */
 function liturgy_no_cycle_fixed_dates(): array
 {
     static $dates = null;
@@ -374,9 +326,9 @@ function liturgy_important_title_uses_cycle_suffix(DateTimeImmutable $date, stri
         'Вялікая субота',
         'Уваскрасенне Пана (Вялікдзень)',
         'Нядзеля спаслання Духа Святога',
-        // Адзіны набор чытанняў у лекцыянарыі — без нядзельнага цыклу A/B/C.
+
         'ІІ Нядзеля пасля Нараджэння Пана',
-        // Чацвер пасля Пятідзесятніцы — уласныя тэксты, без A/B/C.
+
         'Свята Езуса Хрыста, Найвышэйшага і Вечнага Святара',
     ], true)) {
         return false;
@@ -391,17 +343,10 @@ function liturgy_weekday_cycle_i_ii(DateTimeImmutable $date): string
     return ($year % 2 === 0) ? 'II' : 'I';
 }
 
-/**
- * Returns title_override when it is truly custom, but auto-fixes old
- * important-day overrides (without cycle suffix) to include current liturgical year.
- *
- * @param array<string,mixed>|null $entry
- * @param array<string,mixed> $auto
- */
 function liturgy_effective_title_for_date(DateTimeImmutable $date, ?array $entry, array $auto): string
 {
     $autoTitle = trim((string)($auto['title'] ?? ''));
-    // Актава Пасхі (пн–сб): ручны title_override не павінен перакрываць імшу актавы (напр. успамін са святамі ў БД).
+
     if (liturgy_is_paschal_octave_weekday_date($date)) {
         return $autoTitle;
     }
@@ -415,7 +360,7 @@ function liturgy_effective_title_for_date(DateTimeImmutable $date, ?array $entry
 
     $overrideBase = liturgy_strip_cycle_suffix($titleOverride);
     $autoBase = liturgy_strip_cycle_suffix($autoTitle);
-    // Same liturgical label as auto but override omitted ", Год A/B/C" (or I/II) — use canonical auto title.
+
     if ($overrideBase !== '' && $autoTitle !== '' && $overrideBase === $autoBase) {
         return $autoTitle;
     }
@@ -458,9 +403,6 @@ function liturgy_weekday_name(DateTimeImmutable $date): string
     };
 }
 
-/**
- * Ці загаловак ужо змяшчае назву гэтага календарнага дня (без дубля «Нядзеля — …» у API).
- */
 function liturgy_title_display_already_includes_calendar_weekday(string $title, string $day): bool
 {
     if ($title === '' || $day === '') {
@@ -487,10 +429,6 @@ function liturgy_title_display_already_includes_calendar_weekday(string $title, 
     return false;
 }
 
-/**
- * Загаловак для кліента: «Дзень тыдня — назва дня». Ключы лекцыянарыя заўсёды без гэтага прэфікса.
- * У Вялікдзень тыдзень — толькі назва (без прэфікса дня тыдня).
- */
 function liturgy_title_with_weekday_for_display(DateTimeImmutable $date, string $title): string
 {
     $t = trim($title);
@@ -518,9 +456,6 @@ function liturgy_title_with_weekday_for_display(DateTimeImmutable $date, string 
     return $prefix . $t;
 }
 
-/**
- * Прыбірае вядомы прэфікс «дзень — …» для выяўлення рангу (Успамін / Свята / …).
- */
 function liturgy_optional_label_strip_leading_weekday(string $title): string
 {
     $t = trim($title);
@@ -538,9 +473,6 @@ function liturgy_optional_label_strip_leading_weekday(string $title): string
     return $t;
 }
 
-/**
- * Прэфікс назвы ўрачыстасці / свята / успаміна ў пачатку радка («Успамін », «Свята — » і г.д.).
- */
 function liturgy_optional_extract_observance_prefix(string $title): ?string
 {
     $t = liturgy_optional_label_strip_leading_weekday(trim($title));
@@ -558,13 +490,6 @@ function liturgy_optional_extract_observance_prefix(string $title): ?string
     return null;
 }
 
-/**
- * Кожны варыянт пасля «альбо» атрымлівае той жа тып назвы (Успамін / Свята / …), што і першы,
- * калі ў другім варыянце тып не пазначаны (напр. толькі «св. …»).
- *
- * @param array<int, string> $labels
- * @return array<int, string>
- */
 function liturgy_optional_enrich_alternative_labels_with_observance(array $labels): array
 {
     $out = [];
@@ -591,11 +516,6 @@ function liturgy_optional_enrich_alternative_labels_with_observance(array $label
     return $out;
 }
 
-/**
- * Адна галіна optional_memorial_title для кліента: без «Чацвер — …»;
- * калі $prefixAuto: «Успамін — …» / «Свята — …» (як у шапцы экрана дня);
- * калі false — паказваем тэкст з БД (пасля зняцця дня тыдня) без аўта-допісу «Успамін —».
- */
 function liturgy_optional_memorial_variant_for_client_display(string $label, bool $prefixAuto = true): string
 {
     $t = trim($label);
@@ -637,12 +557,6 @@ function liturgy_optional_memorial_variant_for_client_display(string $label, boo
     return 'Успамін — ' . $t;
 }
 
-/**
- * optional_memorial_title для JSON: варыянты праз «альбо» з тыпам дня (Успамін — …), без паўтору дня тыдня.
- *
- * @param array<int, string> $optionalLookupTitles
- * @param array<int, bool>|null $optionalPrefixAutoByLookupIndex той жа парадак, што ў $optionalLookupTitles
- */
 function liturgy_format_optional_memorial_title_for_display(
     DateTimeImmutable $date,
     string $optionalMemorialTitleRaw,
@@ -848,9 +762,6 @@ function liturgy_easter_week(DateTimeImmutable $date): int
     return intdiv($days, 7) + 1;
 }
 
-/**
- * Панядзелак–субота (не нядзеля) ў межах актавы Пасхі: Easter+1 … Easter+6, сэзон EASTER.
- */
 function liturgy_is_paschal_octave_weekday_date(DateTimeImmutable $date): bool
 {
     if (liturgy_detect_season($date) !== 'EASTER') {
@@ -866,9 +777,6 @@ function liturgy_is_paschal_octave_weekday_date(DateTimeImmutable $date): bool
     return $date >= $from && $date <= $until;
 }
 
-/**
- * Панядзелак–субота ў актаве Пасхі: у БД лекцыянарыя застаўся ключ «— I Тыдзень Велікоднага перыяду».
- */
 function liturgy_easter_octave_weekday_legacy_lookup_title(DateTimeImmutable $date): string
 {
     if (!liturgy_is_paschal_octave_weekday_date($date)) {
@@ -879,9 +787,6 @@ function liturgy_easter_octave_weekday_legacy_lookup_title(DateTimeImmutable $da
     return sprintf('%s — %s Тыдзень Велікоднага перыяду', $weekday, liturgy_roman(1));
 }
 
-/**
- * Мяккая нармалізацыя толькі для fallback-параўнання (не «рэзаць» усе \p{Pd} у радку).
- */
 function liturgy_normalize_title_for_paschal_octave_compare(string $title): string
 {
     $t = liturgy_strip_cycle_suffix(trim($title));
@@ -925,9 +830,6 @@ function liturgy_title_is_paschal_octave_weekday(string $title): bool
         );
 }
 
-/**
- * @return array<string,int>
- */
 function liturgy_ordinary_sunday_numbers(int $year): array
 {
     $start = new DateTimeImmutable(sprintf('%04d-01-01', $year), new DateTimeZone('UTC'));
@@ -964,8 +866,7 @@ function liturgy_ordinary_week_number(DateTimeImmutable $date): int
     $pentecost = $easter->modify('+49 day');
     $firstAdvent = liturgy_first_advent_sunday($year);
 
-    // Ordinary Time starts on Monday after Baptism of the Lord.
-    $ordinaryStart = liturgy_baptism_of_lord($year)->modify('+1 day');
+$ordinaryStart = liturgy_baptism_of_lord($year)->modify('+1 day');
     $beforeLentEnd = $ashWednesday->modify('-1 day');
 
     if ($date >= $ordinaryStart && $date <= $beforeLentEnd) {
@@ -976,33 +877,24 @@ function liturgy_ordinary_week_number(DateTimeImmutable $date): int
         return min($w, 34);
     }
 
-    // Ordinary Time resumes on Monday after Pentecost.
-    $afterPentecostStart = $pentecost->modify('+1 day');
+$afterPentecostStart = $pentecost->modify('+1 day');
     $ordinaryEnd = $firstAdvent->modify('-1 day');
     if ($date >= $afterPentecostStart && $date <= $ordinaryEnd) {
         $firstPartDays = (int)$ordinaryStart->diff($beforeLentEnd)->days;
         $firstPartLastWeek = intdiv($firstPartDays, 7) + 1;
-        // Працяг нумарацыі тыдняў Звычайнага часу пасля Пятідзесятніцы: першы панядзелак = firstPartLastWeek + 1
-        // (як у Roman Missal / ORDO; +2 зрушвала ўсе нядзелі на адзін нумар уверх).
-        $secondPartStartWeek = $firstPartLastWeek + 1;
+
+$secondPartStartWeek = $firstPartLastWeek + 1;
         $days = (int)$afterPentecostStart->diff($date)->days;
         $baseWeek = $secondPartStartWeek + intdiv($days, 7);
-        // Пасля Пятідзесятніцы: будні — baseWeek+1 (як у ORDO, гл. 10.06.2025 = X тыдзень).
-        // Нядзелі — baseWeek+2: «XII Нядзеля» на адзін больш за «панядзелак XI тыдня» (г.зн. 22.06.2025).
-        $w = $baseWeek + ($isSunday ? 2 : 1);
 
-        // У Звычайным часе ў Рымскім календары толькі да XXXIV тыдня (няма XXXV).
-        return min($w, 34);
+$w = $baseWeek + ($isSunday ? 2 : 1);
+
+return min($w, 34);
     }
 
     return 0;
 }
 
-/**
- * Пераносныя ўрачыстасці з залежнасцю ад liturgy_calendar_config.php.
- *
- * @return array<string, array{0:string,1:string}>
- */
 function liturgy_transfer_dependent_movables(int $year, DateTimeImmutable $easter): array
 {
     unset($year);
@@ -1020,18 +912,12 @@ function liturgy_transfer_dependent_movables(int $year, DateTimeImmutable $easte
     ];
 }
 
-/**
- * @return array<string, array{title:string,color:string}>
- */
 function liturgy_optional_memorials_for_year(int $year, ?array $dioceseOpts = null): array
 {
     $dioceseOpts = $dioceseOpts ?? liturgy_diocese_options_default();
     return liturgy_observances_build_optional_map($year, $dioceseOpts);
 }
 
-/**
- * @return array<string, array{title:string,color:string,is_important:bool,source:string}>
- */
 function liturgy_important_dates_for_year(int $year, ?array $dioceseOpts = null): array
 {
     $dioceseOpts = $dioceseOpts ?? liturgy_diocese_options_default();
@@ -1059,8 +945,7 @@ function liturgy_season_color(DateTimeImmutable $date, array $importantMap): str
     $season = liturgy_detect_season($date);
     $isSunday = (int)$date->format('w') === 0;
 
-    // Gaudete Sunday (III Sunday of Advent) and Laetare Sunday (IV Sunday of Lent).
-    if ($isSunday && $season === 'ADVENT' && liturgy_advent_week($date) === 3) {
+if ($isSunday && $season === 'ADVENT' && liturgy_advent_week($date) === 3) {
         return 'rose';
     }
     if ($isSunday && $season === 'LENT' && liturgy_lent_week($date) === 4) {
@@ -1084,9 +969,7 @@ function liturgy_auto_title(DateTimeImmutable $date, ?array $important): string
     $isSunday = (int)$date->format('w') === 0;
     $weekday = liturgy_weekday_name($date);
 
-    // From 26 Dec until Sunday of Baptism of the Lord we use running day labels.
-    // This is intentional for lectionary matching by day-in-sequence.
-    if ($season === 'CHRISTMAS' && $important === null) {
+if ($season === 'CHRISTMAS' && $important === null) {
         $octaveDay = liturgy_christmas_octave_day_number($date);
         if ($octaveDay > 0) {
             return sprintf(
@@ -1121,9 +1004,8 @@ function liturgy_auto_title(DateTimeImmutable $date, ?array $important): string
 
     return match ($season) {
         'ADVENT' => (function () use ($date, $isSunday, $weekday, $cycle, $month, $day): string {
-            // O Antiphons period: fixed weekdays of Advent (17-24 Dec)
-            // must resolve by calendar date, not by "week of Advent".
-            if (!$isSunday && $month === 12 && $day >= 17 && $day <= 24) {
+
+if (!$isSunday && $month === 12 && $day >= 17 && $day <= 24) {
                 return sprintf('%d снежня', $day);
             }
             return $isSunday
@@ -1132,7 +1014,7 @@ function liturgy_auto_title(DateTimeImmutable $date, ?array $important): string
         })(),
 
         'LENT' => (function () use ($date, $isSunday, $weekday, $cycle): string {
-            // Шостая нядзеля посту ў Рымскім календары — заўсёды Пальмовая нядзеля (не «VI Нядзеля…»).
+
             if ($isSunday) {
                 $palmSunday = liturgy_easter_sunday((int)$date->format('Y'))->modify('-7 day');
                 if ($date->format('Y-m-d') === $palmSunday->format('Y-m-d')) {
@@ -1169,7 +1051,7 @@ function liturgy_auto_title(DateTimeImmutable $date, ?array $important): string
             if ($isSunday) {
                 $y = (int)$date->format('Y');
                 $christKing = liturgy_first_advent_sunday($y)->modify('-7 day');
-                // Апошняя нядзеля сегмента Звычайнага часу: у Місе гэта заўсёды Урачыстасць Хрыста Валадара, без «N-я нядзеля Звычайнага часу».
+
                 if ($week === 34 || $date->format('Y-m-d') === $christKing->format('Y-m-d')) {
                     return liturgy_append_cycle_suffix('Урачыстасць Хрыста Валадара Сусвету', $cycle);
                 }
@@ -1189,12 +1071,6 @@ function liturgy_auto_title(DateTimeImmutable $date, ?array $important): string
     };
 }
 
-/**
- * When true, general optional memorials and fixed-date lectionary "альбо" rows are omitted:
- * all Sundays; Advent weekdays 17–24 Dec;
- * Holy Week; Ash Wednesday; Easter octave weekdays (Mon–Sat);
- * days that are already a fixed/movable solemnity or feast.
- */
 function liturgy_optional_memorials_suppressed_for_day(DateTimeImmutable $date, ?array $important): bool
 {
     $season = liturgy_detect_season($date);
@@ -1220,8 +1096,7 @@ function liturgy_optional_memorials_suppressed_for_day(DateTimeImmutable $date, 
         return true;
     }
 
-    // Easter octave weekdays (Mon–Sat): no general memorials alongside the octave.
-    if (liturgy_is_paschal_octave_weekday_date($date)) {
+if (liturgy_is_paschal_octave_weekday_date($date)) {
         return true;
     }
 
@@ -1235,13 +1110,6 @@ function liturgy_optional_memorials_suppressed_for_day(DateTimeImmutable $date, 
     return false;
 }
 
-/**
- * Фіксаваныя святы святых (не ўрачыстасці, не святы Пана / Узвышэнне Крыжа / Перамяненне і пад.),
- * якія саступаюць нядзелі Звычайнага часу (норма ORDO: нядзеля Звычайнага часу пераважае над святамі святых).
- * Не ўключаць урачыстасці (напр. Пётр і Паўла) і святы Гасподнія ў рангу свята.
- *
- * @return array<string,bool> ключы mm-dd
- */
 function liturgy_fixed_feasts_outranked_by_ordinary_sunday(): array
 {
     static $dates = null;
@@ -1271,9 +1139,6 @@ function liturgy_fixed_feasts_outranked_by_ordinary_sunday(): array
     return $dates;
 }
 
-/**
- * Ці нядзеля адмяняе фіксаваны «важны» дзень для загаловак/колеру (як у ORDO).
- */
 function liturgy_fixed_important_suppressed_by_sunday(DateTimeImmutable $date, ?array $important): bool
 {
     if ($important === null || (int)$date->format('w') !== 0) {
@@ -1294,15 +1159,6 @@ function liturgy_fixed_important_suppressed_by_sunday(DateTimeImmutable $date, ?
     return false;
 }
 
-/**
- * @return array{
- *   date:string,
- *   title:string,
- *   color:string,
- *   color_hex:string,
- *   is_important:bool
- * }
- */
 function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = null): array
 {
     $dioceseOpts = $dioceseOpts ?? liturgy_diocese_options_default();
@@ -1326,20 +1182,19 @@ function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = nu
     $isSunday = (int)$date->format('w') === 0;
     $season = liturgy_detect_season($date);
     if (liturgy_fixed_important_suppressed_by_sunday($date, $important)) {
-        // Нядзелі Адвэнту, посту і Велікоднага часу — над усімі фіксаванымі днямі;
-        // нядзеля Звычайнага часу — над выбранымі святамі святых (не над урачыстасцямі).
-        $important = null;
+
+$important = null;
         unset($effectiveImportantMap[$key]);
     }
     if (liturgy_is_paschal_octave_weekday_date($date)) {
-        // Панядзелак–субота ў актаве Пасхі: імша акутавы пераважае над фіксаванымі/рухомымі святамі і вобласнымі днямі.
+
         $important = null;
         unset($effectiveImportantMap[$key]);
     }
     if ($isSunday && $season === 'CHRISTMAS') {
         $octaveDay = liturgy_christmas_octave_day_number($date);
         if ($octaveDay >= 2 && $octaveDay <= 7) {
-            // Sunday inside Christmas octave -> Feast of the Holy Family.
+
             $important = [
                 'title' => 'Свята Святой Сям’і — Езуса, Марыі і Юзафа',
                 'color' => 'white',
@@ -1349,7 +1204,7 @@ function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = nu
         } elseif ((int)$date->format('m') === 1) {
             $day = (int)$date->format('d');
             if ($day >= 2 && $day <= 5) {
-                // Sunday between Jan 2 and Jan 5 -> II Sunday after Christmas.
+
                 $important = [
                     'title' => 'ІІ Нядзеля пасля Нараджэння Пана',
                     'color' => 'white',
@@ -1397,7 +1252,7 @@ function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = nu
                     $variantPrefixAuto[] = $pa;
                 }
             }
-            /** @var array<string, bool> $variantToPrefix */
+
             $variantToPrefix = [];
             foreach ($optionalVariants as $vi => $variant) {
                 $v = trim((string)$variant);
@@ -1461,7 +1316,7 @@ function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = nu
             $optionalMemorialPrefixAuto[] = true;
         }
     }
-    // Вігілія Нараджэння св. Яна Хрысціцеля — вечарам папярэдняга дня.
+
     if ($date->format('m-d') === '06-23') {
         $johnBaptistVigilLookup = 'Нараджэнне святога Яна Хрысціцеля - Імша ў вігілію';
         $johnBaptistVigilLabel = 'Увечары: Імша з вігіліі ўрачыстасці Нараджэння св. Яна Хрысціцеля';
@@ -1474,7 +1329,7 @@ function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = nu
             $optionalMemorialPrefixAuto[] = false;
         }
     }
-    // Вігілія св. Пятра і Паўла — вечарам папярэдняга дня.
+
     if ($date->format('m-d') === '06-28') {
         $peterPaulVigilLookup = 'Урачыстасць святых апосталаў Пятра і Паўла - Імша ў вігілію';
         $peterPaulVigilLabel = 'Увечары: Імша з вігіліі ўрачыстасці св. Пятра і Паўла, Апосталаў';
@@ -1487,7 +1342,7 @@ function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = nu
             $optionalMemorialPrefixAuto[] = false;
         }
     }
-    // Вігілія Унебаўзяцця — у лекцыянарыі як папярэдні дзень; у спісе варыянтаў — апошнім (пасля іншых успамінаў / датаваных радкоў).
+
     if ($date->format('m-d') === '08-14') {
         $assumptionVigilLookup = 'Унебаўзяцце Найсвяцейшай Панны Марыі - Імша ў вігілію';
         $assumptionVigilLabel = 'Унебаўзяцце НПМ — Імша ў вігілію';
@@ -1523,9 +1378,6 @@ function liturgy_auto_day_info(DateTimeImmutable $date, ?array $dioceseOpts = nu
     ];
 }
 
-/**
- * @return array{month:int,day:int,label:string}|null
- */
 function liturgy_parse_fixed_date_lectionary_title(string $title): ?array
 {
     $value = trim($title);
@@ -1548,9 +1400,6 @@ function liturgy_parse_fixed_date_lectionary_title(string $title): ?array
     ];
 }
 
-/**
- * @return array<string, array<int, array{lookup_title:string,label:string}>>
- */
 function liturgy_fixed_date_lectionary_options_for_year(int $year): array
 {
     static $cache = [];
@@ -1622,10 +1471,6 @@ function liturgy_normalize_lectionary_key(string $value): string
     return strtolower($trimmed);
 }
 
-/**
- * Субота VII тыдня Велікоднага перыяду: назва дня ў календары адпавядае запісу
- * «Субота сёмага велікоднага тыдня - Імша раніцай» у лекцыянарыі (не дублюем як асобны «асноўны» варыянт).
- */
 function liturgy_effective_title_is_saturday_seventh_easter_week(string $effectiveTitle): bool
 {
     $base = liturgy_strip_cycle_suffix(trim($effectiveTitle));
@@ -1634,9 +1479,6 @@ function liturgy_effective_title_is_saturday_seventh_easter_week(string $effecti
         || $base === 'Субота сёмага велікоднага тыдня';
 }
 
-/**
- * Нядзеля Пятідзесятніцы: у лекцыянарыі адзін запіс «… (Імша ўдзень)»; кароткая назва дня без «Імша ўдзень» не дублюецца як асобны «асноўны» радок.
- */
 function liturgy_effective_title_is_pentecost_sunday(string $effectiveTitle): bool
 {
     $base = liturgy_strip_cycle_suffix(trim($effectiveTitle));
@@ -1645,51 +1487,31 @@ function liturgy_effective_title_is_pentecost_sunday(string $effectiveTitle): bo
         || $base === 'Спасланне Духа Святога';
 }
 
-/**
- * Вялікі чацвер: чытанні толькі ў «Імша Хрызма» і «Імша Вячэры Пана», без асобнага радка «асноўны» па назве дня.
- */
 function liturgy_effective_title_is_holy_thursday(string $effectiveTitle): bool
 {
     return liturgy_strip_cycle_suffix(trim($effectiveTitle)) === 'Вялікі чацвер';
 }
 
-/**
- * Пётр і Павел (29 чэрвеня): чытанні толькі «Імша ўдзень», без радка «асноўны» па назве ўрачыстасці.
- * «Імша ў вігілію» паказваецца ўвечары 28 чэрвеня (гл. liturgy_auto_day_info).
- */
 function liturgy_effective_title_is_peter_and_paul_solemnity(string $effectiveTitle): bool
 {
     return liturgy_strip_cycle_suffix(trim($effectiveTitle)) === 'Урачыстасць святых апосталаў Пятра і Паўла';
 }
 
-/**
- * Нараджэнне св. Яна Хрысціцеля: чытанні толькі «Імша ўдзень», без радка «асноўны» па назве ўрачыстасці.
- * «Імша ў вігілію» паказваецца ўвечары 23 чэрвеня (гл. liturgy_auto_day_info).
- */
 function liturgy_effective_title_is_john_baptist_nativity(string $effectiveTitle): bool
 {
     return liturgy_strip_cycle_suffix(trim($effectiveTitle)) === 'Нараджэнне святога Яна Хрысціцеля';
 }
 
-/**
- * Унебаўзяцце Найсвяцейшай Панны Марыі: чытанні «Імша ўдзень» у дзень урачыстасці; «Імша ў вігілію» — на папярэдні дзень (гл. liturgy_auto_day_info).
- */
 function liturgy_effective_title_is_assumption_mary(string $effectiveTitle): bool
 {
     return liturgy_strip_cycle_suffix(trim($effectiveTitle)) === 'Унебаўзяцце Найсвяцейшай Панны Марыі';
 }
 
-/**
- * Успамін усіх памерлых вернікаў: толькі тры імшы, без радка «асноўны» па назве дня.
- */
 function liturgy_effective_title_is_all_souls(string $effectiveTitle): bool
 {
     return liturgy_strip_cycle_suffix(trim($effectiveTitle)) === 'Успамін усіх памерлых вернікаў';
 }
 
-/**
- * Нараджэнне Пана (25 снежня): толькі тры імшы, без радка «асноўны» па назве ўрачыстасці.
- */
 function liturgy_effective_title_is_nativity_lord(string $effectiveTitle): bool
 {
     $base = liturgy_strip_cycle_suffix(trim($effectiveTitle));
@@ -1697,19 +1519,16 @@ function liturgy_effective_title_is_nativity_lord(string $effectiveTitle): bool
     return $base === 'Нараджэнне Пана' || $base === '25 снежня';
 }
 
-/**
- * @return array<int, array{lookup:string,label:string}>
- */
 function liturgy_special_lectionary_titles_for_day(string $effectiveTitle): array
 {
     $baseTitle = liturgy_strip_cycle_suffix($effectiveTitle);
-    // Ранейшы памылковы аўта-загаловак; чытанні ў БД пад «Пальмовая нядзеля».
+
     if ($baseTitle === 'VI Нядзеля Вялікага посту') {
         return [
             ['lookup' => 'Пальмовая нядзеля', 'label' => 'Пальмовая нядзеля'],
         ];
     }
-    // Старыя захаваныя загалоўкі (да выпраўлення аўта-назвы); чытанні пад Урачыстасцю Хрыста Валадара.
+
     if ($baseTitle === liturgy_roman(34) . ' Нядзеля Звычайнага часу') {
         return [
             ['lookup' => 'Урачыстасць Хрыста Валадара Сусвету', 'label' => 'Урачыстасць Хрыста Валадара Сусвету'],
@@ -1782,7 +1601,7 @@ function liturgy_special_lectionary_titles_for_day(string $effectiveTitle): arra
     }
     if ($baseTitle === '24 снежня') {
         return [
-            // Спачатку дзённая імша (ключ у БД часта «24 снежня» без суфікса).
+
             [
                 'lookup' => '24 снежня',
                 'label' => 'Імша ўдзень',
@@ -1824,17 +1643,13 @@ function liturgy_special_lectionary_titles_for_day(string $effectiveTitle): arra
     return [];
 }
 
-/**
- * @param array<int,array{title:string,text:string,open?:bool}> $sections
- */
 function liturgy_render_readings_sections_html(array $sections): string
 {
     if ($sections === []) {
         return '';
     }
 
-    // Адзіная сэкцыя за дзень — без <details> і без паўтору загалоўка (назва дня ўжо ў экране праграмы).
-    if (count($sections) === 1) {
+if (count($sections) === 1) {
         $content = (string)$sections[0]['text'];
 
         return sprintf(
@@ -1866,18 +1681,14 @@ function liturgy_sanitize_readings_html(string $html): string
         return '';
     }
 
-    // Drop embedded style/meta/script blocks from pasted editors.
-    $value = preg_replace('/<(style|script|meta|link)\b[^>]*>.*?<\/\1>/isu', '', $value) ?? $value;
+$value = preg_replace('/<(style|script|meta|link)\b[^>]*>.*?<\/\1>/isu', '', $value) ?? $value;
     $value = preg_replace('/<(meta|link)\b[^>]*\/?>/isu', '', $value) ?? $value;
 
-    // Unwrap tags that often carry highlight/background from clipboard.
     $value = preg_replace('/<\/?font\b[^>]*>/isu', '', $value) ?? $value;
     $value = preg_replace('/<\/?mark\b[^>]*>/isu', '', $value) ?? $value;
 
-    // Remove explicit color/background/font attributes from pasted HTML.
     $value = preg_replace('/\s(?:bgcolor|color|face|size|class|id)\s*=\s*("|\').*?\1/isu', '', $value) ?? $value;
 
-    // Keep style attribute, but strip color/background/font-related declarations.
     $value = preg_replace_callback(
         '/\sstyle\s*=\s*("|\')(.*?)\1/isu',
         static function (array $m): string {
@@ -1922,11 +1733,6 @@ function liturgy_sanitize_readings_html(string $html): string
     return trim($value);
 }
 
-/**
- * Нармалізаваныя lookup_key у парадку прыярытэту для адной назвы (як у падборы чытанняў у API).
- *
- * @return list<string>
- */
 function liturgy_lectionary_lookup_keys_for_title_string(string $title): array
 {
     $ordered = [];
@@ -1957,9 +1763,6 @@ function liturgy_lectionary_lookup_keys_for_title_string(string $title): array
     return $ordered;
 }
 
-/**
- * id запісу лекцыянарыя для спасылкі ?prefill_title=… калі такі запіс ужо ёсць у БД.
- */
 function liturgy_resolve_lectionary_edit_id_for_prefill(string $prefillTitle): int
 {
     $pre = trim($prefillTitle);
@@ -1982,10 +1785,6 @@ function liturgy_resolve_lectionary_edit_id_for_prefill(string $prefillTitle): i
     return 0;
 }
 
-/**
- * @param array<int,string> $titles
- * @return array<string, array<string,mixed>>
- */
 function liturgy_fetch_lectionary_map_by_titles(array $titles): array
 {
     $keys = [];
@@ -2027,15 +1826,6 @@ function liturgy_fetch_lectionary_map_by_titles(array $titles): array
     return $map;
 }
 
-/**
- * Усе варыянты чытанняў у лекцыянарыі для дня (адмінка): асноўныя, па датце ў калядным перыядзе,
- * кожны успамін па асобным радку, дадатковыя імшы (раніца / вігілія і г.д.).
- *
- * @param array<int, string> $optionalLookupTitles
- * @param array<string, array<string,mixed>> $lectionaryMap
- * @param array<int, bool> $optionalMemorialPrefixAuto той жа парадак, што ў $optionalLookupTitles
- * @return array<int, array{kind:string,label:string,lookup_title:string,lookup_key:string,has_text:bool}>
- */
 function liturgy_admin_reading_slots(
     ?array $entry,
     string $effectiveTitle,
@@ -2253,13 +2043,6 @@ function liturgy_admin_reading_slots(
     return $slots;
 }
 
-/**
- * Адпаведныя падпісы для кожнага радка optional_memorial_lookup_titles
- * (той жа парадак, што ў optional_memorial_title праз «альбо»).
- *
- * @param array<int, string> $optionalLookupTitles
- * @return array<int, string>
- */
 function liturgy_optional_memorial_row_labels(string $optionalMemorialTitle, array $optionalLookupTitles): array
 {
     $lookups = [];
@@ -2297,13 +2080,6 @@ function liturgy_optional_memorial_row_labels(string $optionalMemorialTitle, arr
     return $labels;
 }
 
-/**
- * @param array<string, array<string,mixed>> $lectionaryMap
- * @param array<int, string> $optionalLookupTitles
- * @param DateTimeImmutable|null $displayDate калі зададзена — загалоўкі асноўных секцый у readings_full з прэфіксам дня тыдня; для даброўных успамінаў у <details> — толькі назва без дня тыдня
- * @param array<int, bool> $optionalMemorialPrefixAuto той жа парадак, што ў $optionalLookupTitles
- * @return array{readings_full:string, lectionary_key:string, lectionary_source:string, liturgical_color:string}
- */
 function liturgy_resolve_readings_text(
     ?array $entry,
     string $effectiveTitle,
@@ -2337,8 +2113,7 @@ function liturgy_resolve_readings_text(
         return liturgy_title_with_weekday_for_display($displayDate, $label);
     };
 
-    /** Загаловак секцыі для даброўных успамінаў у <details> — без «у аўторак, …» (дзень ужо ў кантэксце дня). */
-    $sectionTitleOptionalMemorial = static function (string $label): string {
+$sectionTitleOptionalMemorial = static function (string $label): string {
         return $label;
     };
 
@@ -2608,8 +2383,6 @@ function liturgy_resolve_readings_text(
         ]);
     }
 
-    // Колер «асноўнага» дня: толькі з радка асноўных чытанняў. Калі пуста — сезонны аўтаколер API.
-    // Не падстаўляем колер альтэрнатыўнага ўспаміна, іначай (напр. мучаніца) апынецца каля звычайнага дня.
     $colorFromLectionary = '';
     if ($mainText !== '') {
         $colorFromLectionary = liturgy_lectionary_row_liturgical_color($lectionaryMap, $mainResolvedKey);
@@ -2626,9 +2399,6 @@ function liturgy_resolve_readings_text(
     ];
 }
 
-/**
- * @return array<string, array<string, mixed>>
- */
 function liturgy_fetch_entries_in_range(string $fromDate, string $toDate): array
 {
     $stmt = db()->prepare(
@@ -2654,9 +2424,6 @@ function liturgy_fetch_entries_in_range(string $fromDate, string $toDate): array
     return $map;
 }
 
-/**
- * @return array<string, mixed>|null
- */
 function liturgy_fetch_entry_for_date(string $date): ?array
 {
     $stmt = db()->prepare(

@@ -1,11 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Секцыі Ordo Missae: парадак для API і рэдактара.
- *
- * @return list<array{key: string, column: string, title_column: string, label: string}>
- */
 function ordo_missae_section_defs(): array
 {
     return [
@@ -18,7 +13,6 @@ function ordo_missae_section_defs(): array
     ];
 }
 
-/** @return array<string, array{key: string, column: string, title_column: string, label: string}> */
 function ordo_missae_section_defs_by_key(): array
 {
     $m = [];
@@ -46,7 +40,6 @@ function ordo_missae_generate_custom_id(): string
     return 'c_' . bin2hex(random_bytes(8));
 }
 
-/** Прадвызначаны парадак: усе ўбудаваныя секцыі ў фіксаваным парадку, без кастамных. */
 function ordo_missae_default_layout_array(): array
 {
     return [
@@ -58,11 +51,6 @@ function ordo_missae_default_layout_array(): array
     ];
 }
 
-/**
- * Нармалізацыя структуры з БД або POST.
- *
- * @return array{v: int, order: list<array{type: string, key?: string, id?: string}>, custom: array<string, array{title: string, html: string}>}
- */
 function ordo_missae_normalize_layout(array $j): array
 {
     $validBuiltInKeys = [];
@@ -143,11 +131,6 @@ function ordo_missae_normalize_layout(array $j): array
     ];
 }
 
-/**
- * @param array<string, mixed> $row радок panel_ordo_missae
- *
- * @return array{v: int, order: list<array{type: string, key?: string, id?: string}>, custom: array<string, array{title: string, html: string}>}
- */
 function ordo_missae_layout_from_db_row(array $row): array
 {
     $raw = trim((string) ($row['ordo_layout_json'] ?? ''));
@@ -162,7 +145,6 @@ function ordo_missae_layout_from_db_row(array $row): array
     return ordo_missae_normalize_layout($decoded);
 }
 
-/** Тэкст загалоўка для публічнага HTML: кастам з БД або прадвызначаны label. */
 function ordo_missae_effective_section_title(array $row, array $d): string
 {
     $raw = trim((string) ($row[$d['title_column']] ?? ''));
@@ -170,10 +152,6 @@ function ordo_missae_effective_section_title(array $row, array $d): string
     return $raw !== '' ? $raw : $d['label'];
 }
 
-/**
- * Значэнне для слупка title_*: пуста = прадвызначаны label пры паказе.
- * Калі ў полі ўвялі роўна тэкст прадвызначэння — таксама захоўваем як пуста.
- */
 function ordo_missae_title_storage_from_post(string $post, string $defaultLabel): string
 {
     $t = trim($post);
@@ -211,12 +189,6 @@ function ordo_missae_emit_details_section(string $dataOrdoKey, string $titleText
         . '</details>';
 }
 
-/**
- * Стары парадак (усё падрад па defs) — для сумяшчальнасці, калі layout яшчэ не выкарыстоўваецца.
- *
- * @param array<string, string> $partsByKey
- * @param array<string, string> $titlesByKey
- */
 function ordo_missae_html_with_section_headings(array $partsByKey, array $titlesByKey): string
 {
     $buf = '';
@@ -235,10 +207,6 @@ function ordo_missae_html_with_section_headings(array $partsByKey, array $titles
     return $buf;
 }
 
-/**
- * @param array<string, mixed> $row
- * @param array{v: int, order: list, custom: array<string, array{title: string, html: string}>} $layout
- */
 function ordo_missae_public_html_from_layout(array $row, array $layout): string
 {
     $buf = '';
@@ -273,11 +241,6 @@ function ordo_missae_public_html_from_layout(array $row, array $layout): string
     return $buf;
 }
 
-/**
- * Публічны HTML: парадак з layout; калі ўсё пуста — рэзерв з слупка html.
- *
- * @param array<string, mixed> $row
- */
 function ordo_missae_public_html_from_row(array $row): string
 {
     $layout = ordo_missae_layout_from_db_row($row);
@@ -307,11 +270,6 @@ function ordo_missae_public_html_from_row(array $row): string
     return (string) ($row['html'] ?? '');
 }
 
-/**
- * @param array<string, string> $partsByKey
- * @param array<string, string> $titlesByKey
- * @param array{v: int, order: list, custom: array<string, array{title: string, html: string}>} $layout
- */
 function ordo_missae_merged_html_for_legacy_column(array $partsByKey, array $titlesByKey, array $layout): string
 {
     $buf = '';

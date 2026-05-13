@@ -2,7 +2,6 @@ package by.dzmitrypanou.catholicapp.ui.scripture
 
 import android.content.Context
 
-/** Апошняе месца чытання (кніга + глава) для бягучага перакладу. */
 object ScriptureReadingProgressStore {
 
     private const val PREFS = "scripture_reading_progress"

@@ -2,10 +2,6 @@ package by.dzmitrypanou.catholicapp.data
 
 import android.content.Context
 
-/**
- * Згода на фонавае абнаўленне кэша (WorkManager: малітвы, спеўнік, Пісанне).
- * Прадвызначана ўключана; карыстальнік можа выключыць у наладах.
- */
 object PrayerAutoUpdateConsentStore {
 
     private const val PREFS = "prayer_app_prefs"

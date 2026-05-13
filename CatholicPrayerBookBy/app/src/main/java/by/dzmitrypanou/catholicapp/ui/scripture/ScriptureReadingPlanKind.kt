@@ -1,8 +1,5 @@
 package by.dzmitrypanou.catholicapp.ui.scripture
 
-/**
- * Тып годавога плана чытання (365 дзён). Захоўваецца разам з якаром актыўнай сесіі.
- */
 enum class ScriptureReadingPlanKind(val storageKey: String) {
     LINEAR("linear"),
     CHRONOLOGICAL("chronological"),

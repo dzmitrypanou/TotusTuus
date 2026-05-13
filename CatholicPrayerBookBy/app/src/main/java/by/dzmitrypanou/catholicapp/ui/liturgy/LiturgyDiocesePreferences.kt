@@ -2,9 +2,6 @@ package by.dzmitrypanou.catholicapp.ui.liturgy
 
 import android.content.Context
 
-/**
- * Налады мясцовых дыяцэзій для літургічнага API (?dioceses=pinskaya,minsk_mogilev,...), у згодзе з WebApp.
- */
 object LiturgyDiocesePreferences {
 
     private const val PREFS_NAME = "liturgy_diocese_prefs"
@@ -42,8 +39,7 @@ object LiturgyDiocesePreferences {
             .apply()
     }
 
-    /** Для Retrofit: null — параметр не адпраўляецца. */
-    fun apiQueryParam(context: Context): String? {
+fun apiQueryParam(context: Context): String? {
         val f = readFlags(context)
         val parts = ArrayList<String>(4)
         if (f.pinskaya) parts.add("pinskaya")
@@ -53,8 +49,7 @@ object LiturgyDiocesePreferences {
         return parts.takeIf { it.isNotEmpty() }?.joinToString(",")
     }
 
-    /** Суфікс для ключа кэша (месяц/дзень), каб не блытаць варыянты без/з дыяцэзіямі. */
-    fun cacheKeySuffix(context: Context): String {
+fun cacheKeySuffix(context: Context): String {
         val f = readFlags(context)
         return buildString(4) {
             append(if (f.pinskaya) '1' else '0')

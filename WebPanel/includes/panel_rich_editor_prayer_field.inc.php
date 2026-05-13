@@ -1,16 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Разметка WYSIWYG як «Тэкст малітвы» у admin/index.php.
- *
- * @var string $panel_rich_editor_label
- * @var string $panel_rich_editor_field_id id textarea + data-target-id
- * @var string $panel_rich_editor_field_name name у POST
- * @var string $panel_rich_editor_editor_id id contenteditable
- * @var string $panel_rich_editor_data_attr поўны атрыбут data-initial-html="..." або ''
- * @var string $panel_rich_editor_aria_label калі подпіс пусты — для aria-label на рэдактары
- */
 $panel_rich_editor_label = $panel_rich_editor_label ?? '';
 $panel_rich_editor_aria_label = trim((string)($panel_rich_editor_aria_label ?? ''));
 $panel_rich_editor_field_id = $panel_rich_editor_field_id ?? 'rich_html';

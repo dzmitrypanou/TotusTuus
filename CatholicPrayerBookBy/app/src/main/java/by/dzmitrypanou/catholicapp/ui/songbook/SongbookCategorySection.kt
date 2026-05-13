@@ -5,7 +5,7 @@ import by.dzmitrypanou.catholicapp.R
 import by.dzmitrypanou.catholicapp.data.SongbookEntry
 
 data class SongbookCategorySection(
-    /** Ключ для [SongbookCategoryExpandStore] і групавання (масіў катэгорыі або [SongbookCategoryExpandStore.GROUP_KEY_UNCATEGORIZED]). */
+
     val groupKey: String,
     val displayTitle: String,
     val entries: List<SongbookEntry>

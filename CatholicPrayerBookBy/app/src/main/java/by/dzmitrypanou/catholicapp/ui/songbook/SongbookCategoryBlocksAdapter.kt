@@ -144,7 +144,6 @@ private class SongbookSectionRowsAdapter(
     }
 }
 
-/** Вертыкальная адступ паміж карткамі катэгорый (першы блок без адступу зверху). */
 class SongbookCategoryBlocksTopSpacingDecoration(
     private val gapPx: Int
 ) : RecyclerView.ItemDecoration() {

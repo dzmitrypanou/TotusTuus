@@ -1,12 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Публічны ключ API: totus-app-version.properties (publicApiKey=…) у некалькіх магчымых месцах,
- * затым TOTUS_PUBLIC_API_KEY, затым убудаваны рэзерв (дэплой толькі каталога api/ без караня рэпа).
- */
-
-/** Супадае з publicApiKey у totus-app-version.properties; зменіце разам з файлом. */
 const TOTUS_BUILTIN_PUBLIC_API_KEY = '1dfd6eaa86797feb6ac4989b9cd705432e81766f27a19730f67240c8360961fa';
 
 function totus_read_public_api_key_from_properties_file(string $path): string
@@ -37,10 +31,6 @@ function totus_read_public_api_key_from_properties_file(string $path): string
     return '';
 }
 
-/**
- * Толькі з .properties (без env і без убудаванага ключа).
- * Шляхі: карань рэпа (monorepo), каталог WebPanel, каталог api (плоскі дэплой).
- */
 function totus_repo_root_public_api_key(): string
 {
     static $done = false;
@@ -66,9 +56,6 @@ function totus_repo_root_public_api_key(): string
     return $cached;
 }
 
-/**
- * Парадак: зменная асяроддзя → .properties → убудаваны ключ (сервер без файла з рэпа).
- */
 function totus_effective_public_api_key(): string
 {
     static $memo = null;

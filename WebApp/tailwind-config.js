@@ -1,4 +1,4 @@
-/* Загружаецца пасля https://cdn.tailwindcss.com (адным з атрыбутаў defer у index.html). */
+
 tailwind.config = {
     theme: {
         extend: {

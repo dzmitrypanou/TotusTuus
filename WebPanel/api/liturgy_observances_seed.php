@@ -1,10 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Пачатковы пасеў liturgy_observances (адзін раз, калі табліца пустая).
- */
-
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/liturgy_observances_lib.php';
 require_once __DIR__ . '/liturgy_particular_calendar.php';
@@ -145,8 +141,7 @@ function liturgy_seed_observances_if_empty(): void
         ]);
     };
 
-    // Эпіфанія (канфіг пераносу)
-    $add([
+$add([
         'rule_type' => 'epiphany_observed',
         'month' => null,
         'day' => null,
@@ -168,10 +163,7 @@ function liturgy_seed_observances_if_empty(): void
         'is_active' => 1,
     ]);
 
-    // Унебаўшэсце / Ціла Хрыста — liturgy_transfer_dependent_movables у liturgy_common.php
-
-    // Фіксаваныя ўрачыстасці / святы (агульны каляндар)
-    $fixImp('01-01', 'Урачыстасць святой Багародзіцы Марыі', 'white');
+$fixImp('01-01', 'Урачыстасць святой Багародзіцы Марыі', 'white');
     $fixImp('01-02', 'Св. Базыля Вялікага І Грыгорыя Назіянзскага, біскупаў і доктараў Касцёла', 'white');
     $fixImp('01-25', 'Свята навяртання св. Паўла, апостала', 'white');
     $fixImp('02-02', 'Ахвяраванне Пана', 'white');
@@ -207,8 +199,7 @@ function liturgy_seed_observances_if_empty(): void
     $fixImp('12-28', 'Свята святых Немаўлят', 'red');
     $fixImp('12-25', 'Нараджэнне Пана', 'white');
 
-    // Пераносныя (без Унебаўшэсця / Corpus з канфігам — у кодзе)
-    $eastImp(-46, 'Папяльцовая серада', 'purple');
+$eastImp(-46, 'Папяльцовая серада', 'purple');
     $eastImp(-7, 'Пальмовая нядзеля', 'red');
     $eastImp(-6, 'Вялікі панядзелак', 'purple');
     $eastImp(-5, 'Вялікі аўторак', 'purple');
@@ -225,8 +216,7 @@ function liturgy_seed_observances_if_empty(): void
     $advImp(-7, 'Урачыстасць Хрыста Валадара Сусвету', 'white');
     $advImp(0, 'I Нядзеля Адвэнту', 'purple');
 
-    // Даброўныя — фіксаваныя
-    $optionalFixed = [
+$optionalFixed = [
         '01-03' => 'Успамін Найсвяцейшага Імя Езуса',
         '01-07' => 'Успамін св. Раймунда Пеньяфорцкага, прэзбітэра',
         '01-13' => 'Успамін св. Гілярыя, біскупа і доктара Касцёла',
@@ -341,8 +331,7 @@ function liturgy_seed_observances_if_empty(): void
     $eastOpt(50, 'Успамін Найсвяцейшай Панны Марыі, Маці Касцёла');
     $eastOpt(69, 'Успамін Беззаганнага Сэрца Найсвяцейшай Панны Марыі');
 
-    // Рэгіянальныя важныя
-    $fixImp('07-02', 'Урачыстасць Найсвяцейшай Панны Марыі Будслаўскай, апякункі Мінска-Магілёўскай архідыяцэзіі', 'white', 'regional', 0, 'solemnity', LITURGY_DIOCESE_MINSK_MOGILEV);
+$fixImp('07-02', 'Урачыстасць Найсвяцейшай Панны Марыі Будслаўскай, апякункі Мінска-Магілёўскай архідыяцэзіі', 'white', 'regional', 0, 'solemnity', LITURGY_DIOCESE_MINSK_MOGILEV);
     $fixImp('03-16', 'Гадавіна пасвячэння катэдральнага касцёла (Мінска-Магілёўская архідыяцэзія)', 'white', 'regional', 0, 'feast', LITURGY_DIOCESE_MINSK_MOGILEV);
     $fixImp('07-02', 'Свята Найсвяцейшай Панны Марыі Будслаўскай', 'white', 'regional', 0, 'feast', LITURGY_DIOCESE_VITEBSK, '', LITURGY_DIOCESE_MINSK_MOGILEV);
     $fixImp('11-12', 'Урачыстасць св. Язафата, біскупа і мучаніка, галоўнага апекуна Віцебскай дыяцэзіі', 'red', 'regional', 0, 'solemnity', LITURGY_DIOCESE_VITEBSK);
@@ -354,8 +343,7 @@ function liturgy_seed_observances_if_empty(): void
     $fixImp('11-16', 'Урачыстасць Найсвяцейшай Панны Марыі, Маці Міласэрнасці (Маці Божай Вастрабрамскай), галоўнай апякункі Гродзенскай дыяцэзіі', 'white', 'regional', 0, 'solemnity', LITURGY_DIOCESE_GRODNO);
     $fixImp('12-04', 'Гадавіна пасвячэння катэдральнага касцёла (Гродзенская дыяцэзія)', 'white', 'regional', 0, 'feast', LITURGY_DIOCESE_GRODNO);
 
-    // Дапаўненне загалovka 1 мая для Пінска (без асобнага «дня» у календары)
-    $add([
+$add([
         'rule_type' => 'fixed_md',
         'month' => null,
         'day' => null,
@@ -377,8 +365,7 @@ function liturgy_seed_observances_if_empty(): void
         'is_active' => 1,
     ]);
 
-    // Рэгіянальныя даброўныя / дадаткі
-    $fixOpt('07-02', 'Успамін Найсвяцейшай Панны Марыі Будслаўскай', LITURGY_DIOCESE_PINSK . ',' . LITURGY_DIOCESE_GRODNO, '', LITURGY_DIOCESE_MINSK_MOGILEV . ',' . LITURGY_DIOCESE_VITEBSK);
+$fixOpt('07-02', 'Успамін Найсвяцейшай Панны Марыі Будслаўскай', LITURGY_DIOCESE_PINSK . ',' . LITURGY_DIOCESE_GRODNO, '', LITURGY_DIOCESE_MINSK_MOGILEV . ',' . LITURGY_DIOCESE_VITEBSK);
     $fixOpt('01-29', 'Успамін бл. Баляславы Марыі Лямэнт, панны', LITURGY_DIOCESE_PINSK . ',' . LITURGY_DIOCESE_MINSK_MOGILEV . ',' . LITURGY_DIOCESE_VITEBSK . ',' . LITURGY_DIOCESE_GRODNO);
     $fixOpt('01-27', 'Успамін бл. Юрыя Матулевіча, біскупа', LITURGY_DIOCESE_VITEBSK);
     $fixOpt('09-08', 'Свята Найсвяцейшай Панны Марыі Браслаўскай', LITURGY_DIOCESE_VITEBSK);

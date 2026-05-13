@@ -1,21 +1,8 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Проксі да WebPanel/api: ключ X-Totus-Api-Key толькі на серверы.
- *
- * Канфігурацыя (першая непустая):
- * 1) TOTUS_PUBLIC_API_KEY, TOTUS_UPSTREAM_API_BASE (URL …/api без слеша ў канцы)
- * 2) proxy-secrets.php (шаблон: proxy-secrets.example.php)
- * 3) totus-app-version.properties (publicApiKey) у карані рэпа — адзін крыніца з Android і WebPanel
- * 4) аўта: SCRIPT_NAME → WebPanel/api на тым жа хосце
- * 5) рэзерв: убудаваны ключ і upstream (калі WebApp без sibling WebPanel у файлавай сістэме)
- */
-
-/** Сінхранізаваць з WebPanel/api/totus_repo_public_key.php (TOTUS_BUILTIN_PUBLIC_API_KEY) і publicApiKey у totus-app-version.properties. */
 const TOTUS_PROXY_BUILTIN_PUBLIC_KEY = '1dfd6eaa86797feb6ac4989b9cd705432e81766f27a19730f67240c8360961fa';
 
-/** Калі не вызначыўся шлях да WebPanel на гэтым хосце — прадукцыйны API (як у Android PrayerApiClient). */
 const TOTUS_PROXY_FALLBACK_UPSTREAM_BASE = 'https://api.kasciolhomiel.by/api';
 
 const TOTUS_PROXY_ALLOWED = [
@@ -51,7 +38,7 @@ if ($route === '' || !in_array($route, TOTUS_PROXY_ALLOWED, true)) {
 $secretsPath = __DIR__ . '/proxy-secrets.php';
 $secrets = null;
 if (is_file($secretsPath)) {
-    /** @var mixed $loaded */
+
     $loaded = require $secretsPath;
     $secrets = is_array($loaded) ? $loaded : null;
 }
@@ -116,7 +103,7 @@ if ($upstream === '') {
     if (preg_match('#^(.*)/WebApp/api/index\.php$#', $script, $m)) {
         $upstream = $scheme . '://' . $host . $m[1] . '/WebPanel/api';
     }
-    /** Плоскі дэплой (/api/index.php без /WebApp/): не здагадвацца пра WebPanel на гэтым жа хосце — ніжэй рэзерв api.kasciolhomiel.by. */
+
 }
 
 if ($upstream === '') {

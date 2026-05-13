@@ -2,9 +2,6 @@ package by.dzmitrypanou.catholicapp.data
 
 import android.content.Context
 
-/**
- * Множнік памеру тэксту для спісаў малітоўніка (катэгорыі, падкатэгорыі, загалоўкі ў шапцы гэтых экранаў).
- */
 object PrayerBookUiTextScaleStore {
 
     private const val PREFS_NAME = "ui_text_settings"

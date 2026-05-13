@@ -1,6 +1,5 @@
 package by.dzmitrypanou.catholicapp.ui.scripture
 
-/** Пошук цэлых слоў у тэксце (кірыліца і лацінка), без уліку рэгістра. */
 object ScriptureWordSearch {
 
     fun wholeWordRegex(query: String): Regex? {

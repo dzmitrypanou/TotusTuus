@@ -1,11 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * Агульная навігацыя адмін-панэлі (пасля ўваходу).
- * Перад include: $panelNavPage — 'index'|'liturgy'|'liturgy_observances'|'lectionary'|'lectionary_gap'|'liturgy_empty'|'ordo_missae'|'solemnities'|'solemnities_edit'|'announcements'|'users';
- * для index: $panelNavView — бягучы ?view=; для liturgy*: $panelNavCalYear — год у спасылцы «Пустыя дні».
- */
 if (!function_exists('panel_can_access_section')) {
     require_once __DIR__ . '/panel_auth.php';
 }
@@ -217,7 +212,7 @@ if (!defined('PANEL_ADMIN_NAV_STYLE_EMITTED')) {
       }
     }
   </style>
-    <?php
+<?php
 }
 
 ?>
@@ -225,7 +220,7 @@ if (!defined('PANEL_ADMIN_NAV_STYLE_EMITTED')) {
   <button type="button" class="panel-nav-toggle" aria-expanded="false" aria-controls="panel-nav-body" id="panel-nav-toggle-btn">Меню</button>
   <div class="panel-nav-body" id="panel-nav-body">
     <div class="panel-nav-strip">
-    <?php if (panel_can_access_section('prayers')): ?>
+<?php if (panel_can_access_section('prayers')): ?>
       <div class="panel-nav-block">
         <span class="panel-nav-block__label" id="panel-nav-lbl-cat">Катэгорыі</span>
         <div class="panel-nav-block__links" role="group" aria-labelledby="panel-nav-lbl-cat">
@@ -240,69 +235,69 @@ if (!defined('PANEL_ADMIN_NAV_STYLE_EMITTED')) {
           <a href="/?view=prayers" class="panel-nav-link<?= panel_admin_nav_index_views_active($panelNavPage, $panelNavView, ['prayers']) ?>">Малітвы</a>
         </div>
       </div>
-    <?php endif; ?>
-    <?php if (panel_can_access_section('songbook')): ?>
+<?php endif; ?>
+<?php if (panel_can_access_section('songbook')): ?>
       <div class="panel-nav-block">
         <span class="panel-nav-block__label" id="panel-nav-lbl-song">Спеўнік</span>
         <div class="panel-nav-block__links" role="group" aria-labelledby="panel-nav-lbl-song">
           <a href="/?view=songbook" class="panel-nav-link<?= panel_admin_nav_index_views_active($panelNavPage, $panelNavView, ['songbook', 'add-songbook']) ?>">Запісы</a>
         </div>
       </div>
-    <?php endif; ?>
-    <?php if (panel_can_access_section('kantaral')): ?>
+<?php endif; ?>
+<?php if (panel_can_access_section('kantaral')): ?>
       <div class="panel-nav-block">
         <span class="panel-nav-block__label" id="panel-nav-lbl-kantaral">Кантарал</span>
         <div class="panel-nav-block__links" role="group" aria-labelledby="panel-nav-lbl-kantaral">
           <a href="/admin/kantaral.php" class="panel-nav-link<?= panel_admin_nav_active_page('kantaral', $panelNavPage) ?>">Запісы</a>
         </div>
       </div>
-    <?php endif; ?>
-    <?php if (panel_can_access_section('scripture')): ?>
+<?php endif; ?>
+<?php if (panel_can_access_section('scripture')): ?>
       <div class="panel-nav-block">
         <span class="panel-nav-block__label" id="panel-nav-lbl-bible">Біблія</span>
         <div class="panel-nav-block__links" role="group" aria-labelledby="panel-nav-lbl-bible">
           <a href="/?view=scripture" class="panel-nav-link<?= panel_admin_nav_index_views_active($panelNavPage, $panelNavView, ['scripture', 'scripture-import', 'scripture-chapter']) ?>">Пераклады</a>
         </div>
       </div>
-    <?php endif; ?>
-    <?php
+<?php endif; ?>
+<?php
     $anyLiturgyNav = panel_can_access_section('liturgy')
         || panel_can_access_section('lectionary');
     ?>
-    <?php if ($anyLiturgyNav): ?>
+<?php if ($anyLiturgyNav): ?>
       <div class="panel-nav-block">
         <span class="panel-nav-block__label" id="panel-nav-lbl-liturgy">Літургія</span>
         <div class="panel-nav-block__links" role="group" aria-labelledby="panel-nav-lbl-liturgy">
-          <?php if (panel_can_access_section('liturgy')): ?>
+<?php if (panel_can_access_section('liturgy')): ?>
           <a href="/admin/liturgy.php" class="panel-nav-link<?= panel_admin_nav_active_page('liturgy', $panelNavPage) ?>">Каляндар</a>
           <a href="/admin/liturgy_observances.php" class="panel-nav-link<?= panel_admin_nav_active_page('liturgy_observances', $panelNavPage) ?>">Святы БД</a>
           <a href="/admin/liturgy_empty_days.php?from_year=<?= $panelNavCalYear ?>&amp;to_year=<?= $panelNavCalYear ?>" class="panel-nav-link<?= panel_admin_nav_active_page('liturgy_empty', $panelNavPage) ?>">Пустыя дні</a>
           <a href="/admin/ordo_missae.php" class="panel-nav-link<?= panel_admin_nav_active_page('ordo_missae', $panelNavPage) ?>">Ordo Missae</a>
-          <?php endif; ?>
-          <?php if (panel_can_access_section('lectionary')): ?>
+<?php endif; ?>
+<?php if (panel_can_access_section('lectionary')): ?>
           <a href="/admin/lectionary.php" class="panel-nav-link<?= panel_admin_nav_active_page('lectionary', $panelNavPage) ?>">Лекцыянарый</a>
           <a href="/admin/lectionary_observances_gap.php" class="panel-nav-link<?= panel_admin_nav_active_page('lectionary_gap', $panelNavPage) ?>">Без чытанняў</a>
-          <?php endif; ?>
+<?php endif; ?>
         </div>
       </div>
-    <?php endif; ?>
-    <?php if (panel_can_access_section('solemnities')): ?>
+<?php endif; ?>
+<?php if (panel_can_access_section('solemnities')): ?>
       <div class="panel-nav-block">
         <span class="panel-nav-block__label" id="panel-nav-lbl-solemnities">Урачыстасці</span>
         <div class="panel-nav-block__links" role="group" aria-labelledby="panel-nav-lbl-solemnities">
           <a href="/admin/solemnities.php" class="panel-nav-link<?= in_array($panelNavPage, ['solemnities', 'solemnities_edit'], true) ? ' active' : '' ?>">Урачыстасці і святы</a>
         </div>
       </div>
-    <?php endif; ?>
+<?php endif; ?>
       <div class="panel-nav-block">
         <span class="panel-nav-block__label" id="panel-nav-lbl-panel">Панэль</span>
         <div class="panel-nav-block__links" role="group" aria-labelledby="panel-nav-lbl-panel">
-    <?php if (panel_can_access_section('announcements')): ?>
+<?php if (panel_can_access_section('announcements')): ?>
           <a href="/admin/announcements.php" class="panel-nav-link<?= panel_admin_nav_active_page('announcements', $panelNavPage) ?>">Аб’явы</a>
-    <?php endif; ?>
-    <?php if (panel_is_admin()): ?>
+<?php endif; ?>
+<?php if (panel_is_admin()): ?>
           <a href="/admin/users.php" class="panel-nav-link<?= panel_admin_nav_active_page('users', $panelNavPage) ?>">Карыстальнікі</a>
-    <?php endif; ?>
+<?php endif; ?>
           <form method="post"><?= panel_csrf_field() ?>
             <button class="panel-nav-link" type="submit" name="logout" value="1">Выйсці</button>
           </form>
@@ -347,5 +342,5 @@ if (!defined('PANEL_ADMIN_NAV_SCRIPT_EMITTED')) {
 
 })();
 </script>
-    <?php
+<?php
 }

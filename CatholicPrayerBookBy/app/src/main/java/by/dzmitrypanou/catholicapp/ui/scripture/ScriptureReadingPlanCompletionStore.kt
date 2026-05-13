@@ -3,11 +3,6 @@ package by.dzmitrypanou.catholicapp.ui.scripture
 import android.content.Context
 import android.content.SharedPreferences
 
-/**
- * Пазнакі «дзень плана (1…365) выкананы» для бягучай сесіі плана (якар дзён старту + тып плана).
- * Старыя даныя ў фармаце y_YEAR мігруюць адной копіяй пры першым адкрыцці пасля абнаўлення.
- * Ключ a_ANCHOR без суфікса (стары фармат) мігруе ў a_ANCHOR_linear.
- */
 object ScriptureReadingPlanCompletionStore {
 
     private const val PREFS = "scripture_reading_plan_done"

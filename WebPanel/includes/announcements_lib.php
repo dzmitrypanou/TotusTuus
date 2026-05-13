@@ -3,11 +3,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../api/liturgy_common.php';
 
-/**
- * CSV як у GET dioceses= (пуста = усе false — агульны каляндар).
- *
- * @return array<string, bool>
- */
 function announcements_diocese_opts_from_csv(string $csv): array
 {
     $raw = liturgy_diocese_options_default();
@@ -25,9 +20,6 @@ function announcements_diocese_opts_from_csv(string $csv): array
     return $raw;
 }
 
-/**
- * З POST палёў ann_dioc[key]=1.
- */
 function announcements_diocese_csv_from_post(array $post): string
 {
     $box = isset($post['ann_dioc']) && is_array($post['ann_dioc']) ? $post['ann_dioc'] : [];
@@ -41,9 +33,6 @@ function announcements_diocese_csv_from_post(array $post): string
     return implode(',', $p);
 }
 
-/**
- * Назва месяца ў родным склоне (для «1 сакавіка»).
- */
 function announcements_month_genitive_be(int $month): string
 {
     return match ($month) {
@@ -90,9 +79,6 @@ function announcements_weekday_name_locative_be(DateTimeImmutable $d): string
     };
 }
 
-/**
- * Для аб’яваў пасля вялікай літары — «У», не «Ў» (напрыклад «У аўторак»).
- */
 function announcements_weekday_locative_capitalized_for_bulletin_be(DateTimeImmutable $d): string
 {
     $c = announcements_ucfirst_utf8(announcements_weekday_name_locative_be($d));
@@ -103,7 +89,6 @@ function announcements_weekday_locative_capitalized_for_bulletin_be(DateTimeImmu
     return $c;
 }
 
-/** «Ў » на пачатку радка → «У » (у тым ліку шматрадковы тэкст). */
 function announcements_normalize_bulletin_capital_u(string $text): string
 {
     $out = preg_replace('/(^|\n)Ў(\s+)/u', '$1У$2', $text);
@@ -111,9 +96,6 @@ function announcements_normalize_bulletin_capital_u(string $text): string
     return is_string($out) ? $out : $text;
 }
 
-/**
- * Ці ўжо ёсць прэфікс з днём і датай (не дадаём другі).
- */
 function announcements_week_note_has_day_date_prefix(string $t): bool
 {
     $t = trim($t);
@@ -130,9 +112,6 @@ function announcements_week_note_has_day_date_prefix(string $t): bool
     return preg_match('/^\d{1,2}\s+\p{L}+,\s*/u', $t) === 1;
 }
 
-/**
- * Прэфікс «У аўторак, 21 красавіка, » для радка табліцы тыдня ($rowDate — гэты дзень).
- */
 function announcements_week_date_prefix_for_row_be(DateTimeImmutable $rowDate): string
 {
     if (liturgy_is_great_monday_through_easter_sunday($rowDate)) {
@@ -157,10 +136,6 @@ function announcements_week_note_prepend_row_date_if_missing(DateTimeImmutable $
     return announcements_normalize_bulletin_capital_u(announcements_week_date_prefix_for_row_be($rowDate) . $t);
 }
 
-/**
- * Змяшэнне тэксту (ручны радок, пул уборкі) з днём тыдня: 0 = панядзелак табліцы … 6 = нядзеля.
- * Шукае найранейшае ўваходжанне ключавых слоў (назоўнік / месны).
- */
 function announcements_weekday_offset_from_be_text(string $text): ?int
 {
     $lower = mb_strtolower(trim($text), 'UTF-8');
@@ -206,9 +181,6 @@ function announcements_weekday_offset_from_be_text(string $text): ?int
     return $bestOff;
 }
 
-/**
- * «1 сакавіка» (дзень + месяц).
- */
 function announcements_day_month_phrase_be(DateTimeImmutable $d): string
 {
     $day = (int)$d->format('j');
@@ -217,9 +189,6 @@ function announcements_day_month_phrase_be(DateTimeImmutable $d): string
     return $day . ' ' . announcements_month_genitive_be($month);
 }
 
-/**
- * @return list<string>
- */
 function announcements_titles_allowed_for_date(DateTimeImmutable $date, ?array $dioceseOpts = null): array
 {
     $dioceseOpts = $dioceseOpts ?? liturgy_diocese_options_default();
@@ -266,9 +235,6 @@ function announcements_titles_allowed_for_date(DateTimeImmutable $date, ?array $
     return array_values(array_unique($allowed));
 }
 
-/**
- * Вяртае загаловак падзеі з аўтарадка "weekday, date, title." альбо "date, title.".
- */
 function announcements_extract_auto_line_title_be(string $line): string
 {
     $s = trim($line);
@@ -286,11 +252,6 @@ function announcements_extract_auto_line_title_be(string $line): string
     return '';
 }
 
-/**
- * Ці адпавядае фрагмент загалоўка (ці «A і B») спісу дазволеных для гэтага дня.
- *
- * @param list<string> $allowed
- */
 function announcements_piece_matches_allowed_titles(string $piece, array $allowed): bool
 {
     $piece = trim($piece);
@@ -343,10 +304,6 @@ function announcements_norm_cmp_string(string $s): string
     return mb_strtolower($s, 'UTF-8');
 }
 
-/**
- * Тэкст даброўных успамінаў для аб’яваў: кожны варыянт з календара («альбо») — асобна праз «; »,
- * каб не змешваць з « і » унутры адной назвы (напр. «святара і мучаніка»).
- */
 function announcements_format_optional_for_bulletin(string $rawOptional): string
 {
     $opt = trim($rawOptional);
@@ -367,10 +324,6 @@ function announcements_format_optional_for_bulletin(string $rawOptional): string
     return implode('; ', $out);
 }
 
-/**
- * Ці $text утрымлівае кожны фрагмент даброўных успамінаў гэтага дня з календара
- * (падзел «альбо» + liturgy_expand). Не залежыць ад падзелу па « і », калі ў назве ўжо ёсць « і ».
- */
 function announcements_text_contains_all_calendar_optionals(string $text, DateTimeImmutable $date, ?array $dioceseOpts = null): bool
 {
     $dioceseOpts = $dioceseOpts ?? liturgy_diocese_options_default();
@@ -405,12 +358,6 @@ function announcements_text_contains_all_calendar_optionals(string $text, DateTi
     return true;
 }
 
-/**
- * Абарона ад публікацыі састарэлых аўтарадкоў (перакрытыя ўспаміны і г.д.).
- * Падтрымлівае складаны загаловак «A і B» (адзін радок у аб’явах замест двух).
- * Радок з «Даброўны успамін:» правярае асноўны дзень і варыянты успамінаў асобна (раней увесь хвост
- * параўноўваўся з дазволенымі — усе даброўныя успаміны знікалі з прагляду/друку).
- */
 function announcements_should_publish_week_note_line(string $line, DateTimeImmutable $date, ?array $dioceseOpts = null): bool
 {
     $dioceseOpts = $dioceseOpts ?? liturgy_diocese_options_default();
@@ -481,15 +428,11 @@ function announcements_should_publish_week_note_line(string $line, DateTimeImmut
     return $mainExpected !== '' && announcements_norm_cmp_string($title) === announcements_norm_cmp_string($mainExpected);
 }
 
-/**
- * Загаловак як у аб’явах: без «, Год A/B/C».
- */
 function announcements_auto_main_title(DateTimeImmutable $d, ?array $dioceseOpts = null): string
 {
     $dioceseOpts = $dioceseOpts ?? liturgy_diocese_options_default();
-    // Бярэм загаловак праз канчатковае аўта-развязанне дня (з улікам перакрыццяў:
-    // актава Пасхі, нядзелі, suppressed optional і інш.).
-    $auto = liturgy_auto_day_info($d, $dioceseOpts);
+
+$auto = liturgy_auto_day_info($d, $dioceseOpts);
     $raw = trim((string)($auto['title'] ?? ''));
     if ($raw === '') {
         $map = liturgy_important_dates_for_year((int)$d->format('Y'), $dioceseOpts);
@@ -501,9 +444,6 @@ function announcements_auto_main_title(DateTimeImmutable $d, ?array $dioceseOpts
     return trim((string)($stripped !== null ? $stripped : $raw));
 }
 
-/**
- * Назва дня тыдня ў назоўніку (для падпісаў радкоў формы).
- */
 function announcements_weekday_name_nominative_be(DateTimeImmutable $d): string
 {
     return match ((int)$d->format('w')) {
@@ -518,12 +458,6 @@ function announcements_weekday_name_nominative_be(DateTimeImmutable $d): string
     };
 }
 
-/**
- * @return list<array{key:string, label:string, note:string, clean:string, en_note:string, en_clean:string}>
- */
-/**
- * Нядзеля аб’яваў: калі дата ў полі — нядзеля, яна ж; інакш бліжэйшая папярэдняя нядзеля.
- */
 function announcements_bulletin_sunday(DateTimeImmutable $bulletinDate): DateTimeImmutable
 {
     if ((int)$bulletinDate->format('w') === 0) {
@@ -533,9 +467,6 @@ function announcements_bulletin_sunday(DateTimeImmutable $bulletinDate): DateTim
     return $bulletinDate->modify('last sunday');
 }
 
-/**
- * Сямідзённая табліца аб’яваў: з панядзельніка адразу пасля нядзелі аб’яваў да наступнай нядзелі ўключна.
- */
 function announcements_week_table_monday(DateTimeImmutable $bulletinDate): DateTimeImmutable
 {
     return announcements_bulletin_sunday($bulletinDate)->modify('+1 day');
@@ -554,11 +485,6 @@ function announcements_week_layout(): array
     ];
 }
 
-/**
- * Ці варта аўтазапаўняць дзень: урачыстасць/свята, даброўны успамін або першы дзень табліцы (панядзелак пасля аб’яваў).
- *
- * @param DateTimeImmutable $bulletinDate дата з поля аб’яваў
- */
 function announcements_day_is_bulletin_notable(DateTimeImmutable $cur, DateTimeImmutable $bulletinDate, ?array $dioceseOpts = null): bool
 {
     $dioceseOpts = $dioceseOpts ?? liturgy_diocese_options_default();
@@ -575,12 +501,6 @@ function announcements_day_is_bulletin_notable(DateTimeImmutable $cur, DateTimeI
     return $cur->format('Y-m-d') === $weekMonday->format('Y-m-d');
 }
 
-/**
- * Аўта-тэкст дня: літургічны загаловак + даброўны успамін з календара.
- * Пуста, калі дзень звычайны будзень без успамінаў (не ўрачыстасць і не першая дата аб’яваў).
- *
- * @param DateTimeImmutable $bulletinDateForWeek дата з поля «аб’явы» (для нядзелі — тыдзень табліцы з наступнага панядзельніка)
- */
 function announcements_suggest_day_bulletin_line(DateTimeImmutable $cur, DateTimeImmutable $bulletinDateForWeek, ?array $dioceseOpts = null): string
 {
     $dioceseOpts = $dioceseOpts ?? liturgy_diocese_options_default();
@@ -606,19 +526,13 @@ function announcements_suggest_day_bulletin_line(DateTimeImmutable $cur, DateTim
     }
     $opt = trim((string)($auto['optional_memorial_title'] ?? ''));
     if ($opt !== '') {
-        /* У тэксце аб’яваў пералічваем даброўныя успаміны праз «; »; «альбо» з лекцыянарыя (выбар імшы) у аб’явах блытае. */
+
         $line .= ' Даброўны успамін: ' . announcements_format_optional_for_bulletin($opt) . '.';
     }
 
     return $line;
 }
 
-/**
- * Прапановы радкоў пра даброўныя успаміны за 7 дзён: з панядзельніка пасля нядзелі аб’яваў.
- * Тое ж адсейванне, што ў лекцыянарыі: прыдушаныя дні (нядзелі посту/Велікоднага часу, святы і г.д.) без радкоў.
- *
- * @return list<array{date:string,line:string}>
- */
 function announcements_suggest_optional_memorial_lines(DateTimeImmutable $periodStart, ?array $dioceseOpts = null): array
 {
     $dioceseOpts = $dioceseOpts ?? liturgy_diocese_options_default();
@@ -676,11 +590,6 @@ function announcements_suggest_optional_memorial_lines(DateTimeImmutable $period
     return $lines;
 }
 
-/**
- * Сталыя абзацы пасля ўводнага (як у ўзоры); для зваротнай сумяшчальнасці.
- *
- * @return array<int, string>
- */
 function announcements_default_body_paragraphs(): array
 {
     return [
@@ -723,10 +632,6 @@ function announcements_default_thanks_pool(): string
     return "Дзякуй за ахвяраванні і іншую дапамогу.\nДзякуй за вашу падтрымку парафіі.";
 }
 
-/**
- * Ці гэта пункт удзячнасці (пачынаецца з «Дзякуй»).
- * Выкарыстоўваецца, каб не выдзяляць тлустым шрыфтам удзячнасці.
- */
 function announcements_is_thanks_item(string $text): bool
 {
     $t = trim($text);
@@ -747,9 +652,6 @@ function announcements_default_thanks_pool_first_line(): string
     return $lines[0] ?? '';
 }
 
-/**
- * @return array<int, string>
- */
 function announcements_non_empty_lines(string $text): array
 {
     $raw = preg_split("/\r\n|\n|\r/", $text) ?: [];
@@ -764,9 +666,6 @@ function announcements_non_empty_lines(string $text): array
     return $out;
 }
 
-/**
- * Адна выпадковая непустая строка з шматрадковага поля (для ўборкі / удзячнасці).
- */
 function announcements_pick_random_line(string $multiline): ?string
 {
     $lines = announcements_non_empty_lines($multiline);
@@ -793,9 +692,6 @@ function announcements_post_en_flag(array $post, string $key): int
     return isset($post[$key]) ? 1 : 0;
 }
 
-/**
- * @return array<string, mixed>
- */
 function announcements_fetch_panel_settings_row(): array
 {
     require_once __DIR__ . '/../api/db.php';
@@ -805,12 +701,6 @@ function announcements_fetch_panel_settings_row(): array
     return is_array($row) ? $row : [];
 }
 
-/**
- * Загрузка наладаў з БД з падстаноўкай прыкладаў для пустых палёў.
- *
- * @param array<string, mixed> $row
- * @return array<string, mixed>
- */
 function announcements_merge_settings_row(array $row, string $bulletinDateYmd, bool $fillEmptyWeekFromLiturgy = true): array
 {
     $tz = new DateTimeZone('UTC');
@@ -818,7 +708,7 @@ function announcements_merge_settings_row(array $row, string $bulletinDateYmd, b
     if ($d === false || $d->format('Y-m-d') !== $bulletinDateYmd) {
         $d = new DateTimeImmutable('now', $tz);
     }
-    /** Першы радок табліцы — панядзелак пасля нядзелі аб’яваў; далей +1…+6 да нядзелі. */
+
     $periodStart = announcements_week_table_monday($d);
     $dioceseOpts = announcements_diocese_opts_from_csv((string)($row['announcements_dioceses'] ?? ''));
 
@@ -869,11 +759,6 @@ function announcements_merge_settings_row(array $row, string $bulletinDateYmd, b
     return $out;
 }
 
-/**
- * Ператварае POST у выгляд радка наладаў (лічбы для сцягоў).
- *
- * @return array<string, mixed>
- */
 function announcements_post_as_settings_row(array $post): array
 {
     $row = $post;
@@ -896,9 +781,6 @@ function announcements_post_as_settings_row(array $post): array
     return $row;
 }
 
-/**
- * @deprecated use announcements_fetch_panel_settings_row + announcements_merge_settings_row
- */
 function announcements_load_settings_merged(): array
 {
     $row = announcements_fetch_panel_settings_row();
@@ -912,9 +794,6 @@ function announcements_load_settings_merged(): array
     return announcements_merge_settings_row($row, $ymd);
 }
 
-/**
- * Агульны прэфікс «дзень, дата» для зліцця некалькіх аб’яваў на адзін каляндарны дзень.
- */
 function announcements_extract_bulletin_day_prefix(string $text): ?string
 {
     $t = trim($text);
@@ -948,18 +827,12 @@ function announcements_strip_bulletin_day_prefix(string $text, string $prefix): 
     return $t;
 }
 
-/**
- * Некалькі запісаў з адным ymd і аднолькавым тэкставым прэфіксам — адзін нумар з унутраным спісам.
- *
- * @param list<array{ymd:string,tie:int,text:string}> $timed адсартаваны па ymd, tie
- * @return list<string|array{merged:bool,prefix:string,parts:list<string>}>
- */
 function announcements_timed_rows_to_list_entries(array $timed): array
 {
     if ($timed === []) {
         return [];
     }
-    /** @var array<string, list<array{ymd:string,tie:int,text:string}>> $byYmd */
+
     $byYmd = [];
     foreach ($timed as $row) {
         $ymd = $row['ymd'];
@@ -1007,7 +880,7 @@ function announcements_timed_rows_to_list_entries(array $timed): array
             foreach ($normTexts as $t) {
                 $body = trim(announcements_strip_bulletin_day_prefix($t, $firstPref));
                 if ($body !== '') {
-                    /* Падспіс: кожны пункт з вялікай літары — у announcements_ann_merged_day_block_to_html */
+
                     $parts[] = $body;
                 }
             }
@@ -1024,11 +897,6 @@ function announcements_timed_rows_to_list_entries(array $timed): array
     return $out;
 }
 
-/**
- * Некалькі успамінаў у аб’явах злучаны праз «; » — кожны ў асобны пункт падспісу.
- *
- * @return list<string>
- */
 function announcements_split_bulletin_semicolon_clauses(string $text): array
 {
     $text = trim($text);
@@ -1050,12 +918,6 @@ function announcements_split_bulletin_semicolon_clauses(string $text): array
     return count($out) > 1 ? $out : [$text];
 }
 
-/**
- * Калі фрагмент — успамін святога/блажэннага, дадаем слова «успамін» / «Успамін».
- * Пасля коскі ў адным радку з датай — з маленькай літары; у пунктах падспісу пасля «:» — з вялікай.
- *
- * @param bool $capitalUspamin true пасля двукроп'я (падспіс)
- */
 function announcements_bulletin_clause_ensure_memorial_prefix_be(string $clause, bool $capitalUspamin): string
 {
     $s = trim($clause);
@@ -1076,7 +938,7 @@ function announcements_bulletin_clause_ensure_memorial_prefix_be(string $clause,
     if (preg_match('/^(?:Урачыстасць|Свята)\b/iu', $s) === 1) {
         return $s;
     }
-    /* Св. / лацінскае C ў «Cв.» у крыніцах; Бл. — блажэнны */
+
     if (preg_match('/^(?:C|С)в\./iu', $s) === 1 || preg_match('/^Бл\./iu', $s) === 1) {
         return $word . $s;
     }
@@ -1084,10 +946,6 @@ function announcements_bulletin_clause_ensure_memorial_prefix_be(string $clause,
     return $s;
 }
 
-/**
- * @param list<string> $chunks
- * @return list<string>
- */
 function announcements_bulletin_map_memorial_prefixes(array $chunks, bool $capitalUspamin): array
 {
     return array_map(
@@ -1096,9 +954,6 @@ function announcements_bulletin_map_memorial_prefixes(array $chunks, bool $capit
     );
 }
 
-/**
- * Перад падспісам: апошняя коска ў прэфіксе (пасля даты) → двукроп'е («… 21 красавіка: »).
- */
 function announcements_format_ann_lead_before_sublist(string $lead): string
 {
     $s = rtrim($lead);
@@ -1147,11 +1002,6 @@ function announcements_ann_merged_day_block_to_html(array $block): string
         . '<ul class="ann-sublist">' . $sub . '</ul></li>';
 }
 
-/**
- * Пачатак першага радка пункта спісу для вылучэння жырным (аб’явы).
- *
- * @return array{0:string,1:string} [lead, хвост першага радка]
- */
 function announcements_ann_list_item_split_lead(string $firstLine): array
 {
     if (preg_match('/^Сёння,\s*\d{1,2}\s+\p{L}+,\s*/u', $firstLine, $m)) {
@@ -1191,9 +1041,6 @@ function announcements_ann_list_item_split_lead(string $firstLine): array
     return ['', $firstLine];
 }
 
-/**
- * Прабел у HTML пасля жырнага загалоўка, калі ў тэксце забыты прагал (напр. «касцёлаў» замест «касцёла ў»).
- */
 function announcements_ann_gap_after_lead_html(string $rest): string
 {
     if ($rest === '') {
@@ -1202,7 +1049,7 @@ function announcements_ann_gap_after_lead_html(string $rest): string
     if (preg_match('/^\s/u', $rest) === 1) {
         return '';
     }
-    /* Не ўставляем прагал перад знакамі прыпынку */
+
     if (preg_match('/^[.,;:!?…)\]]/u', $rest) === 1) {
         return '';
     }
@@ -1210,10 +1057,6 @@ function announcements_ann_gap_after_lead_html(string $rest): string
     return ' ';
 }
 
-/**
- * Пасля коскі ў жырным прэфіксе пункта — першая кірылічная літа астатку тэксту ў ніжнім рэгістры.
- * Лацінку не чапаем (напр. «II Нядзеля» пасля «Сёння, …,»).
- */
 function announcements_ann_lowercase_first_cyrillic_upper(string $text): string
 {
     $len = mb_strlen($text, 'UTF-8');
@@ -1252,10 +1095,6 @@ function announcements_ann_tail_after_comma_lead_lowercase(string $lead, string 
     return announcements_ann_lowercase_first_cyrillic_upper($tail);
 }
 
-/**
- * Першая кірылічная літа тэксту — у верхнім рэгістры (пункты падспісу ў аб’явах).
- * Лацінку на пачатку не чапаем.
- */
 function announcements_ann_uppercase_first_cyrillic_lower(string $text): string
 {
     $len = mb_strlen($text, 'UTF-8');
@@ -1289,8 +1128,7 @@ function announcements_ann_list_item_to_html(string $item): string
     $first = $parts[0];
     $more = isset($parts[1]) ? "\n" . $parts[1] : '';
 
-    // Не выдзяляем тлустым пункты ўдзячнасці (пачынаюцца з «Дзякуй»)
-    if (announcements_is_thanks_item($item)) {
+if (announcements_is_thanks_item($item)) {
         $esc = static function (string $s): string {
             return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         };
@@ -1338,38 +1176,6 @@ function announcements_ann_list_item_to_html(string $item): string
         . ($rest !== '' ? nl2br($esc($rest)) : '');
 }
 
-/**
- * @param array{
- *   date:DateTimeImmutable,
- *   main_title?:string,
- *   logo_url?:string,
- *   lead_sentence?:string,
- *   list_1?:string,
- *   list_2?:string,
- *   list_3?:string,
- *   list_4?:string,
- *   cleaning_pool?:string,
- *   thanks_pool?:string,
- *   body_paragraphs?:array<int,string>,
- *   signature_name?:string,
- *   signature_role?:string,
- *   footer_website?:string,
- *   include_suggested_optionals?:bool,
- *   en_lead?:int|bool,
- *   en_list_1?:int|bool,
- *   en_list_2?:int|bool,
- *   en_list_3?:int|bool,
- *   en_list_4?:int|bool,
- *   en_cleaning_pool?:int|bool,
- *   en_thanks_pool?:int|bool,
- *   en_signature?:int|bool,
- *   en_footer?:int|bool,
- *   week_mon_note?:string,
- *   week_mon_clean?:string,
- *   … (усе week_* і en_week_* праз форму)
- * } $opts
- * @param bool $openPrintDialog пасля загрузкі старонкі выклікаць window.print() (новая ўкладка)
- */
 function announcements_render_html(array $opts, bool $openPrintDialog = false): string
 {
     $d = $opts['date'];
@@ -1400,9 +1206,9 @@ function announcements_render_html(array $opts, bool $openPrintDialog = false): 
     }
 
     if (array_key_exists('list_1', $opts)) {
-        /* Радкі тыдня, даброўныя успаміны і ўборка з пула — у адным спісе па датах (пн…нд), каб «чацвер» не апярэджаў «сераду». */
+
         $periodStart = announcements_week_table_monday($d);
-        /** @var list<array{ymd:string,tie:int,text:string}> $timed */
+
         $timed = [];
         $pushTimed = static function (string $ymd, int $tie, string $text) use (&$timed): void {
             $timed[] = ['ymd' => $ymd, 'tie' => $tie, 'text' => $text];
@@ -1419,9 +1225,8 @@ function announcements_render_html(array $opts, bool $openPrintDialog = false): 
                     $noteDate = $off !== null
                         ? $periodStart->modify(sprintf('+%d day', $off))
                         : $cur;
-                    /* Без фільтра па календары: ручныя аб’явы, іншыя даты ў тэксце (як 14-е ў полі для 21-га)
-                     * павінны трапяць у аб’явы. Фільтр застаецца толькі для аўтарадкоў даброўных успамінаў ніжэй. */
-                    $pushTimed($noteDate->format('Y-m-d'), 0, $n);
+
+$pushTimed($noteDate->format('Y-m-d'), 0, $n);
                 }
             }
             if ($on($opts, $spec['en_clean'])) {
@@ -1565,7 +1370,6 @@ function announcements_render_html(array $opts, bool $openPrintDialog = false): 
   <meta charset="utf-8">
   <title>' . $esc($mainTitle) . ' — ' . $esc($dateLine) . '</title>
   <style>
-    /* A4 партрэт, змест на 1+ аркушах */
     @page {
       size: A4 portrait;
       margin: 12mm 14mm;
