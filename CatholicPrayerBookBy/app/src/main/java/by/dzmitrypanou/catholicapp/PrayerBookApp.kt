@@ -24,5 +24,6 @@ class PrayerBookApp : Application() {
         appScope.launch {
             LiturgyCalendarRepository.prefetchCurrentMonth(applicationContext)
         }
+        by.dzmitrypanou.catholicapp.data.AppColorSchemeStore.syncLauncherIconIfPending(applicationContext)
     }
 }

@@ -57,7 +57,6 @@ object AppColorSchemeStore {
             .putBoolean(KEY_LAUNCHER_SYNC_PENDING, true)
             .apply()
         cachedScheme = scheme
-        syncLauncherIconAsync(context.applicationContext)
     }
 
     fun applyActivityTheme(activity: AppCompatActivity): Scheme {
@@ -105,15 +104,24 @@ object AppColorSchemeStore {
 
         val targetAlias = if (useLight) lightAlias else darkAlias
         val otherAlias = if (useLight) darkAlias else lightAlias
-        packageManager.setComponentEnabledSetting(
-            targetAlias,
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-            flags,
-        )
-        packageManager.setComponentEnabledSetting(
-            otherAlias,
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            flags,
-        )
+        try {
+            packageManager.setComponentEnabledSetting(
+                targetAlias,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                flags,
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to enable launcher alias: ${'$'}targetAlias", e)
+        }
+
+        try {
+            packageManager.setComponentEnabledSetting(
+                otherAlias,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                flags,
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to disable launcher alias: ${'$'}otherAlias", e)
+        }
     }
 }
