@@ -114,7 +114,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:indeterminate="true"
-                android:indeterminateTint="?attr/totusColorTextSecondary" />
+                android:indeterminateTint="?attr/totusColorTextSecondary"
+                android:visibility="gone" />
 
             <ProgressBar
                 android:id="@+id/progress_kantaral_loading_horizontal"
@@ -122,12 +123,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:indeterminate="true"
+                android:indeterminate="false"
                 android:max="100"
                 android:progress="0"
                 android:indeterminateTint="?attr/totusColorTextSecondary"
                 android:progressTint="?attr/totusColorTextSecondary"
-                android:progressBackgroundTint="?attr/totusColorSurfaceStroke" />
+                android:progressBackgroundTint="?attr/totusColorSurfaceStroke"
+                android:visibility="invisible" />
 
             <TextView
                 android:id="@+id/text_kantaral_loading_center"

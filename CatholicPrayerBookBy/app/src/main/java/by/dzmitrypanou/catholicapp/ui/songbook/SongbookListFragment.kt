@@ -20,7 +20,9 @@ import by.dzmitrypanou.catholicapp.data.SongbookEntry
 import by.dzmitrypanou.catholicapp.data.SongbookRepository
 import by.dzmitrypanou.catholicapp.databinding.FragmentSongbookListBinding
 import by.dzmitrypanou.catholicapp.ui.PrayerBookUiTypography
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,6 +41,7 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
     private var kantaralInitialSyncStarted: Boolean = false
     private var kantaralSyncProgress: SongbookRepository.SyncProgress? = null
     private var kantaralLoaderShownAtMs: Long = 0L
+    private var songbookSyncJob: Job? = null
     private var lastSongbookCacheGeneration: Long = Long.MIN_VALUE
     private val catalog: SongbookRepository.Catalog
         get() = if (arguments?.getString("catalog") == "kantaral") {
@@ -127,6 +130,19 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
         }
     }
 
+    override fun onStop() {
+        if (catalog == SongbookRepository.Catalog.KANTARAL) {
+            songbookSyncJob?.cancel()
+            songbookSyncJob = null
+            toolbarSongbookSyncInProgress = false
+            songbookListSyncBlockingUi = false
+            kantaralSyncProgress = null
+            if (_binding != null) refreshListUi()
+            if (isAdded) requireActivity().invalidateOptionsMenu()
+        }
+        super.onStop()
+    }
+
     private fun refreshListUi() {
         val b = _binding ?: return
         val hasData = allEntries.isNotEmpty()
@@ -155,11 +171,15 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
         val b = _binding ?: return
         val progress = kantaralSyncProgress
         if (!visible || progress == null || progress.total <= 0) {
-            b.progressKantaralLoadingHorizontal.isIndeterminate = true
+            b.progressKantaralLoadingCenter.visibility = View.GONE
+            b.progressKantaralLoadingHorizontal.visibility = View.INVISIBLE
+            b.progressKantaralLoadingHorizontal.isIndeterminate = false
             b.progressKantaralLoadingHorizontal.progress = 0
             b.textKantaralLoadingCenter.setText(R.string.kantaral_loading)
             return
         }
+        b.progressKantaralLoadingCenter.visibility = View.GONE
+        b.progressKantaralLoadingHorizontal.visibility = View.VISIBLE
         val total = progress.total.coerceAtLeast(1)
         val done = progress.done.coerceIn(0, total)
         b.progressKantaralLoadingHorizontal.isIndeterminate = false
@@ -208,6 +228,7 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
         if (entries.isEmpty()) return
         if (kantaralInitialSyncStarted || toolbarSongbookSyncInProgress) return
         if (!PrayerAutoUpdateConsentStore.isGranted(requireContext())) return
+        if (viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED).not()) return
 
         kantaralInitialSyncStarted = true
         refreshSongbookDataFromToolbar(showBlockingLoader = false)
@@ -218,18 +239,29 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
     }
 
     private fun refreshSongbookDataFromToolbar(showBlockingLoader: Boolean) {
-        viewLifecycleOwner.lifecycleScope.launch {
+        if (songbookSyncJob?.isActive == true) return
+        songbookSyncJob = viewLifecycleOwner.lifecycleScope.launch {
             toolbarSongbookSyncInProgress = true
-            if (showBlockingLoader || (catalog == SongbookRepository.Catalog.KANTARAL && allEntries.isEmpty())) {
-                songbookListSyncBlockingUi = true
-                kantaralSyncProgress = null
-                refreshListUi()
-            }
             requireActivity().invalidateOptionsMenu()
             val appCtx = requireContext().applicationContext
             val repo = SongbookRepository(appCtx, catalog)
             try {
-                val list = runCatching {
+                val shouldShowBlockingLoader = if (catalog == SongbookRepository.Catalog.KANTARAL) {
+                    val currentEntries = allEntries
+                    val current = repo.isRemoteContentCurrent(
+                        existingLocal = currentEntries,
+                        allowNetwork = true
+                    )
+                    !current && (showBlockingLoader || currentEntries.isEmpty())
+                } else {
+                    showBlockingLoader
+                }
+                if (shouldShowBlockingLoader) {
+                    songbookListSyncBlockingUi = true
+                    kantaralSyncProgress = null
+                    refreshListUi()
+                }
+                val list = try {
                     repo.refreshFromApi(
                         allowHashShortCircuit = true,
                         allowNetwork = true,
@@ -237,8 +269,10 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
                             updateKantaralProgress(progress)
                         }
                     )
-                }.onFailure { e ->
-                    if (_binding == null || !isAdded) return@onFailure
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    if (_binding == null || !isAdded) return@launch
                     val msg = when (e) {
                         is UnknownHostException, is ConnectException ->
                             getString(R.string.songbook_error_network)
@@ -247,7 +281,8 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
                         else -> getString(R.string.songbook_error_sync)
                     }
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
-                }.getOrElse { repo.getCachedEntriesSorted() }
+                    repo.getCachedEntriesSorted()
+                }
                 showFinalKantaralProgressIfNeeded(list)
                 holdKantaralLoaderMinimumIfNeeded()
                 if (isAdded) {
@@ -260,15 +295,22 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
                     categoriesAdapter.submitList(sections)
                     refreshListUi()
                 }
+            } catch (e: CancellationException) {
+                if (catalog == SongbookRepository.Catalog.KANTARAL) {
+                    allEntries = withContext(Dispatchers.IO) { repo.getCachedEntriesSorted() }
+                }
+                throw e
             } finally {
                 toolbarSongbookSyncInProgress = false
                 if (catalog == SongbookRepository.Catalog.KANTARAL && allEntries.isEmpty()) {
-                    kantaralSyncProgress = SongbookRepository.SyncProgress(1, 1)
-                    refreshListUi()
+                    kantaralSyncProgress = null
                 }
                 songbookListSyncBlockingUi = false
                 if (allEntries.isNotEmpty()) {
                     kantaralSyncProgress = null
+                }
+                if (songbookSyncJob === coroutineContext[Job]) {
+                    songbookSyncJob = null
                 }
                 if (isAdded && _binding != null) {
                     refreshListUi()

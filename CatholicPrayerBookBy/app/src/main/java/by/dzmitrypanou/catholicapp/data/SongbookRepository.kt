@@ -10,6 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
@@ -73,6 +75,17 @@ class SongbookRepository(
             runCatching { catalog.remoteHash() }.getOrNull()
         }
 
+    suspend fun isRemoteContentCurrent(
+        existingLocal: List<SongbookEntry> = getCachedEntries(),
+        allowNetwork: Boolean = false
+    ): Boolean = withContext(Dispatchers.IO) {
+        if (!allowNetwork || existingLocal.isEmpty()) return@withContext false
+        val remoteHash = runCatching { catalog.remoteHash() }.getOrNull()
+            ?: return@withContext false
+        val cachedHash = prefs.getString(KEY_HASH, null)
+        cachedHash == remoteHash && cachedSongbookMediaFilesIntact(existingLocal)
+    }
+
 fun clearCache() {
         prefs.edit().clear().apply()
             if (catalog == Catalog.SONGBOOK) {
@@ -111,6 +124,7 @@ suspend fun refreshFromApi(
         val remoteHash = runCatching {
             catalog.remoteHash()
         }.getOrNull()
+        currentCoroutineContext().ensureActive()
 
         if (allowHashShortCircuit && remoteHash != null) {
             val cachedHash = prefs.getString(KEY_HASH, null)
@@ -125,6 +139,7 @@ suspend fun refreshFromApi(
         val dtos = runCatching { catalog.remoteEntries() }.getOrElse {
             return@withContext existingLocal.sortedWith(songbookOrderComparator)
         }
+        currentCoroutineContext().ensureActive()
 
         val oldRevisions = readMediaRevisionMap()
         val total = dtos.size.coerceAtLeast(1)
@@ -136,8 +151,11 @@ suspend fun refreshFromApi(
         val indexedRows = coroutineScope {
             dtos.mapIndexed { idx, dto ->
                 async {
+                    currentCoroutineContext().ensureActive()
                     mediaSemaphore.withPermit {
+                        currentCoroutineContext().ensureActive()
                         val row = syncOneSongbookDto(dto, oldRevReadOnly)
+                        currentCoroutineContext().ensureActive()
                         val d = doneCounter.incrementAndGet()
                         onProgress?.invoke(SyncProgress(d, total))
                         idx to row
@@ -245,7 +263,9 @@ private fun syncOneSongbookDto(
                         dest
                     )
                     if (ok) {
-                        deltas[idStr] = revRemote.ifEmpty { sha256File(dest) }
+                        val rev = revRemote.ifEmpty { sha256File(dest) }
+                        deltas[idStr] = rev
+                        storeMediaRevisionDelta(idStr, rev)
                     } else if (dest.isFile && dest.length() > 0L) {
                         deltas[idStr] = revStored
                     }
@@ -270,6 +290,17 @@ private fun cachedSongbookMediaFilesIntact(entries: List<SongbookEntry>): Boolea
             if (!f.isFile || f.length() == 0L) return false
         }
         return true
+    }
+
+    private fun storeMediaRevisionDelta(id: String, revision: String) {
+        if (revision.isBlank()) return
+        synchronized(mediaRevisionWriteLock) {
+            val revisions = readMediaRevisionMap()
+            revisions[id] = revision
+            prefs.edit()
+                .putString(KEY_MEDIA_REV, gson.toJson(revisions))
+                .apply()
+        }
     }
 
     private fun sha256File(file: File): String {
@@ -322,6 +353,8 @@ private fun cachedSongbookMediaFilesIntact(entries: List<SongbookEntry>): Boolea
         private const val KEY_ENTRIES = "entries_json"
         private const val KEY_HASH = "content_hash"
         private const val KEY_MEDIA_REV = "media_revision_json"
+
+        private val mediaRevisionWriteLock = Any()
 
         private val songbookOrderComparator = SongbookEntry.DISPLAY_ORDER
     }
