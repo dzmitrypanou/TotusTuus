@@ -1559,7 +1559,7 @@ function refreshToolbarRightActions() {
             return `
             <div class="relative w-full min-h-0 ${colSpan}">
                 <button type="button" data-home-card="${c.target}" data-home-available="${c.available ? '1' : '0'}"
-                    class="text-left rounded-md border border-app-stroke bg-app-elevated overflow-hidden w-full min-h-0 p-0 transition-transform ${cardInteractionClasses}"
+                    class="block text-left rounded-md border border-app-stroke bg-app-elevated overflow-hidden w-full min-h-0 p-0 transition-transform ${cardInteractionClasses}"
                     style="${unavailableCardStyle}">
                     <div class="home-card-head relative w-full overflow-hidden bg-app-surface" style="height:${cardHeight}px;">
                         <div class="absolute inset-0 overflow-hidden" style="${unavailableMediaFilterStyle}">
@@ -1766,9 +1766,9 @@ function refreshToolbarRightActions() {
                 </button>`;
             }
             if (currentCollapsed) return '';
-            return `<article class="rounded-md border border-app-stroke bg-app-elevated px-[18px] py-3 min-h-[56px] flex items-center gap-3">
-                <div class="w-[92px] shrink-0 font-bold text-app-textSec leading-snug" style="font-size:calc(15px * var(--totus-read-scale));">${escapeHtml(item.date)}</div>
-                <div class="flex-1 min-w-0 text-app-text leading-snug" style="font-size:calc(17px * var(--totus-read-scale));">${escapeHtml(item.title)}</div>
+            return `<article class="rounded-md border border-app-stroke bg-app-elevated" style="min-height:calc(58px * var(--totus-read-scale));display:grid;grid-template-columns:minmax(92px, max-content) minmax(0,1fr);column-gap:12px;align-items:center;padding:8px 18px;">
+                <div class="font-bold text-app-textSec leading-snug" style="font-size:calc(15px * var(--totus-read-scale));white-space:normal;overflow:visible;text-overflow:clip;">${escapeHtml(item.date)}</div>
+                <div class="min-w-0 text-app-text leading-snug" style="font-size:calc(17px * var(--totus-read-scale));white-space:normal;overflow:visible;text-overflow:clip;">${escapeHtml(item.title)}</div>
             </article>`;
         }).join('');
         const status = solemnitiesApiLoadingYear === key
@@ -3486,9 +3486,9 @@ function ordoMissaeApplyFoldMemory(hostEl, rawOriginal) {
               )
             : escapeHtml(normalizePrayerTextForDisplay(raw));
         const bodyClass = useHtml
-            ? 'totus-read-18 px-4 pt-4 pb-0 text-app-text totus-reading-detail prayer-detail-html'
-            : 'totus-read-18 px-4 pt-4 pb-0 text-app-text totus-reading-detail whitespace-pre-wrap';
-        root.innerHTML = `<div class="rounded-md border border-app-stroke bg-app-elevated overflow-hidden ${shellMin}"><div class="${bodyClass}">${bodyInner}</div></div>`;
+            ? 'totus-read-18 px-4 text-app-text totus-reading-detail prayer-detail-html'
+            : 'totus-read-18 px-4 text-app-text totus-reading-detail whitespace-pre-wrap';
+        root.innerHTML = `<div class="rounded-md border border-app-stroke bg-app-elevated overflow-hidden ${shellMin}" style="padding-top:8px;padding-bottom:10px;"><div class="${bodyClass}">${bodyInner}</div></div>`;
         if (useHtml) {
             const host = root.querySelector('.prayer-detail-html');
             if (host) ordoMissaeApplyFoldMemory(host, raw);
@@ -4948,7 +4948,8 @@ function songbookBuildFlatListHtml(sortedEntries) {
             return;
         }
         statusEl.classList.add('hidden');
-        resRoot.innerHTML = `<div class="flex flex-col gap-2">${songbookBuildSectionedListHtml(results)}</div>`;
+        const resultsBody = songbookBuildFlatListHtml(sortSongbookWithoutCategory(results));
+        resRoot.innerHTML = `<div class="flex flex-col gap-2">${resultsBody}</div>`;
     }
 
     async function hydrateSongbook() {
