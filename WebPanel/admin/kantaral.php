@@ -83,9 +83,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && !isset($_POST['logout'])
         $subRaw = trim((string)($_POST['subchapter'] ?? ''));
         $sub = $subRaw !== '' ? max(1, (int)$subRaw) : null;
         $sort = (int)($_POST['sort_order'] ?? 0);
-        $type = (string)($_POST['content_type'] ?? 'text');
-        $text = (string)($_POST['text_body'] ?? '');
-        if (!in_array($type, ['text', 'image'], true)) $type = 'text';
+        $type = 'image';
+        $text = '';
 
         try {
             if (isset($_POST['bulk_category']) || isset($_POST['bulk_autonumber']) || isset($_POST['bulk_clear_numbering'])) {
@@ -138,27 +137,21 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && !isset($_POST['logout'])
                 $cur->execute([':id' => $id]);
                 $old = $cur->fetch();
                 $oldPath = is_array($old) ? (string)($old['media_path'] ?? '') : '';
-                if ($type === 'text') {
-                    kantaral_delete_media($oldPath);
-                    $mediaSql = ', media_path = NULL, media_revision = \'\'';
-                } else {
-                    $mediaSql = '';
-                    $text = '';
-                }
-                $st = db()->prepare('UPDATE kantaral_entries SET title=:t, category=:c, chapter_major=:ch, subchapter=:s, content_type=:ct, text_body=:b, sort_order=:so' . $mediaSql . ' WHERE id=:id');
+                $hasNewImage = isset($_FILES['media']) && is_array($_FILES['media']) && (int)($_FILES['media']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK;
+                if ($oldPath === '' && !$hasNewImage) throw new RuntimeException('Загрузіце выяву.');
+                $st = db()->prepare('UPDATE kantaral_entries SET title=:t, category=:c, chapter_major=:ch, subchapter=:s, content_type=:ct, text_body=:b, sort_order=:so WHERE id=:id');
                 $st->execute([':t'=>$title, ':c'=>$category, ':ch'=>$chapter, ':s'=>$sub, ':ct'=>$type, ':b'=>$text, ':so'=>$sort, ':id'=>$id]);
-                if ($type === 'image' && isset($_FILES['media']) && is_array($_FILES['media']) && (int)($_FILES['media']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+                if ($hasNewImage) {
                     kantaral_delete_media($oldPath);
                     if (!kantaral_upload_image($id, $_FILES['media'])) $error = 'Не ўдалося захаваць выяву.';
                 }
                 if ($error === '') $message = 'Запіс абноўлены.';
             } else {
-                if ($type === 'text' && trim($text) === '') throw new RuntimeException('Увядзіце тэкст.');
-                if ($type === 'image' && (!isset($_FILES['media']) || !is_array($_FILES['media']) || (int)($_FILES['media']['error'] ?? 0) !== UPLOAD_ERR_OK)) throw new RuntimeException('Загрузіце выяву.');
+                if (!isset($_FILES['media']) || !is_array($_FILES['media']) || (int)($_FILES['media']['error'] ?? 0) !== UPLOAD_ERR_OK) throw new RuntimeException('Загрузіце выяву.');
                 $st = db()->prepare('INSERT INTO kantaral_entries (title, category, chapter_major, subchapter, content_type, text_body, media_path, media_revision, sort_order, is_active) VALUES (:t,:c,:ch,:s,:ct,:b,NULL,\'\',:so,1)');
-                $st->execute([':t'=>$title, ':c'=>$category, ':ch'=>$chapter, ':s'=>$sub, ':ct'=>$type, ':b'=>$type === 'text' ? $text : '', ':so'=>$sort]);
+                $st->execute([':t'=>$title, ':c'=>$category, ':ch'=>$chapter, ':s'=>$sub, ':ct'=>$type, ':b'=>$text, ':so'=>$sort]);
                 $newId = (int)db()->lastInsertId();
-                if ($type === 'image' && !kantaral_upload_image($newId, $_FILES['media'])) {
+                if (!kantaral_upload_image($newId, $_FILES['media'])) {
                     db()->prepare('DELETE FROM kantaral_entries WHERE id=:id')->execute([':id'=>$newId]);
                     throw new RuntimeException('Не ўдалося захаваць выяву.');
                 }
@@ -1346,10 +1339,39 @@ body.body-auth {
 <?php if ($message !== ''): ?><p class="ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
 <?php if ($error !== ''): ?><p class="err"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
 <?php if ($addMode): ?>
-<div class="card kantaral-form-card"><h2><?= $edit ? 'Рэдагаваць запіс' : 'Дадаць запіс' ?></h2><form method="post" enctype="multipart/form-data"><?= panel_csrf_field() ?><?php if ($edit): ?><input type="hidden" name="id" value="<?= (int)$edit['id'] ?>"><?php endif; ?><label>Назва</label><input name="title" value="<?= htmlspecialchars((string)($edit['title'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><label>Катэгорыя</label><input name="category" value="<?= htmlspecialchars((string)($edit['category'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><label>Нумар главы</label><input type="number" min="1" name="chapter_major" required value="<?= (int)($edit['chapter_major'] ?? 1) ?>"><label>Падглава</label><input type="number" min="1" name="subchapter" value="<?= $edit && $edit['subchapter'] !== null ? (int)$edit['subchapter'] : '' ?>"><label>Парадак</label><input type="number" name="sort_order" value="<?= (int)($edit['sort_order'] ?? 0) ?>"><label>Тып</label><select name="content_type"><option value="text"<?= (string)($edit['content_type'] ?? 'text') === 'text' ? 'selected' : '' ?>>Тэкст</option><option value="image"<?= (string)($edit['content_type'] ?? '') === 'image' ? 'selected' : '' ?>>Выява</option></select><label>Тэкст / HTML</label><textarea name="text_body" rows="12"><?= htmlspecialchars((string)($edit['text_body'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></textarea><label>Выява JPEG, PNG, WebP, GIF, AVIF</label><input type="file" name="media" accept=".jpg,.jpeg,.png,.webp,.gif,.avif,image/*"><?php if ($edit && !empty($edit['media_path'])): ?><p>Бягучы файл: <code><?= htmlspecialchars((string)$edit['media_path'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></code></p><?php endif; ?><div class="form-actions-row"><button type="submit">Захаваць</button><a class="btn-pill btn-pill--gold" href="/admin/kantaral.php">Да спісу</a></div></form></div>
+<div class="card kantaral-form-card">
+  <h2><?= $edit ? 'Рэдагаваць запіс' : 'Дадаць запіс' ?></h2>
+  <form method="post" enctype="multipart/form-data">
+    <?= panel_csrf_field() ?>
+<?php if ($edit): ?>
+    <input type="hidden" name="id" value="<?= (int)$edit['id'] ?>">
+<?php endif; ?>
+    <input type="hidden" name="content_type" value="image">
+    <label>Назва</label>
+    <input name="title" value="<?= htmlspecialchars((string)($edit['title'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+    <label>Катэгорыя</label>
+    <input name="category" value="<?= htmlspecialchars((string)($edit['category'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+    <label>Нумар главы</label>
+    <input type="number" min="1" name="chapter_major" required value="<?= (int)($edit['chapter_major'] ?? 1) ?>">
+    <label>Падглава</label>
+    <input type="number" min="1" name="subchapter" value="<?= $edit && $edit['subchapter'] !== null ? (int)$edit['subchapter'] : '' ?>">
+    <label>Парадак</label>
+    <input type="number" name="sort_order" value="<?= (int)($edit['sort_order'] ?? 0) ?>">
+    <label>Выява JPEG, PNG, WebP, GIF, AVIF</label>
+    <input type="file" name="media" accept=".jpg,.jpeg,.png,.webp,.gif,.avif,image/*">
+<?php if ($edit && !empty($edit['media_path'])): ?>
+    <p>Бягучы файл: <code><?= htmlspecialchars((string)$edit['media_path'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></code></p>
+<?php endif; ?>
+    <div class="form-actions-row">
+      <button type="submit">Захаваць</button>
+      <a class="btn-pill btn-pill--gold" href="/admin/kantaral.php">Да спісу</a>
+    </div>
+  </form>
+</div>
 <?php else: ?>
 <div class="songbook-toolbar-top" style="margin:12px 0 0"><a class="btn btn-pill btn-pill--purple" href="/admin/kantaral.php?add=1">Дадаць запіс</a></div>
 <div class="songbook-admin-panel"><form method="get" class="songbook-panel-section songbook-filter-form" aria-label="Фільтр па катэгорыях кантарала"><details class="panel-filter-details"<?= count($catSelected) > 0 ? ' open' : '' ?>><summary class="panel-filter-summary"><span class="panel-filter-summary__title">Выбар катэгорый</span><span class="panel-filter-summary__meta"><?= count($catSelected) > 0 ? 'У фільтры: ' . (string)count($catSelected) : 'Усе запісы' ?></span><span class="panel-filter-summary__hint">Націсніце, каб разгарнуць або згарнуць спіс катэгорый і галачак.</span></summary><div class="panel-filter-details__body"><p class="songbook-panel-section__hint">Некалькі галачак працуюць як <strong>АБО</strong>: у спісе застаюцца запісы з любой з абраных катэгорый.</p><div class="songbook-filter-chips" role="group" aria-label="Катэгорыі"><?php $hasEmpty = in_array('', array_map('trim', $catDistinct), true); if ($hasEmpty): ?><label class="songbook-filter-chip"><input type="checkbox" name="cat[]" value="<?= htmlspecialchars($catEmptyToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= in_array($catEmptyToken, $catSelected, true) ? ' checked' : '' ?>><span>(без катэгорыі)</span></label><?php endif; ?><?php foreach ($catDistinct as $dc): ?><?php if (trim($dc) === '') continue; ?><label class="songbook-filter-chip"><input type="checkbox" name="cat[]" value="<?= htmlspecialchars($dc, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= in_array($dc, $catSelected, true) ? ' checked' : '' ?>><span><?= htmlspecialchars($dc, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span></label><?php endforeach; ?></div><?php if (count($catDistinct) === 0): ?><p class="songbook-panel-section__empty">Катэгорыі з’явяцца пасля дадання запісаў.</p><?php endif; ?><div class="songbook-panel-actions"><button type="submit" class="btn btn-pill btn-pill--purple">Паказаць</button><a class="btn btn-pill btn-pill--muted" href="/admin/kantaral.php">Скід фільтра</a></div></div></details></form><div class="songbook-panel-divider" role="presentation"></div><form id="kantaral-bulk-form" method="post" class="songbook-panel-section songbook-bulk-form"><?= panel_csrf_field() ?><div class="songbook-panel-section__head"><span class="songbook-panel-section__title">Масавыя дзеянні</span></div><p class="songbook-panel-section__hint">Пазначыце радкі ў табліцы ніжэй. Можна або змяніць ім агульную катэгорыю, або выставіць нумарацыю <strong>1…N</strong> па парадку выбраных радкоў.</p><div class="songbook-bulk-row"><label for="bulk_category_value" class="bulk-songbook-label">Новая катэгорыя</label><input id="bulk_category_value" name="bulk_category_value" type="text" maxlength="255" class="bulk-songbook-input" placeholder="Напрыклад, Адвэнт; пуста — без загалоўка"><button type="submit" name="bulk_category" value="1" class="btn btn-pill btn-pill--gold">Ужыць катэгорыю</button><button type="submit" name="bulk_autonumber" value="1" class="btn btn-pill btn-pill--purple">Аўтанумарацыя 1…N</button><button type="submit" name="bulk_clear_numbering" value="1" class="btn btn-pill btn-pill--muted">Ачысціць нумарацыю</button></div></form></div>
 <table><thead><tr><th class="cell-checkbox"><input type="checkbox" id="kantaral-bulk-select-all" title="Абраць усе" aria-label="Абраць усе запісы"></th><th>ID</th><th>Катэгорыя</th><th>№</th><th>Назва</th><th>Тып</th><th>Файл</th><th>Дзеянні</th></tr></thead><tbody><?php foreach ($rows as $r): ?><tr><td class="cell-checkbox"><input type="checkbox" class="kantaral-bulk-id-cb" name="bulk_ids[]" value="<?= (int)$r['id'] ?>" form="kantaral-bulk-form" aria-label="Абраць запіс<?= (int)$r['id'] ?>"></td><td><?= (int)$r['id'] ?></td><td><?= htmlspecialchars((string)$r['category'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td><td><?= (int)$r['chapter_major'] ?><?= $r['subchapter'] !== null ? '.' . (int)$r['subchapter'] : '.' ?></td><td><?= htmlspecialchars((string)$r['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td><td><?= htmlspecialchars((string)$r['content_type'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td><td><?= htmlspecialchars((string)($r['media_path'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td><td class="actions"><a class="btn-pill btn-pill--sm btn-pill--purple" href="/admin/kantaral.php?edit=<?= (int)$r['id'] ?>">Рэдагаваць</a><form method="post" onsubmit="return confirm('Выдаліць запіс кантарала?')"><?= panel_csrf_field() ?><input type="hidden" name="delete_id" value="<?= (int)$r['id'] ?>"><button class="btn-pill btn-pill--sm btn-pill--danger" type="submit">Выдаліць</button></form></td></tr><?php endforeach; ?></tbody></table><script>document.getElementById('kantaral-bulk-select-all')?.addEventListener('change',function(){document.querySelectorAll('.kantaral-bulk-id-cb').forEach(function(cb){cb.checked=this.checked}.bind(this));});</script>
 <?php endif; ?>
 </body></html>
+

@@ -224,6 +224,19 @@
         .prayer-detail-html details.ordo-missae-section[open] > *:last-child {
             margin-bottom: 0.175rem !important;
         }
+        .prayer-detail-html details.ordo-missae-section:last-of-type[open] > *:last-child {
+            margin-bottom: 0 !important;
+        }
+        .prayer-detail-html details.ordo-missae-section:last-of-type > summary.ordo-missae-section-summary {
+            padding-bottom: 0 !important;
+        }
+        .prayer-detail-html details.ordo-missae-section:last-of-type p:last-child,
+        .prayer-detail-html details.ordo-missae-section:last-of-type div:last-child,
+        .prayer-detail-html details.ordo-missae-section:last-of-type ul:last-child,
+        .prayer-detail-html details.ordo-missae-section:last-of-type ol:last-child,
+        .prayer-detail-html details.ordo-missae-section:last-of-type blockquote:last-child {
+            margin-bottom: 0 !important;
+        }
         .prayer-detail-html details.ordo-missae-section > summary.ordo-missae-section-summary::-webkit-details-marker {
             display: none;
         }

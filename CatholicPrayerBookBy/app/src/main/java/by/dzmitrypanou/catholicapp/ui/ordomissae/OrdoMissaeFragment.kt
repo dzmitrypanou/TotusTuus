@@ -579,7 +579,7 @@ private fun stripInlineFontSizeDeclarations(html: String): String {
             }
             body {
               margin: 0;
-              padding: ${padPx}px;
+              padding: ${padPx}px ${padPx}px 0;
               background: transparent;
               color: $textHex;
               font-family: $cssFontFamily;
@@ -642,6 +642,19 @@ private fun stripInlineFontSizeDeclarations(html: String): String {
             }
             details.ordo-missae-section[open] > *:last-child {
               margin-bottom: 0.175rem !important;
+            }
+            details.ordo-missae-section:last-of-type[open] > *:last-child {
+              margin-bottom: 0 !important;
+            }
+            details.ordo-missae-section:last-of-type > summary.ordo-missae-section-summary {
+              padding-bottom: 0 !important;
+            }
+            details.ordo-missae-section:last-of-type p:last-child,
+            details.ordo-missae-section:last-of-type div:last-child,
+            details.ordo-missae-section:last-of-type ul:last-child,
+            details.ordo-missae-section:last-of-type ol:last-child,
+            details.ordo-missae-section:last-of-type blockquote:last-child {
+              margin-bottom: 0 !important;
             }
             details.ordo-missae-section > summary.ordo-missae-section-summary::-webkit-details-marker {
               display: none;

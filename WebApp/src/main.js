@@ -3155,7 +3155,7 @@ function prayerTreeRowHtml(p) {
 
     function ordoMissaeShellHtml() {
         return `
-        <div class="w-full max-w-[480px] mx-auto px-2 pb-8 min-h-[min(70dvh,640px)] flex flex-col gap-3">
+        <div class="w-full max-w-[480px] mx-auto px-2 min-h-[min(70dvh,640px)] flex flex-col gap-3">
             <div id="ordo-missae-root" class="min-h-[min(70dvh,640px)] flex flex-col">
                 <div class="flex flex-1 flex-col items-center justify-center py-16 gap-3 text-app-textTer">
                     <i class="fas fa-circle-notch fa-spin text-3xl text-app-textSec" aria-hidden="true"></i>
@@ -3486,8 +3486,8 @@ function ordoMissaeApplyFoldMemory(hostEl, rawOriginal) {
               )
             : escapeHtml(normalizePrayerTextForDisplay(raw));
         const bodyClass = useHtml
-            ? 'totus-read-18 p-4 text-app-text totus-reading-detail prayer-detail-html'
-            : 'totus-read-18 p-4 text-app-text totus-reading-detail whitespace-pre-wrap';
+            ? 'totus-read-18 px-4 pt-4 pb-0 text-app-text totus-reading-detail prayer-detail-html'
+            : 'totus-read-18 px-4 pt-4 pb-0 text-app-text totus-reading-detail whitespace-pre-wrap';
         root.innerHTML = `<div class="rounded-md border border-app-stroke bg-app-elevated overflow-hidden ${shellMin}"><div class="${bodyClass}">${bodyInner}</div></div>`;
         if (useHtml) {
             const host = root.querySelector('.prayer-detail-html');
