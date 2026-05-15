@@ -91,10 +91,22 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
         )
 
         binding.layoutSongbookSearchEntry.setOnClickListener {
-            findNavController().navigate(R.id.action_global_nav_songbook_search)
+            val actionId = if (catalog == SongbookRepository.Catalog.KANTARAL) {
+                R.id.action_global_nav_kantaral_search
+            } else {
+                R.id.action_global_nav_songbook_search
+            }
+            findNavController().navigate(actionId)
         }
-        binding.layoutSongbookSearchEntry.visibility =
-            if (catalog == SongbookRepository.Catalog.KANTARAL) View.GONE else View.VISIBLE
+        binding.textSongbookSearchEntryTitle.setText(
+            if (catalog == SongbookRepository.Catalog.KANTARAL) {
+                R.string.kantaral_search_title
+            } else {
+                R.string.songbook_search_title
+            }
+        )
+        binding.layoutSongbookSearchEntry.contentDescription = binding.textSongbookSearchEntryTitle.text
+        binding.layoutSongbookSearchEntry.visibility = View.VISIBLE
 
         lastSongbookCacheGeneration = SongbookCacheInvalidationNotifier.currentGeneration()
         reloadFromCache()
@@ -146,8 +158,7 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
     private fun refreshListUi() {
         val b = _binding ?: return
         val hasData = allEntries.isNotEmpty()
-        b.layoutSongbookSearchEntry.visibility =
-            if (catalog == SongbookRepository.Catalog.KANTARAL) View.GONE else View.VISIBLE
+        b.layoutSongbookSearchEntry.visibility = View.VISIBLE
         val loading = songbookListSyncBlockingUi
         val showKantaralLoading = catalog == SongbookRepository.Catalog.KANTARAL && loading
         val showCenteredEmpty = !hasData && !loading && !toolbarSongbookSyncInProgress
@@ -175,11 +186,13 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
             b.progressKantaralLoadingHorizontal.visibility = View.INVISIBLE
             b.progressKantaralLoadingHorizontal.isIndeterminate = false
             b.progressKantaralLoadingHorizontal.progress = 0
-            b.textKantaralLoadingCenter.setText(R.string.kantaral_loading)
+            b.textKantaralLoadingCenter.text = ""
+            b.textKantaralLoadingCenter.visibility = View.GONE
             return
         }
         b.progressKantaralLoadingCenter.visibility = View.GONE
         b.progressKantaralLoadingHorizontal.visibility = View.VISIBLE
+        b.textKantaralLoadingCenter.visibility = View.VISIBLE
         val total = progress.total.coerceAtLeast(1)
         val done = progress.done.coerceIn(0, total)
         b.progressKantaralLoadingHorizontal.isIndeterminate = false

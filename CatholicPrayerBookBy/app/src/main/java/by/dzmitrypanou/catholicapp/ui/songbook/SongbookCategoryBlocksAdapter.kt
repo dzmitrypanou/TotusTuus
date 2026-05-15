@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import by.dzmitrypanou.catholicapp.R
@@ -37,28 +36,13 @@ class SongbookCategoryBlocksAdapter(
 
         private var section: SongbookCategorySection? = null
 
-        private val songsAdapter = SongbookSectionRowsAdapter(
-            onSongClick = { entry ->
-                val cat = section?.displayTitle ?: return@SongbookSectionRowsAdapter
-                onSongClick(entry, cat)
-            }
-        )
-
         init {
-            binding.recyclerSongbookSectionSongs.apply {
-                layoutManager = LinearLayoutManager(context).apply { isAutoMeasureEnabled = true }
-                adapter = songsAdapter
-                isNestedScrollingEnabled = false
-                setHasFixedSize(false)
-                itemAnimator = null
-            }
             binding.layoutSongbookCategoryHeader.setOnClickListener {
-                val pos = bindingAdapterPosition
-                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
                 val s = section ?: return@setOnClickListener
                 val expanded = SongbookCategoryExpandStore.isExpanded(appContext, s.groupKey, defaultExpanded = false)
-                SongbookCategoryExpandStore.setExpanded(appContext, s.groupKey, !expanded)
-                this@SongbookCategoryBlocksAdapter.notifyItemChanged(pos)
+                val nextExpanded = !expanded
+                SongbookCategoryExpandStore.setExpanded(appContext, s.groupKey, nextExpanded)
+                bindExpandedState(s, expanded = nextExpanded)
             }
         }
 
@@ -74,7 +58,14 @@ class SongbookCategoryBlocksAdapter(
             binding.textSongbookCategoryTitle.setTypeface(binding.textSongbookCategoryTitle.typeface, Typeface.BOLD)
 
             val expanded = SongbookCategoryExpandStore.isExpanded(appContext, s.groupKey, defaultExpanded = false)
-            binding.recyclerSongbookSectionSongs.visibility = if (expanded) View.VISIBLE else View.GONE
+            bindExpandedState(s, expanded)
+        }
+
+        private fun bindExpandedState(
+            s: SongbookCategorySection,
+            expanded: Boolean
+        ) {
+            val ctx = binding.root.context
             binding.imageSongbookCategoryExpand.setImageResource(
                 if (expanded) R.drawable.ic_expand_less_24 else R.drawable.ic_expand_more_24
             )
@@ -86,12 +77,33 @@ class SongbookCategoryBlocksAdapter(
                 }
 
             val songList = if (expanded) s.entries else emptyList()
-            songsAdapter.submitList(songList)
-            if (expanded && songList.isNotEmpty()) {
-                binding.recyclerSongbookSectionSongs.post {
-                    val n = songsAdapter.itemCount
-                    if (n > 0) songsAdapter.notifyItemRangeChanged(0, n)
-                }
+            if (!expanded) {
+                binding.recyclerSongbookSectionSongs.visibility = View.GONE
+                binding.recyclerSongbookSectionSongs.removeAllViews()
+                return
+            }
+
+            bindSongRows(songList, s.displayTitle)
+            binding.recyclerSongbookSectionSongs.visibility = View.VISIBLE
+        }
+
+        private fun bindSongRows(entries: List<SongbookEntry>, displayCategory: String) {
+            val container = binding.recyclerSongbookSectionSongs
+            container.removeAllViews()
+            val inflater = LayoutInflater.from(container.context)
+            entries.forEach { entry ->
+                val rowBinding = ItemPrayerTreeBinding.inflate(inflater, container, false)
+                rowBinding.textTreeTitle.text = entry.listLabel()
+                rowBinding.textTreeSubtitle.visibility = View.GONE
+                rowBinding.root.setOnClickListener { onSongClick(entry, displayCategory) }
+                PrayerBookUiTypography.bindSongbookTreeRow(
+                    rowBinding,
+                    entry,
+                    rowBinding.root.context,
+                    showImageBadge = entry.showBadge != false
+                )
+                PrayerBookUiTypography.applyPrayerTreeRowTypography(rowBinding, rowBinding.root.context)
+                container.addView(rowBinding.root)
             }
         }
     }
@@ -102,45 +114,6 @@ class SongbookCategoryBlocksAdapter(
 
         override fun areContentsTheSame(a: SongbookCategorySection, b: SongbookCategorySection): Boolean =
             a == b
-    }
-}
-
-private class SongbookSectionRowsAdapter(
-    private val onSongClick: (SongbookEntry) -> Unit
-) : ListAdapter<SongbookEntry, SongbookSectionRowsAdapter.RowViewHolder>(EntryDiff) {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RowViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val rowBinding = ItemPrayerTreeBinding.inflate(inflater, parent, false)
-        return RowViewHolder(rowBinding, onSongClick)
-    }
-
-    override fun onBindViewHolder(holder: RowViewHolder, position: Int) {
-        holder.bind(getItem(position))
-    }
-
-    class RowViewHolder(
-        private val binding: ItemPrayerTreeBinding,
-        private val onSongClick: (SongbookEntry) -> Unit
-    ) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(entry: SongbookEntry) {
-            binding.textTreeTitle.text = entry.listLabel()
-            binding.textTreeSubtitle.visibility = View.GONE
-            binding.root.setOnClickListener { onSongClick(entry) }
-            PrayerBookUiTypography.bindSongbookTreeRow(
-                binding,
-                entry,
-                binding.root.context,
-                showImageBadge = entry.showBadge != false
-            )
-            PrayerBookUiTypography.applyPrayerTreeRowTypography(binding, binding.root.context)
-        }
-    }
-
-    private object EntryDiff : DiffUtil.ItemCallback<SongbookEntry>() {
-        override fun areItemsTheSame(a: SongbookEntry, b: SongbookEntry): Boolean = a.id == b.id
-        override fun areContentsTheSame(a: SongbookEntry, b: SongbookEntry): Boolean = a == b
     }
 }
 

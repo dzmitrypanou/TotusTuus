@@ -49,12 +49,12 @@
                 app:tint="?attr/totusColorTextSecondary" />
         </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
+        <LinearLayout
             android:id="@+id/recycler_songbook_section_songs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:overScrollMode="never"
-            android:paddingTop="12dp" />
+            android:orientation="vertical"
+            android:paddingTop="12dp"
+            android:visibility="gone" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
