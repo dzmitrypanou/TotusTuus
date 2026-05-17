@@ -5051,12 +5051,13 @@ function songbookBuildFlatListHtml(sortedEntries) {
         root.innerHTML = `<div class="flex flex-col gap-2">${listBody}</div>`;
     }
 
-function initSongbookDetailImageZoom() {
-        const host = document.querySelector('[data-songbook-zoom-host]');
+function initSongbookDetailImageZoom(hostArg) {
+        const host = hostArg || document.querySelector('[data-songbook-zoom-host]');
         if (!host) return;
         const inner = host.querySelector('.songbook-image-zoom-inner');
         const img = host.querySelector('img');
         if (!inner || !img) return;
+        const fullscreenMode = host.dataset.songbookFullscreen === 'true';
 
         let scale = 1;
         let tx = 0;
@@ -5068,11 +5069,14 @@ function initSongbookDetailImageZoom() {
         let sty = 0;
         let moved = false;
         const DRAG_THRESH = 6;
+        const MIN_SCALE = 0.35;
+        const MAX_SCALE = 5;
+        const WHEEL_ZOOM_STEP = 0.0018;
 
         function apply() {
             inner.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
             inner.style.transformOrigin = 'left top';
-            host.style.cursor = scale > 1.01 ? (drag ? 'grabbing' : 'grab') : 'zoom-in';
+            host.style.cursor = drag ? 'grabbing' : 'grab';
             host.classList.toggle('songbook-image-zoom--scaled', scale > 1.01);
         }
 
@@ -5081,28 +5085,51 @@ function initSongbookDetailImageZoom() {
             const h = host.clientHeight;
             const iw = img.offsetWidth * scale;
             const ih = img.offsetHeight * scale;
-            if (iw <= w) tx = 0;
+            if (iw <= w) tx = (w - iw) / 2;
             else tx = Math.min(0, Math.max(w - iw, tx));
-            if (ih <= h) ty = 0;
+            if (ih <= h) ty = (h - ih) / 2;
             else ty = Math.min(0, Math.max(h - ih, ty));
         }
 
         function onPointerDown(e) {
+            if (e.target.closest('button, [data-action]')) return;
             if (e.pointerType === 'mouse' && e.button !== 0) return;
-            if (scale > 1.01) {
-                drag = true;
-                moved = false;
-                startX = e.clientX;
-                startY = e.clientY;
-                stx = tx;
-                sty = ty;
-                e.preventDefault();
-                try {
-                    host.setPointerCapture(e.pointerId);
-                } catch (_) {
+            if (!fullscreenMode && scale <= 1.01) return;
+            drag = true;
+            moved = false;
+            startX = e.clientX;
+            startY = e.clientY;
+            stx = tx;
+            sty = ty;
+            e.preventDefault();
+            try {
+                host.setPointerCapture(e.pointerId);
+            } catch (_) {
 
-                }
             }
+        }
+
+        function zoomAt(clientX, clientY, nextScale) {
+            nextScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, nextScale));
+            if (Math.abs(nextScale - scale) < 0.001) return;
+            const rect = host.getBoundingClientRect();
+            const px = clientX - rect.left;
+            const py = clientY - rect.top;
+            const contentX = (px - tx) / scale;
+            const contentY = (py - ty) / scale;
+            scale = nextScale;
+            tx = px - contentX * scale;
+            ty = py - contentY * scale;
+            clamp();
+            apply();
+        }
+
+        function onWheel(e) {
+            if (!fullscreenMode) return;
+            if (e.target.closest('button, [data-action]')) return;
+            e.preventDefault();
+            const factor = Math.exp(-e.deltaY * WHEEL_ZOOM_STEP);
+            zoomAt(e.clientX, e.clientY, scale * factor);
         }
 
         function clearBrowserSelection() {
@@ -5119,7 +5146,7 @@ function initSongbookDetailImageZoom() {
             if (Math.abs(dx) > DRAG_THRESH || Math.abs(dy) > DRAG_THRESH) moved = true;
             tx = stx + dx;
             ty = sty + dy;
-            clamp();
+            if (!fullscreenMode) clamp();
             apply();
         }
 
@@ -5135,7 +5162,9 @@ function initSongbookDetailImageZoom() {
             }
         }
 
-        host.addEventListener('click', () => {
+        host.addEventListener('click', (e) => {
+            if (fullscreenMode) return;
+            if (e.target.closest('button, [data-action]')) return;
             if (moved) {
                 moved = false;
                 return;
@@ -5151,6 +5180,7 @@ function initSongbookDetailImageZoom() {
         host.addEventListener('pointermove', onPointerMove);
         host.addEventListener('pointerup', onPointerUp);
         host.addEventListener('pointercancel', onPointerUp);
+        host.addEventListener('wheel', onWheel, { passive: false });
         host.addEventListener(
             'selectstart',
             (e) => {
@@ -5173,43 +5203,50 @@ function initSongbookDetailImageZoom() {
         }
         if (img.complete) {
             requestAnimationFrame(afterLayout);
+            if (fullscreenMode) setTimeout(afterLayout, 80);
         }
-        img.addEventListener('load', () => requestAnimationFrame(afterLayout));
+        img.addEventListener('load', () => {
+            requestAnimationFrame(afterLayout);
+            if (fullscreenMode) setTimeout(afterLayout, 80);
+        });
         apply();
     }
 
     function songbookFullscreenButtonHtml(action, label, iconClass, src) {
         const srcAttr = src ? ` data-image-src="${escapeHtml(src)}"` : '';
-        return `<button type="button" data-action="${action}"${srcAttr} class="absolute right-4 bottom-4 z-20 w-12 h-12 rounded-full bg-slate-900/80 text-white shadow-lg flex items-center justify-center active:scale-95 transition-transform" aria-label="${escapeHtml(label)}"><i class="${iconClass} text-lg" aria-hidden="true"></i></button>`;
+        const themeAdaptiveStyle = 'border-color:rgba(255,255,255,.42);background:rgba(15,23,42,.92);color:#fff;-webkit-text-fill-color:#fff;box-shadow:0 10px 24px rgba(0,0,0,.45);';
+        return `<button type="button" data-action="${action}"${srcAttr} class="songbook-fullscreen-btn" style="position:absolute;right:16px;bottom:16px;z-index:60;width:52px;height:52px;border:1px solid;border-radius:9999px;${themeAdaptiveStyle}display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;touch-action:manipulation;font-size:24px;line-height:1;" aria-label="${escapeHtml(label)}"><i class="${iconClass}" style="font-size:18px;line-height:1;" aria-hidden="true"></i></button>`;
     }
 
     function openSongbookImageFullscreen(src) {
         const url = String(src || '').trim();
         if (!url) return;
         const existing = document.getElementById('songbook-image-fullscreen-overlay');
-        if (existing) existing.remove();
+        if (existing) closeSongbookImageFullscreen();
         const overlay = document.createElement('div');
         overlay.id = 'songbook-image-fullscreen-overlay';
-        overlay.className = 'fixed inset-0 z-[9999] bg-black overflow-hidden';
+        overlay.className = 'bg-white overflow-hidden';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:#fff;overflow:hidden;';
         overlay.innerHTML = `
-            <div class="songbook-image-zoom-host w-screen h-screen overflow-hidden bg-black relative select-none touch-manipulation outline-none focus:outline-none" data-songbook-zoom-host tabindex="-1" aria-label="Выява на ўвесь экран">
+            <div class="songbook-image-zoom-host w-screen h-screen overflow-hidden bg-white relative select-none touch-manipulation outline-none focus:outline-none" data-songbook-zoom-host data-songbook-fullscreen="true" tabindex="-1" aria-label="Выява на ўвесь экран">
                 <div class="songbook-image-zoom-inner inline-block will-change-transform">
-                    <img src="${escapeHtml(url)}" alt="" class="block w-screen h-auto max-w-none pointer-events-none" draggable="false" />
+                    <img src="${escapeHtml(url)}" alt="" class="block max-w-none pointer-events-none" style="max-width:100vw;max-height:100vh;width:auto;height:auto;" draggable="false" />
                 </div>
             </div>
             ${songbookFullscreenButtonHtml('songbook-image-exit-fullscreen', 'Выйсці з поўнаэкраннага рэжыму', 'fas fa-compress')}`;
         document.body.appendChild(overlay);
-        document.documentElement.classList.add('overflow-hidden');
-        document.body.classList.add('overflow-hidden');
-        requestAnimationFrame(() => initSongbookDetailImageZoom());
+        requestAnimationFrame(() => initSongbookDetailImageZoom(overlay.querySelector('[data-songbook-zoom-host]')));
         const exit = overlay.querySelector('[data-action="songbook-image-exit-fullscreen"]');
-        exit?.addEventListener('click', () => closeSongbookImageFullscreen());
+        exit?.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeSongbookImageFullscreen();
+        });
     }
 
     function closeSongbookImageFullscreen() {
-        document.getElementById('songbook-image-fullscreen-overlay')?.remove();
-        document.documentElement.classList.remove('overflow-hidden');
-        document.body.classList.remove('overflow-hidden');
+        const overlay = document.getElementById('songbook-image-fullscreen-overlay');
+        overlay?.remove();
     }
 
     function renderSongbookDetailView(entry) {
