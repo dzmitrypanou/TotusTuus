@@ -57,7 +57,7 @@ object ScriptureVerseFavoritesStore {
             current.removeAt(idx)
             false
         } else {
-            current.add(0, verse)
+            current.add(verse)
             true
         }
         save(context, current)

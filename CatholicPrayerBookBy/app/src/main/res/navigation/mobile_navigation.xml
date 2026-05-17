@@ -225,6 +225,10 @@
         android:name="by.dzmitrypanou.catholicapp.ui.songbook.SongbookBookmarkedFragment"
         tools:label="@string/songbook_bookmarked_title"
         tools:layout="@layout/fragment_songbook_bookmarked">
+        <argument
+            android:name="catalog"
+            android:defaultValue="songbook"
+            app:argType="string" />
         <action
             android:id="@+id/action_nav_songbook_bookmarked_to_nav_songbook_detail"
             app:destination="@id/nav_songbook_detail" />

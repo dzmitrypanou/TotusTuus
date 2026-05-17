@@ -28,5 +28,18 @@
             android:layout_height="match_parent"
             android:contentDescription="@string/songbook_image_content_description"
             android:scaleType="fitCenter" />
+
+        <ImageButton
+            android:id="@+id/button_songbook_image_fullscreen"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:background="@drawable/bg_fullscreen_fab"
+            android:contentDescription="@string/songbook_image_fullscreen_content_description"
+            android:padding="12dp"
+            android:src="@drawable/ic_fullscreen_24"
+            android:tint="@android:color/white"
+            android:visibility="gone" />
     </FrameLayout>
 </FrameLayout>

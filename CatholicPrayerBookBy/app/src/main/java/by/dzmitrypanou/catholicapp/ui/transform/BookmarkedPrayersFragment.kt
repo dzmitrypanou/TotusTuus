@@ -71,7 +71,7 @@ class BookmarkedPrayersFragment : Fragment() {
         val binding = _binding ?: return
         lifecycleScope.launch {
             val repo = PrayerRepository(requireContext())
-            val ids = PrayerBookmarksStore(requireContext()).getBookmarkedIds()
+            val ids = PrayerBookmarksStore(requireContext()).getBookmarkedIdsOrdered()
             val list = repo.getPrayersByIds(ids)
             listAdapter.submitList(list)
             binding.textBookmarkedEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE

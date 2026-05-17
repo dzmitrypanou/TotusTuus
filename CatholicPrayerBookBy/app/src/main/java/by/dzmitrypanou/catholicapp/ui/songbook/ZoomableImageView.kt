@@ -24,6 +24,7 @@ class ZoomableImageView @JvmOverloads constructor(
     private var saveScale = 1f
     private var minScale = 1f
     private var maxScale = 4f
+    private var fitMode = FitMode.FIT_WIDTH
 
     private var viewWidth = 0f
     private var viewHeight = 0f
@@ -39,6 +40,12 @@ class ZoomableImageView @JvmOverloads constructor(
     fun resetZoom() {
         saveScale = 1f
         fitImageToView()
+    }
+
+    fun setFitMode(mode: FitMode) {
+        if (fitMode == mode) return
+        fitMode = mode
+        resetZoom()
     }
 
     override fun setImageDrawable(drawable: Drawable?) {
@@ -60,12 +67,20 @@ private fun fitImageToView() {
         val bmHeight = drawable.intrinsicHeight.toFloat().coerceAtLeast(1f)
 
         matrix.reset()
-        val scale = viewWidth / bmWidth
+        val scale = when (fitMode) {
+            FitMode.FIT_WIDTH -> viewWidth / bmWidth
+            FitMode.FIT_CENTER -> minOf(viewWidth / bmWidth, viewHeight / bmHeight)
+        }
         matrix.postScale(scale, scale)
-        matrix.postTranslate(0f, 0f)
 
         origWidth = bmWidth * scale
         origHeight = bmHeight * scale
+        val dx = if (origWidth < viewWidth) (viewWidth - origWidth) / 2f else 0f
+        val dy = when (fitMode) {
+            FitMode.FIT_WIDTH -> 0f
+            FitMode.FIT_CENTER -> if (origHeight < viewHeight) (viewHeight - origHeight) / 2f else 0f
+        }
+        matrix.postTranslate(dx, dy)
         imageMatrix = matrix
     }
 
@@ -171,5 +186,10 @@ private fun fixTransTopAlignY(trans: Float, viewSize: Float, contentSize: Float)
         const val MODE_NONE = 0
         const val MODE_DRAG = 1
         const val MODE_ZOOM = 2
+    }
+
+    enum class FitMode {
+        FIT_WIDTH,
+        FIT_CENTER
     }
 }

@@ -88,9 +88,7 @@ class SongbookRepository(
 
 fun clearCache() {
         prefs.edit().clear().apply()
-            if (catalog == Catalog.SONGBOOK) {
-                SongbookBookmarksStore(appContext).clearAll()
-            }
+            SongbookBookmarksStore(appContext, catalog).clearAll()
         runCatching {
             mediaDir.listFiles()?.forEach { f ->
                 if (f.isFile) f.delete()
@@ -195,9 +193,7 @@ suspend fun refreshFromApi(
             .putString(KEY_MEDIA_REV, gson.toJson(newRevisions))
             .apply()
 
-        if (catalog == Catalog.SONGBOOK) {
-            SongbookBookmarksStore(appContext).retainOnly(activeIds)
-        }
+        SongbookBookmarksStore(appContext, catalog).retainOnly(activeIds)
         migrateAwayFromLegacyIndexJson()
         SongbookCacheInvalidationNotifier.notifySongbookSyncFinished()
         result.sortedWith(songbookOrderComparator)
@@ -206,10 +202,10 @@ suspend fun refreshFromApi(
 
     fun getEntriesByIds(ids: Collection<String>): List<SongbookEntry> {
         if (ids.isEmpty()) return emptyList()
-        val idSet = ids.toSet()
+        val order = ids.distinct().withIndex().associate { it.value to it.index }
         return getCachedEntries()
-            .filter { it.id in idSet }
-            .sortedWith(songbookOrderComparator)
+            .filter { it.id in order }
+            .sortedBy { order[it.id] ?: Int.MAX_VALUE }
     }
 
     fun getById(id: String): SongbookEntry? =

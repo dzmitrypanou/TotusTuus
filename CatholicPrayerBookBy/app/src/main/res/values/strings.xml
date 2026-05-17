@@ -288,6 +288,8 @@
     <string name="songbook_media_missing">Файл не знойдзены на прыладзе пасля загрузкі. Паспрабуйце яшчэ раз пазней або абнавіце дадзеныя (малітоўнік — «Абнавіць малітвы»). Калі зноў не атрымаецца — магчыма, памылка на серверы або спасылка на файл.</string>
     <string name="songbook_image_decode_error">Не ўдалося паказаць відарыс: файл пашкоджаны або фармат не падтрымліваецца.</string>
     <string name="songbook_image_content_description">Відарыс з спеўніка</string>
+    <string name="songbook_image_fullscreen_content_description">Адкрыць відарыс на ўвесь экран</string>
+    <string name="songbook_image_fullscreen_exit_content_description">Выйсці з поўнаэкраннага рэжыму</string>
     <string name="songbook_load_consent_button">Загрузіць спеўнік</string>
     <string name="songbook_load_progress">Загрузка спеўніка: %1$d / %2$d</string>
     <string name="songbook_update_available_title">Ёсць абнаўленне спеўніка</string>

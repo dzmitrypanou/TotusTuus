@@ -236,11 +236,11 @@ suspend fun refreshPrayers(
 
     fun getPrayersByIds(ids: Collection<Long>): List<Prayer> {
         if (ids.isEmpty()) return emptyList()
-        val idSet = ids.toSet()
+        val order = ids.distinct().withIndex().associate { it.value to it.index }
         return getCachedPrayers()
-            .filter { it.id in idSet }
+            .filter { it.id in order }
             .distinctBy { it.id }
-            .sortedWith(compareBy({ it.sortOrder }, { it.id }))
+            .sortedBy { order[it.id] ?: Int.MAX_VALUE }
     }
 
     private fun computeHash(prayers: List<Prayer>, categories: List<PrayerCategoryMeta> = getCachedCategoryMeta()): String {

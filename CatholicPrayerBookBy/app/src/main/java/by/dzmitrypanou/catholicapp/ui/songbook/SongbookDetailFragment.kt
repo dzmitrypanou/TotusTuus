@@ -3,13 +3,19 @@ package by.dzmitrypanou.catholicapp.ui.songbook
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
+import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import androidx.annotation.ColorInt
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -35,6 +41,9 @@ class SongbookDetailFragment : Fragment() {
     private var lastLoadedBodyPx: Float = Float.NaN
     private var displayedImageBitmap: Bitmap? = null
     private var currentContentType: SongbookContentType? = null
+    private var fullscreenImageOpen: Boolean = false
+    private var fullscreenOverlay: FrameLayout? = null
+    private var previousSystemUiVisibility: Int? = null
     private val catalog: SongbookRepository.Catalog
         get() = if (arguments?.getString("catalog") == "kantaral") {
             SongbookRepository.Catalog.KANTARAL
@@ -51,6 +60,7 @@ class SongbookDetailFragment : Fragment() {
     ): View {
         _binding = FragmentSongbookDetailBinding.inflate(inflater, container, false)
         entryId = arguments?.getString("entryId").orEmpty()
+        fullscreenImageOpen = savedInstanceState?.getBoolean(STATE_FULLSCREEN_IMAGE_OPEN, false) ?: false
         setupWebView()
         return binding.root
     }
@@ -58,6 +68,24 @@ class SongbookDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loadEntry()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(STATE_FULLSCREEN_IMAGE_OPEN, fullscreenImageOpen)
+        super.onSaveInstanceState(outState)
+    }
+
+    fun onHostConfigurationChanged() {
+        binding.imageSongbook.resetZoom()
+        fullscreenOverlay?.let { overlay ->
+            overlay.requestLayout()
+            overlay.post {
+                overlay.findViewWithTag<ZoomableImageView>(FULLSCREEN_IMAGE_TAG)?.resetZoom()
+                overlay.findViewWithTag<ImageButton>(FULLSCREEN_EXIT_BUTTON_TAG)?.layoutParams =
+                    fullscreenExitButtonLayoutParams()
+                applyFullscreenSystemUi()
+            }
+        }
     }
 
     fun reloadBodyForCurrentTextScale() {
@@ -93,7 +121,7 @@ class SongbookDetailFragment : Fragment() {
         bookmarkBtn.isClickable = true
         bookmarkBtn.isFocusable = true
         bookmarkBtn.contentDescription = ctx.getString(R.string.songbook_bookmark_toggle)
-        val store = SongbookBookmarksStore(ctx)
+        val store = SongbookBookmarksStore(ctx, catalog)
         fun updateBookmarkIcon() {
             bookmarkBtn.setImageResource(
                 if (store.isBookmarked(entryId)) R.drawable.ic_bookmark_filled_24
@@ -180,6 +208,7 @@ class SongbookDetailFragment : Fragment() {
     private fun hideAllContent() {
         binding.webSongbookBody.visibility = View.GONE
         binding.scrollSongbookImage.visibility = View.GONE
+        binding.buttonSongbookImageFullscreen.visibility = View.GONE
     }
 
     private fun showText(entry: SongbookEntry) {
@@ -344,8 +373,125 @@ class SongbookDetailFragment : Fragment() {
             return
         }
         binding.scrollSongbookImage.visibility = View.VISIBLE
+        binding.buttonSongbookImageFullscreen.visibility = View.VISIBLE
+        binding.imageSongbook.setFitMode(ZoomableImageView.FitMode.FIT_WIDTH)
         binding.imageSongbook.setImageBitmap(displayedImageBitmap)
+        binding.buttonSongbookImageFullscreen.setOnClickListener {
+            openImageFullscreen()
+        }
+        if (fullscreenImageOpen) {
+            binding.scrollSongbookImage.post {
+                if (_binding != null && displayedImageBitmap != null && fullscreenImageOpen) {
+                    openImageFullscreen()
+                }
+            }
+        }
     }
+
+    private fun openImageFullscreen() {
+        val bitmap = displayedImageBitmap ?: return
+        val ctx = context ?: return
+        fullscreenImageOpen = true
+        fullscreenOverlay?.let {
+            it.findViewWithTag<ZoomableImageView>(FULLSCREEN_IMAGE_TAG)?.resetZoom()
+            return
+        }
+        val parent = activity?.findViewById<ViewGroup>(android.R.id.content) ?: return
+        val root = FrameLayout(ctx).apply {
+            setBackgroundColor(Color.WHITE)
+            isClickable = true
+            fitsSystemWindows = false
+        }
+        val imageView = ZoomableImageView(ctx).apply {
+            tag = FULLSCREEN_IMAGE_TAG
+            setFitMode(ZoomableImageView.FitMode.FIT_WIDTH)
+            setImageDrawable(BitmapDrawable(resources, bitmap))
+            setBackgroundColor(Color.WHITE)
+        }
+        root.addView(
+            imageView,
+            FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        )
+        val exitButton = ImageButton(ctx).apply {
+            tag = FULLSCREEN_EXIT_BUTTON_TAG
+            setImageResource(R.drawable.ic_fullscreen_exit_24)
+            setBackgroundResource(R.drawable.bg_fullscreen_fab)
+            imageTintList = android.content.res.ColorStateList.valueOf(Color.WHITE)
+            contentDescription = getString(R.string.songbook_image_fullscreen_exit_content_description)
+            setPadding(
+                (12f * resources.displayMetrics.density).toInt(),
+                (12f * resources.displayMetrics.density).toInt(),
+                (12f * resources.displayMetrics.density).toInt(),
+                (12f * resources.displayMetrics.density).toInt()
+            )
+            setOnClickListener {
+                closeImageFullscreen()
+            }
+        }
+        root.addView(exitButton, fullscreenExitButtonLayoutParams())
+        parent.addView(
+            root,
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        )
+        fullscreenOverlay = root
+        applyFullscreenSystemUi()
+    }
+
+    private fun closeImageFullscreen() {
+        fullscreenImageOpen = false
+        fullscreenOverlay?.let { overlay ->
+            (overlay.parent as? ViewGroup)?.removeView(overlay)
+        }
+        fullscreenOverlay = null
+        restoreSystemUi()
+    }
+
+    private fun fullscreenExitButtonLayoutParams(): FrameLayout.LayoutParams {
+        val size = (48f * resources.displayMetrics.density).toInt()
+        val margin = (16f * resources.displayMetrics.density).toInt()
+        return FrameLayout.LayoutParams(size, size).apply {
+            gravity = Gravity.BOTTOM or Gravity.END
+            setMargins(margin, margin, margin, margin)
+        }
+    }
+
+    private fun applyFullscreenSystemUi() {
+        val decor = activity?.window?.decorView ?: return
+        if (previousSystemUiVisibility == null) {
+            previousSystemUiVisibility = decor.systemUiVisibility
+        }
+        decor.systemUiVisibility =
+            previousSystemUiVisibility.orZero() or
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            activity?.window?.let { window ->
+                WindowInsetsControllerCompat(window, decor).hide(WindowInsetsCompat.Type.systemBars())
+            }
+        }
+    }
+
+    private fun restoreSystemUi() {
+        val previous = previousSystemUiVisibility ?: return
+        val window = activity?.window
+        window?.decorView?.systemUiVisibility = previous
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && window != null) {
+            WindowInsetsControllerCompat(window, window.decorView).show(WindowInsetsCompat.Type.systemBars())
+        }
+        previousSystemUiVisibility = null
+    }
+
+    private fun Int?.orZero(): Int = this ?: 0
 
     private fun decodeSampledBitmap(path: String, maxSide: Int): Bitmap? {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
@@ -360,6 +506,11 @@ class SongbookDetailFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        fullscreenOverlay?.let { overlay ->
+            (overlay.parent as? ViewGroup)?.removeView(overlay)
+        }
+        fullscreenOverlay = null
+        restoreSystemUi()
         binding.imageSongbook.setImageDrawable(null)
         displayedImageBitmap?.recycle()
         displayedImageBitmap = null
@@ -372,5 +523,11 @@ class SongbookDetailFragment : Fragment() {
         }
         _binding = null
         super.onDestroyView()
+    }
+
+    private companion object {
+        const val STATE_FULLSCREEN_IMAGE_OPEN = "state_fullscreen_image_open"
+        const val FULLSCREEN_IMAGE_TAG = "fullscreen_image"
+        const val FULLSCREEN_EXIT_BUTTON_TAG = "fullscreen_exit_button"
     }
 }

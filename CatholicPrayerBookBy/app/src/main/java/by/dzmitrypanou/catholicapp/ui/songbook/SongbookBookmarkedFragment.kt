@@ -37,6 +37,12 @@ class SongbookBookmarkedFragment : Fragment(), SongbookToolbarActions {
 
     private lateinit var listAdapter: BookmarkedAdapter
     private var toolbarSongbookSyncInProgress: Boolean = false
+    private val catalog: SongbookRepository.Catalog
+        get() = if (arguments?.getString("catalog") == "kantaral") {
+            SongbookRepository.Catalog.KANTARAL
+        } else {
+            SongbookRepository.Catalog.SONGBOOK
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,13 +50,16 @@ class SongbookBookmarkedFragment : Fragment(), SongbookToolbarActions {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSongbookBookmarkedBinding.inflate(inflater, container, false)
-        listAdapter = BookmarkedAdapter { entry ->
+        listAdapter = BookmarkedAdapter(
+            showImageBadge = { catalog != SongbookRepository.Catalog.KANTARAL }
+        ) { entry ->
             findNavController().navigate(
                 R.id.action_nav_songbook_bookmarked_to_nav_songbook_detail,
                 bundleOf(
                     "entryId" to entry.id,
                     "displayTitle" to entry.bookmarkListLabel(),
-                    "displayCategory" to entry.categoryToolbarSubtitle(requireContext())
+                    "displayCategory" to entry.categoryToolbarSubtitle(requireContext()),
+                    "catalog" to if (catalog == SongbookRepository.Catalog.KANTARAL) "kantaral" else "songbook"
                 )
             )
         }
@@ -91,9 +100,10 @@ class SongbookBookmarkedFragment : Fragment(), SongbookToolbarActions {
     private fun loadBookmarked() {
         val b = _binding ?: return
         viewLifecycleOwner.lifecycleScope.launch {
-            val ids = SongbookBookmarksStore(requireContext()).getBookmarkedIds()
+            val selectedCatalog = catalog
+            val ids = SongbookBookmarksStore(requireContext(), selectedCatalog).getBookmarkedIdsOrdered()
             val list = withContext(Dispatchers.IO) {
-                SongbookRepository(requireContext()).getEntriesByIds(ids)
+                SongbookRepository(requireContext(), selectedCatalog).getEntriesByIds(ids)
             }
             listAdapter.submitList(list)
             b.textSongbookBookmarkedEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
@@ -108,7 +118,7 @@ class SongbookBookmarkedFragment : Fragment(), SongbookToolbarActions {
         viewLifecycleOwner.lifecycleScope.launch {
             toolbarSongbookSyncInProgress = true
             requireActivity().invalidateOptionsMenu()
-            val repo = SongbookRepository(requireContext())
+            val repo = SongbookRepository(requireContext(), catalog)
             try {
                 runCatching {
                     repo.refreshFromApi(allowHashShortCircuit = true, allowNetwork = true)
@@ -140,12 +150,13 @@ class SongbookBookmarkedFragment : Fragment(), SongbookToolbarActions {
     }
 
     private class BookmarkedAdapter(
+        private val showImageBadge: () -> Boolean,
         private val onClick: (SongbookEntry) -> Unit
     ) : ListAdapter<SongbookEntry, BookmarkedAdapter.Holder>(Diff) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
             val itemBinding = ItemPrayerTreeBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            return Holder(itemBinding, onClick)
+            return Holder(itemBinding, showImageBadge, onClick)
         }
 
         override fun onBindViewHolder(holder: Holder, position: Int) {
@@ -154,6 +165,7 @@ class SongbookBookmarkedFragment : Fragment(), SongbookToolbarActions {
 
         class Holder(
             private val binding: ItemPrayerTreeBinding,
+            private val showImageBadge: () -> Boolean,
             private val onClick: (SongbookEntry) -> Unit
         ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -161,7 +173,12 @@ class SongbookBookmarkedFragment : Fragment(), SongbookToolbarActions {
                 binding.textTreeTitle.text = entry.bookmarkListLabel()
                 binding.textTreeSubtitle.visibility = View.GONE
                 binding.root.setOnClickListener { onClick(entry) }
-                PrayerBookUiTypography.bindSongbookTreeRow(binding, entry, binding.root.context)
+                PrayerBookUiTypography.bindSongbookTreeRow(
+                    binding,
+                    entry,
+                    binding.root.context,
+                    showImageBadge = showImageBadge()
+                )
             }
         }
 

@@ -3,6 +3,7 @@
 
     const BOOKMARKS_KEY = 'totus_web_prayer_bookmarks';
     const SONGBOOK_BOOKMARKS_KEY = 'totus_web_songbook_bookmarks';
+    const KANTARAL_BOOKMARKS_KEY = 'totus_web_kantaral_bookmarks';
     let currentView = 'home';
     let currentDate = luxon.DateTime.now();
 
@@ -879,36 +880,54 @@ function formatDateDayMonthYearBe(dt) {
         try {
             const raw = localStorage.getItem(BOOKMARKS_KEY);
             const arr = raw ? JSON.parse(raw) : [];
-            return new Set(Array.isArray(arr) ? arr.map(Number) : []);
+            const ids = Array.isArray(arr) ? arr.map(Number).filter(Number.isFinite) : [];
+            if (raw) localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(ids));
+            return new Set(ids);
         } catch {
             return new Set();
         }
+    }
+
+    function getBookmarksOrderedIds() {
+        return [...getBookmarksSet()];
     }
 
     function saveBookmarksSet(set) {
         localStorage.setItem(BOOKMARKS_KEY, JSON.stringify([...set]));
     }
 
-    function getSongbookBookmarksSet() {
+    function songbookBookmarksKey(catalog = getSongbookActiveCatalog()) {
+        return catalog === 'kantaral' ? KANTARAL_BOOKMARKS_KEY : SONGBOOK_BOOKMARKS_KEY;
+    }
+
+    function getSongbookBookmarksSet(catalog = getSongbookActiveCatalog()) {
         try {
-            const raw = localStorage.getItem(SONGBOOK_BOOKMARKS_KEY);
+            const key = songbookBookmarksKey(catalog);
+            const raw = localStorage.getItem(key);
             const arr = raw ? JSON.parse(raw) : [];
-            return new Set(Array.isArray(arr) ? arr.map(Number) : []);
+            const ids = Array.isArray(arr) ? arr.map(Number).filter(Number.isFinite) : [];
+            if (raw) localStorage.setItem(key, JSON.stringify(ids));
+            return new Set(ids);
         } catch {
             return new Set();
         }
     }
 
-    function saveSongbookBookmarksSet(set) {
-        localStorage.setItem(SONGBOOK_BOOKMARKS_KEY, JSON.stringify([...set]));
+    function getSongbookBookmarkOrderedIds(catalog = getSongbookActiveCatalog()) {
+        return [...getSongbookBookmarksSet(catalog)];
+    }
+
+    function saveSongbookBookmarksSet(set, catalog = getSongbookActiveCatalog()) {
+        localStorage.setItem(songbookBookmarksKey(catalog), JSON.stringify([...set]));
     }
 
     function toggleSongbookBookmark(id) {
-        const s = getSongbookBookmarksSet();
+        const catalog = getSongbookActiveCatalog();
+        const s = getSongbookBookmarksSet(catalog);
         const n = Number(id);
         if (s.has(n)) s.delete(n);
         else s.add(n);
-        saveSongbookBookmarksSet(s);
+        saveSongbookBookmarksSet(s, catalog);
         if (isSongbookLikeView() && songbookDetailId != null) {
             syncSongbookDetailToolbarBookmark();
         }
@@ -2925,13 +2944,10 @@ function prayerTreeRowHtml(p) {
         const meta = categoriesCache || [];
 
         if (prayerNav.screen === 'bookmarks_all') {
-            const bm = getBookmarksSet();
-            let rows = prayers.filter((p) => bm.has(Number(p.id)));
-            rows.sort((a, b) => {
-                const s = Number(a.sort_order) - Number(b.sort_order);
-                if (s !== 0) return s;
-                return Number(a.id) - Number(b.id);
-            });
+            const orderedIds = getBookmarksOrderedIds();
+            const bm = new Set(orderedIds);
+            const byId = new Map(prayers.map((p) => [Number(p.id), p]));
+            let rows = orderedIds.map((id) => byId.get(Number(id))).filter(Boolean);
             if (rows.length === 0) {
                 root.innerHTML = `<p class="text-app-textTer text-center py-12 text-sm">${
                     bm.size === 0
@@ -4157,6 +4173,15 @@ const scr = e.target.closest('[data-scripture-action]');
                     if (id) toggleSongbookBookmark(id);
                     return;
                 }
+                if (a === 'songbook-image-open-fullscreen') {
+                    const src = action.dataset.imageSrc || action.closest('[data-songbook-zoom-host]')?.querySelector('img')?.src || '';
+                    openSongbookImageFullscreen(src);
+                    return;
+                }
+                if (a === 'songbook-image-exit-fullscreen') {
+                    closeSongbookImageFullscreen();
+                    return;
+                }
                 if (a === 'nav-up') {
                     e.preventDefault();
                     if (currentView === 'solemnities') {
@@ -4239,7 +4264,8 @@ const scr = e.target.closest('[data-scripture-action]');
                     );
                     if (!ok) return;
                     saveBookmarksSet(new Set());
-                    saveSongbookBookmarksSet(new Set());
+                    saveSongbookBookmarksSet(new Set(), 'songbook');
+                    saveSongbookBookmarksSet(new Set(), 'kantaral');
                     songbookBookmarksOnly = false;
                     if (prayerNav.screen === 'bookmarks_all') {
                         prayerNav = { screen: 'categories' };
@@ -4804,7 +4830,8 @@ function songbookBuildFlatListHtml(sortedEntries) {
         const gapCls = tight ? '' : ' mb-2 last:mb-0';
         const rowLabel = songbookBookmarksOnly ? songbookBookmarkListLabel(item) : songbookListLabel(item);
         const label = escapeHtml(rowLabel);
-        const noteHtml = songbookShouldShowBadge(item)
+        const showBadge = songbookShouldShowBadge(item) && !(songbookBookmarksOnly && getSongbookActiveCatalog() === 'kantaral');
+        const noteHtml = showBadge
             ? `<span class="w-5 h-5 shrink-0 flex items-center justify-center text-app-textSec" aria-label="З нотамі (відарыс)"><i class="fas fa-music text-sm" aria-hidden="true"></i></span>`
             : '';
         if (tight) {
@@ -4845,9 +4872,9 @@ function songbookBuildFlatListHtml(sortedEntries) {
     function songbookEntriesForListView(allEntries) {
         let list = allEntries || [];
         if (songbookBookmarksOnly) {
-            const bm = getSongbookBookmarksSet();
-            list = list.filter((e) => bm.has(Number(e.id)));
-            return sortSongbookWithoutCategory(list);
+            const orderedIds = getSongbookBookmarkOrderedIds();
+            const byId = new Map(list.map((e) => [Number(e.id), e]));
+            return orderedIds.map((id) => byId.get(Number(id))).filter(Boolean);
         }
         return sortSongbookLikeAndroid(list);
     }
@@ -5151,6 +5178,40 @@ function initSongbookDetailImageZoom() {
         apply();
     }
 
+    function songbookFullscreenButtonHtml(action, label, iconClass, src) {
+        const srcAttr = src ? ` data-image-src="${escapeHtml(src)}"` : '';
+        return `<button type="button" data-action="${action}"${srcAttr} class="absolute right-4 bottom-4 z-20 w-12 h-12 rounded-full bg-slate-900/80 text-white shadow-lg flex items-center justify-center active:scale-95 transition-transform" aria-label="${escapeHtml(label)}"><i class="${iconClass} text-lg" aria-hidden="true"></i></button>`;
+    }
+
+    function openSongbookImageFullscreen(src) {
+        const url = String(src || '').trim();
+        if (!url) return;
+        const existing = document.getElementById('songbook-image-fullscreen-overlay');
+        if (existing) existing.remove();
+        const overlay = document.createElement('div');
+        overlay.id = 'songbook-image-fullscreen-overlay';
+        overlay.className = 'fixed inset-0 z-[9999] bg-black overflow-hidden';
+        overlay.innerHTML = `
+            <div class="songbook-image-zoom-host w-screen h-screen overflow-hidden bg-black relative select-none touch-manipulation outline-none focus:outline-none" data-songbook-zoom-host tabindex="-1" aria-label="Выява на ўвесь экран">
+                <div class="songbook-image-zoom-inner inline-block will-change-transform">
+                    <img src="${escapeHtml(url)}" alt="" class="block w-screen h-auto max-w-none pointer-events-none" draggable="false" />
+                </div>
+            </div>
+            ${songbookFullscreenButtonHtml('songbook-image-exit-fullscreen', 'Выйсці з поўнаэкраннага рэжыму', 'fas fa-compress')}`;
+        document.body.appendChild(overlay);
+        document.documentElement.classList.add('overflow-hidden');
+        document.body.classList.add('overflow-hidden');
+        requestAnimationFrame(() => initSongbookDetailImageZoom());
+        const exit = overlay.querySelector('[data-action="songbook-image-exit-fullscreen"]');
+        exit?.addEventListener('click', () => closeSongbookImageFullscreen());
+    }
+
+    function closeSongbookImageFullscreen() {
+        document.getElementById('songbook-image-fullscreen-overlay')?.remove();
+        document.documentElement.classList.remove('overflow-hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+
     function renderSongbookDetailView(entry) {
         const panel = document.getElementById('songbook-detail-panel');
         const b = document.getElementById('songbook-detail-body');
@@ -5174,6 +5235,7 @@ function initSongbookDetailImageZoom() {
                 <div class="songbook-image-zoom-inner inline-block will-change-transform">
                     <img src="${escapeHtml(mediaUrl)}" alt="" class="block w-full h-auto max-w-none pointer-events-none" draggable="false" />
                 </div>
+                ${getSongbookActiveCatalog() === 'kantaral' ? songbookFullscreenButtonHtml('songbook-image-open-fullscreen', 'Адкрыць відарыс на ўвесь экран', 'fas fa-expand', mediaUrl) : ''}
             </div>`;
         } else if (ct === 'audio' && mediaUrl) {
             inner = `<div class="p-4"><div class="rounded-lg bg-app-bg2 p-3"><audio controls class="w-full" src="${escapeHtml(mediaUrl)}">Ваш браўзер не прайграе гук.</audio></div></div>`;
@@ -5844,7 +5906,7 @@ function scriptureWordSearchHitRowHtml(h, re) {
             writeScriptureFavorites(list);
             return false;
         }
-        list.unshift(f);
+        list.push(f);
         writeScriptureFavorites(list);
         return true;
     }

@@ -2,6 +2,7 @@ package by.dzmitrypanou.catholicapp
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
@@ -25,6 +26,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.isVisible
+import androidx.core.os.bundleOf
 import androidx.core.view.updatePadding
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -199,6 +201,16 @@ currentDestinationId = navController.currentDestination?.id ?: R.id.nav_home
     override fun onResume() {
         super.onResume()
         AppFontFamilyStore.applyToViewTree(binding.root, this)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        binding.appBarMain.coordinatorLayout.post {
+            if (isFinishing || isDestroyed) return@post
+            ViewCompat.requestApplyInsets(binding.appBarMain.coordinatorLayout)
+            AppFontFamilyStore.applyToViewTree(binding.root, this)
+            currentSongbookDetailFragment()?.onHostConfigurationChanged()
+        }
     }
 
     override fun onStop() {
@@ -1039,8 +1051,13 @@ private fun createSectionToolbarTitleTextView(@DimenRes textDimen: Int): AppComp
         }
         actionView.findViewById<View>(R.id.button_songbook_bookmarked)?.setOnClickListener {
             runCatching {
-                findNavController(R.id.nav_host_fragment_content_main)
-                    .navigate(R.id.action_global_nav_bookmarked_songs)
+                val catalog = currentSongbookCatalog()
+                findNavController(R.id.nav_host_fragment_content_main).navigate(
+                    R.id.action_global_nav_bookmarked_songs,
+                    bundleOf(
+                        "catalog" to if (catalog == SongbookRepository.Catalog.KANTARAL) "kantaral" else "songbook"
+                    )
+                )
             }
         }
         actionView.findViewById<View>(R.id.button_songbook_search)?.setOnClickListener {
