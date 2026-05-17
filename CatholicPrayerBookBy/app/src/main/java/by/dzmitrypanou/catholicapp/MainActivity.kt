@@ -1,5 +1,6 @@
 package by.dzmitrypanou.catholicapp
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -71,6 +72,10 @@ open class MainActivity : AppCompatActivity() {
     private var defaultToolbarContentInsetStartWithNavigation: Int = -1
     private var defaultToolbarContentInsetEndWithActions: Int = -1
     private var navigationInitialized: Boolean = false
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppFontScale.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val scheme = AppColorSchemeStore.applyActivityTheme(this)

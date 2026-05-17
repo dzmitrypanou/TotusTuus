@@ -1,5 +1,6 @@
 package by.dzmitrypanou.catholicapp.ui.settings
 
+import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -17,6 +18,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
+import by.dzmitrypanou.catholicapp.AppFontScale
 import by.dzmitrypanou.catholicapp.MainActivity
 import by.dzmitrypanou.catholicapp.MainLightActivity
 import by.dzmitrypanou.catholicapp.R
@@ -40,6 +42,10 @@ open class ResetLoadingActivity : AppCompatActivity() {
     private lateinit var textStatus: TextView
     private lateinit var textQuote: TextView
     private lateinit var textQuoteAuthor: TextView
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppFontScale.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
