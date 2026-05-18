@@ -1,7 +1,10 @@
 package by.dzmitrypanou.catholicapp
 
+import android.Manifest
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -16,6 +19,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DimenRes
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +31,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.isVisible
 import androidx.core.os.bundleOf
+import androidx.core.content.ContextCompat
 import androidx.core.view.updatePadding
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -40,6 +45,7 @@ import by.dzmitrypanou.catholicapp.data.AppFontFamilyStore
 import by.dzmitrypanou.catholicapp.data.AppColorSchemeStore
 import by.dzmitrypanou.catholicapp.data.SongbookRepository
 import by.dzmitrypanou.catholicapp.databinding.ActivityMainBinding
+import by.dzmitrypanou.catholicapp.sync.AppUpdateCheckStore
 import by.dzmitrypanou.catholicapp.ui.PrayerBookUiTypography
 import by.dzmitrypanou.catholicapp.ui.ReadingTextScaleToolbar
 import by.dzmitrypanou.catholicapp.ui.liturgy.LiturgyDayFragment
@@ -59,6 +65,7 @@ import by.dzmitrypanou.catholicapp.ui.songbook.SongbookDetailFragment
 import by.dzmitrypanou.catholicapp.ui.songbook.SongbookToolbarActions
 import by.dzmitrypanou.catholicapp.ui.transform.PrayerBookToolbarActions
 import by.dzmitrypanou.catholicapp.ui.transform.PrayerDetailFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 open class MainActivity : AppCompatActivity() {
 
@@ -74,6 +81,11 @@ open class MainActivity : AppCompatActivity() {
     private var defaultToolbarContentInsetStartWithNavigation: Int = -1
     private var defaultToolbarContentInsetEndWithActions: Int = -1
     private var navigationInitialized: Boolean = false
+
+    private val requestNotificationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            AppUpdateCheckStore.markNotificationPermissionPrompted(this)
+        }
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppFontScale.wrap(newBase))
@@ -128,6 +140,32 @@ open class MainActivity : AppCompatActivity() {
             }
         } else {
             consumePrayerRefreshLaunchIntent(intent)
+        }
+        maybeAskNotificationPermissionForAppUpdates()
+    }
+
+    private fun maybeAskNotificationPermissionForAppUpdates() {
+        if (!AppUpdateCheckStore.isEnabled(this)) return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED
+        ) return
+        if (AppUpdateCheckStore.wasNotificationPermissionPrompted(this)) return
+        binding.appBarMain.coordinatorLayout.post {
+            if (isFinishing || isDestroyed) return@post
+            val dialog = MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.app_update_permission_title)
+                .setMessage(R.string.app_update_permission_message)
+                .setPositiveButton(R.string.app_update_permission_positive) { _, _ ->
+                    requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                .setNegativeButton(R.string.app_update_permission_negative) { _, _ ->
+                    AppUpdateCheckStore.markNotificationPermissionPrompted(this)
+                }
+                .show()
+            val buttonColor = themeColor(R.attr.totusColorTextPrimary)
+            dialog.getButton(DialogInterface.BUTTON_POSITIVE)?.setTextColor(buttonColor)
+            dialog.getButton(DialogInterface.BUTTON_NEGATIVE)?.setTextColor(buttonColor)
         }
     }
 

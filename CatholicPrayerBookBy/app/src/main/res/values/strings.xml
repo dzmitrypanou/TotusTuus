@@ -1,5 +1,14 @@
 <resources>
     <string name="app_name">Totus Tuus</string>
+    <string name="app_update_channel_name">Абнаўленні дадатка</string>
+    <string name="app_update_channel_description">Паведамленні пра новыя версіі Totus Tuus</string>
+    <string name="app_update_notification_title">Даступна абнаўленне Totus Tuus</string>
+    <string name="app_update_notification_text">Выйшла новая версія: %1$s. Націсніце, каб адкрыць Google Play.</string>
+    <string name="app_update_notification_action">Абнавіць</string>
+    <string name="app_update_permission_title">Дазволіць апавяшчэнні?</string>
+    <string name="app_update_permission_message">Totus Tuus зможа паведамляць, калі ў Google Play з’явіцца новая версія дадатка.</string>
+    <string name="app_update_permission_positive">Дазволіць</string>
+    <string name="app_update_permission_negative">Не цяпер</string>
     <string name="navigation_drawer_open">Адкрыць меню</string>
     <string name="navigation_drawer_close">Закрыць меню</string>
     <string name="nav_header_title">Totus Tuus</string>
@@ -74,6 +83,9 @@
     <string name="settings_auto_update_section_title">Аўтаматычнае абнаўленне дадзеных</string>
     <string name="settings_auto_update_section_hint">Прадвызначана ўключана: перыядычна ў фоне абнаўляецца кэш з сервера. Калі выключыце згоду, дадатак не правярае сервер у фоне — загрузка па кнопках «Абнавіць малітвы» і «Абнавіць спеўнік»; спіс малітоўніка адлюстроўваецца пры наступным адкрыцці або ўручную.</string>
     <string name="settings_auto_update_checkbox">Згодны на аўтаматычнае абнаўленне</string>
+    <string name="settings_app_update_section_title">Абнаўленні дадатка</string>
+    <string name="settings_app_update_section_hint">Калі ў Google Play з’явіцца новая версія Totus Tuus, дадатак пакажа сістэмнае апавяшчэнне.</string>
+    <string name="settings_app_update_notifications_checkbox">Паведамляць пра новыя версіі</string>
     <string name="settings_data_section_title">Даныя ў браўзеры</string>
     <string name="settings_data_hint">Можна ачысціць лакальна загружаныя малітвы і спеўнік (уключна з файламі). Каб загрузіць зноў: у малітоўніку — «Абнавіць малітвы», у спеўніку — «Абнавіць спеўнік» (калі аўтаабнаўленне выключанае).</string>
     <string name="settings_data_cleared">Дадзеныя ачышчаны. Загрузіце малітвы і спеўнік з сервера праз адпаведныя кнопкі абнаўлення (пры выключаным аўтаабнаўленні) або адкрыйце раздзелы з уключанай згодай.</string>

@@ -14,6 +14,8 @@ import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import androidx.annotation.ColorInt
+import androidx.annotation.Px
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.content.ContextCompat
@@ -43,6 +45,7 @@ class SongbookDetailFragment : Fragment() {
     private var currentContentType: SongbookContentType? = null
     private var fullscreenImageOpen: Boolean = false
     private var fullscreenOverlay: FrameLayout? = null
+    private var fullscreenWindowInsets: WindowInsetsCompat? = null
     private var previousSystemUiVisibility: Int? = null
     private val catalog: SongbookRepository.Catalog
         get() = if (arguments?.getString("catalog") == "kantaral") {
@@ -81,9 +84,13 @@ class SongbookDetailFragment : Fragment() {
             overlay.requestLayout()
             overlay.post {
                 overlay.findViewWithTag<ZoomableImageView>(FULLSCREEN_IMAGE_TAG)?.resetZoom()
-                overlay.findViewWithTag<ImageButton>(FULLSCREEN_EXIT_BUTTON_TAG)?.layoutParams =
-                    fullscreenExitButtonLayoutParams()
+                updateFullscreenExitButtonLayout(overlay)
                 applyFullscreenSystemUi()
+                ViewCompat.requestApplyInsets(overlay)
+                overlay.postDelayed({
+                    updateFullscreenExitButtonLayout(overlay)
+                    ViewCompat.requestApplyInsets(overlay)
+                }, FULLSCREEN_INSETS_REAPPLY_DELAY_MS)
             }
         }
     }
@@ -366,7 +373,7 @@ class SongbookDetailFragment : Fragment() {
         displayedImageBitmap?.recycle()
         displayedImageBitmap = decodeSampledBitmap(
             file.absolutePath,
-            max(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels)
+            minRequiredBitmapSidePx()
         )
         if (displayedImageBitmap == null) {
             showMediaLoadError(getString(R.string.songbook_image_decode_error))
@@ -432,6 +439,11 @@ class SongbookDetailFragment : Fragment() {
             }
         }
         root.addView(exitButton, fullscreenExitButtonLayoutParams())
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            fullscreenWindowInsets = insets
+            updateFullscreenExitButtonLayout(root, insets)
+            insets
+        }
         parent.addView(
             root,
             ViewGroup.LayoutParams(
@@ -441,6 +453,7 @@ class SongbookDetailFragment : Fragment() {
         )
         fullscreenOverlay = root
         applyFullscreenSystemUi()
+        ViewCompat.requestApplyInsets(root)
     }
 
     private fun closeImageFullscreen() {
@@ -449,15 +462,42 @@ class SongbookDetailFragment : Fragment() {
             (overlay.parent as? ViewGroup)?.removeView(overlay)
         }
         fullscreenOverlay = null
+        fullscreenWindowInsets = null
         restoreSystemUi()
     }
 
-    private fun fullscreenExitButtonLayoutParams(): FrameLayout.LayoutParams {
+    private fun updateFullscreenExitButtonLayout(
+        overlay: FrameLayout,
+        insets: WindowInsetsCompat? = fullscreenWindowInsets
+    ) {
+        overlay.findViewWithTag<ImageButton>(FULLSCREEN_EXIT_BUTTON_TAG)?.layoutParams =
+            fullscreenExitButtonLayoutParams(insets)
+    }
+
+    private fun fullscreenExitButtonLayoutParams(
+        insets: WindowInsetsCompat? = null
+    ): FrameLayout.LayoutParams {
         val size = (48f * resources.displayMetrics.density).toInt()
         val margin = (16f * resources.displayMetrics.density).toInt()
+        val landscapeNavFallback = if (resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+            (56f * resources.displayMetrics.density).toInt()
+        } else {
+            0
+        }
+        val systemGestures = insets
+            ?.getInsets(WindowInsetsCompat.Type.systemGestures())
+            ?: androidx.core.graphics.Insets.NONE
+        val systemBars = insets
+            ?.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.systemBars())
+            ?: androidx.core.graphics.Insets.NONE
         return FrameLayout.LayoutParams(size, size).apply {
             gravity = Gravity.BOTTOM or Gravity.END
-            setMargins(margin, margin, margin, margin)
+            setMargins(
+                margin,
+                margin,
+                margin + max(max(systemGestures.right, systemBars.right), landscapeNavFallback),
+                margin + max(systemGestures.bottom, systemBars.bottom)
+            )
         }
     }
 
@@ -493,14 +533,22 @@ class SongbookDetailFragment : Fragment() {
 
     private fun Int?.orZero(): Int = this ?: 0
 
-    private fun decodeSampledBitmap(path: String, maxSide: Int): Bitmap? {
+    @Px
+    private fun minRequiredBitmapSidePx(): Int {
+        val metrics = resources.displayMetrics
+        val maxScreenSide = max(metrics.widthPixels, metrics.heightPixels)
+
+        return (maxScreenSide * IMAGE_DECODE_QUALITY_MULTIPLIER).toInt()
+    }
+
+    private fun decodeSampledBitmap(path: String, @Px minRequiredSidePx: Int): Bitmap? {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeFile(path, bounds)
         var sample = 1
         val w = bounds.outWidth
         val h = bounds.outHeight
         if (w <= 0 || h <= 0) return BitmapFactory.decodeFile(path)
-        while (max(w, h) / sample > maxSide) sample *= 2
+        while (max(w / (sample * 2), h / (sample * 2)) >= minRequiredSidePx) sample *= 2
         val opts = BitmapFactory.Options().apply { inSampleSize = sample }
         return BitmapFactory.decodeFile(path, opts)
     }
@@ -510,6 +558,7 @@ class SongbookDetailFragment : Fragment() {
             (overlay.parent as? ViewGroup)?.removeView(overlay)
         }
         fullscreenOverlay = null
+        fullscreenWindowInsets = null
         restoreSystemUi()
         binding.imageSongbook.setImageDrawable(null)
         displayedImageBitmap?.recycle()
@@ -529,5 +578,7 @@ class SongbookDetailFragment : Fragment() {
         const val STATE_FULLSCREEN_IMAGE_OPEN = "state_fullscreen_image_open"
         const val FULLSCREEN_IMAGE_TAG = "fullscreen_image"
         const val FULLSCREEN_EXIT_BUTTON_TAG = "fullscreen_exit_button"
+        const val FULLSCREEN_INSETS_REAPPLY_DELAY_MS = 120L
+        const val IMAGE_DECODE_QUALITY_MULTIPLIER = 3f
     }
 }

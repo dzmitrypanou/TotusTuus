@@ -4,6 +4,9 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface PrayerApiService {
+    @GET("app_version.php")
+    suspend fun getAppVersion(): AppVersionDto
+
     @GET("prayers_hash.php")
     suspend fun getPrayersContentHash(): PrayersHashDto
 

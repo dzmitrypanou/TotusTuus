@@ -16,6 +16,9 @@ import kotlin.math.roundToInt
 
 object PrayerBookUiTypography {
 
+    fun currentUiSignature(context: Context): String =
+        AppFontFamilyStore.readFamily(context).storageKey
+
     fun applyPrayerTreeRowTypography(binding: ItemPrayerTreeBinding, context: Context) {
         applyUiSp(binding.textTreeTitle, R.dimen.text_list_row_title, context)
         applyUiSp(binding.textTreeSubtitle, R.dimen.text_list_row_subtitle, context)

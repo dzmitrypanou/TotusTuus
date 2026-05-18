@@ -16,10 +16,13 @@ object SyncScheduler {
     private const val PERIODIC_SYNC_WORK = "prayer_periodic_sync"
     private const val INITIAL_SYNC_WORK = "prayer_initial_sync"
     private const val ONE_SHOT_CHECK = "prayer_update_check_once"
+    private const val APP_UPDATE_PERIODIC_WORK = "app_update_periodic_check"
+    private const val APP_UPDATE_ONE_SHOT_WORK = "app_update_check_once"
 
-fun applyConsent(context: Context) {
+    fun applyConsent(context: Context) {
         val app = context.applicationContext
         val wm = WorkManager.getInstance(app)
+        scheduleAppUpdateChecks(app, wm)
         if (!PrayerAutoUpdateConsentStore.isGranted(app)) {
             wm.cancelUniqueWork(PERIODIC_SYNC_WORK)
             wm.cancelUniqueWork(INITIAL_SYNC_WORK)
@@ -46,6 +49,30 @@ fun applyConsent(context: Context) {
         wm.enqueueUniqueWork(
             ONE_SHOT_CHECK,
             ExistingWorkPolicy.REPLACE,
+            once
+        )
+    }
+
+    private fun scheduleAppUpdateChecks(app: Context, wm: WorkManager) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val periodic = PeriodicWorkRequestBuilder<AppUpdateCheckWorker>(12, TimeUnit.HOURS)
+            .setConstraints(constraints)
+            .build()
+        wm.enqueueUniquePeriodicWork(
+            APP_UPDATE_PERIODIC_WORK,
+            ExistingPeriodicWorkPolicy.UPDATE,
+            periodic
+        )
+
+        val once = OneTimeWorkRequestBuilder<AppUpdateCheckWorker>()
+            .setConstraints(constraints)
+            .build()
+        wm.enqueueUniqueWork(
+            APP_UPDATE_ONE_SHOT_WORK,
+            ExistingWorkPolicy.KEEP,
             once
         )
     }

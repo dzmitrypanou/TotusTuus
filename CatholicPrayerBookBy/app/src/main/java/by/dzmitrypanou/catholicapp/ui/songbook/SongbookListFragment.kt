@@ -43,6 +43,7 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
     private var kantaralLoaderShownAtMs: Long = 0L
     private var songbookSyncJob: Job? = null
     private var lastSongbookCacheGeneration: Long = Long.MIN_VALUE
+    private var lastAppliedUiSignature: String? = null
     private val catalog: SongbookRepository.Catalog
         get() = if (arguments?.getString("catalog") == "kantaral") {
             SongbookRepository.Catalog.KANTARAL
@@ -137,9 +138,18 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
             R.dimen.text_list_row_title,
             requireContext()
         )
-        if (::categoriesAdapter.isInitialized) {
+        if (::categoriesAdapter.isInitialized && consumeUiSignatureChanged()) {
             categoriesAdapter.notifyDataSetChanged()
         }
+    }
+
+    private fun consumeUiSignatureChanged(): Boolean {
+        val ctx = context ?: return false
+        val signature = PrayerBookUiTypography.currentUiSignature(ctx)
+        if (signature == lastAppliedUiSignature) return false
+
+        lastAppliedUiSignature = signature
+        return true
     }
 
     override fun onStop() {
@@ -149,7 +159,6 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
             toolbarSongbookSyncInProgress = false
             songbookListSyncBlockingUi = false
             kantaralSyncProgress = null
-            if (_binding != null) refreshListUi()
             if (isAdded) requireActivity().invalidateOptionsMenu()
         }
         super.onStop()
@@ -358,9 +367,6 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
 
     private fun updateKantaralProgress(progress: SongbookRepository.SyncProgress) {
         if (catalog != SongbookRepository.Catalog.KANTARAL) return
-        if (allEntries.isNotEmpty() && progress.done <= 0) {
-            songbookListSyncBlockingUi = true
-        }
         if (!songbookListSyncBlockingUi) return
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main.immediate) {
             if (_binding == null || !isAdded) return@launch

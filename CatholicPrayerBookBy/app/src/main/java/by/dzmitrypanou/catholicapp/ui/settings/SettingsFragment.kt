@@ -17,6 +17,7 @@ import by.dzmitrypanou.catholicapp.data.AppColorSchemeStore
 import by.dzmitrypanou.catholicapp.data.AppFontFamilyStore
 import by.dzmitrypanou.catholicapp.data.AppGlobalTextScaleStore
 import by.dzmitrypanou.catholicapp.databinding.FragmentSettingsBinding
+import by.dzmitrypanou.catholicapp.sync.AppUpdateCheckStore
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -58,6 +59,7 @@ class SettingsFragment : Fragment() {
         }
         bindFontFamilySelector()
         bindColorSchemeSwitcher()
+        bindAppUpdateNotificationsToggle()
         settingsViewModel.message.observe(viewLifecycleOwner) {
             binding.textSettingsStatus.text = it
         }
@@ -76,6 +78,16 @@ class SettingsFragment : Fragment() {
         applyGlobalPreview()
         bindFontFamilySelector()
         bindColorSchemeSwitcher()
+        bindAppUpdateNotificationsToggle()
+    }
+
+    private fun bindAppUpdateNotificationsToggle() {
+        val ctx = requireContext()
+        binding.checkboxAppUpdateNotifications.setOnCheckedChangeListener(null)
+        binding.checkboxAppUpdateNotifications.isChecked = AppUpdateCheckStore.isEnabled(ctx)
+        binding.checkboxAppUpdateNotifications.setOnCheckedChangeListener { _, checked ->
+            AppUpdateCheckStore.setEnabled(ctx, checked)
+        }
     }
 
     private fun applyGlobalPreview() {

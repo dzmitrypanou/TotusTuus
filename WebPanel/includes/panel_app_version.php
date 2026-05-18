@@ -10,6 +10,9 @@ function panel_totus_app_version(): array
     $path = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'totus-app-version.properties';
     $name = '0';
     $code = 0;
+    $playStoreUrl = 'https://play.google.com/store/apps/details?id=by.totustuus.app';
+    $updateRequired = false;
+    $updateMessage = '';
     if (is_readable($path)) {
         $lines = @file($path, FILE_IGNORE_NEW_LINES) ?: [];
         foreach ($lines as $line) {
@@ -27,10 +30,22 @@ function panel_totus_app_version(): array
                 $name = $v;
             } elseif ($k === 'versionCode' && $v !== '') {
                 $code = (int)$v;
+            } elseif ($k === 'playStoreUrl' && $v !== '') {
+                $playStoreUrl = $v;
+            } elseif ($k === 'updateRequired' && $v !== '') {
+                $updateRequired = in_array(strtolower($v), ['1', 'true', 'yes', 'on'], true);
+            } elseif ($k === 'updateMessage' && $v !== '') {
+                $updateMessage = $v;
             }
         }
     }
-    $cache = ['name' => $name, 'code' => $code];
+    $cache = [
+        'name' => $name,
+        'code' => $code,
+        'playStoreUrl' => $playStoreUrl,
+        'updateRequired' => $updateRequired,
+        'updateMessage' => $updateMessage,
+    ];
 
     return $cache;
 }

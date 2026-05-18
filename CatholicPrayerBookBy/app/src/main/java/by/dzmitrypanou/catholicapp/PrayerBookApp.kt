@@ -1,6 +1,7 @@
 package by.dzmitrypanou.catholicapp
 
 import android.app.Application
+import by.dzmitrypanou.catholicapp.sync.AppUpdateNotificationHelper
 import by.dzmitrypanou.catholicapp.sync.SyncScheduler
 import by.dzmitrypanou.catholicapp.ui.liturgy.LiturgyCalendarRepository
 import by.dzmitrypanou.catholicapp.ui.scripture.ReadingPlanNotificationHelper
@@ -16,6 +17,7 @@ class PrayerBookApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        AppUpdateNotificationHelper.ensureChannel(this)
         ReadingPlanNotificationHelper.ensureChannel(this)
         SyncScheduler.applyConsent(applicationContext)
         if (ScriptureReadingPlanActivationStore.shouldScheduleReminders(this)) {
