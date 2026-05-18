@@ -5068,10 +5068,18 @@ function initSongbookDetailImageZoom(hostArg) {
         let stx = 0;
         let sty = 0;
         let moved = false;
+        const pointers = new Map();
+        let pinchStartDistance = 0;
+        let pinchStartScale = 1;
         const DRAG_THRESH = 6;
-        const MIN_SCALE = 0.35;
-        const MAX_SCALE = 5;
+        const MIN_SCALE = 1;
+        const MAX_SCALE = fullscreenMode ? 6 : 5;
         const WHEEL_ZOOM_STEP = 0.0018;
+
+        if (fullscreenMode) {
+            host.style.touchAction = 'none';
+            host.style.overscrollBehavior = 'contain';
+        }
 
         function apply() {
             inner.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
@@ -5091,10 +5099,34 @@ function initSongbookDetailImageZoom(hostArg) {
             else ty = Math.min(0, Math.max(h - ih, ty));
         }
 
+        function pointerDistance(a, b) {
+            return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        }
+
+        function pointerMidpoint(a, b) {
+            return {
+                clientX: (a.clientX + b.clientX) / 2,
+                clientY: (a.clientY + b.clientY) / 2,
+            };
+        }
+
+        function resetPinchState() {
+            if (pointers.size === 2) {
+                const pts = Array.from(pointers.values());
+                pinchStartDistance = pointerDistance(pts[0], pts[1]);
+                pinchStartScale = scale;
+            } else {
+                pinchStartDistance = 0;
+                pinchStartScale = scale;
+            }
+        }
+
         function onPointerDown(e) {
             if (e.target.closest('button, [data-action]')) return;
             if (e.pointerType === 'mouse' && e.button !== 0) return;
             if (!fullscreenMode && scale <= 1.01) return;
+            pointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
+            resetPinchState();
             drag = true;
             moved = false;
             startX = e.clientX;
@@ -5141,16 +5173,31 @@ function initSongbookDetailImageZoom(hostArg) {
             if (!drag) return;
             e.preventDefault();
             clearBrowserSelection();
+            if (pointers.has(e.pointerId)) {
+                pointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
+            }
+            if (fullscreenMode && pointers.size >= 2) {
+                const pts = Array.from(pointers.values()).slice(0, 2);
+                const distance = pointerDistance(pts[0], pts[1]);
+                if (pinchStartDistance > 0 && distance > 0) {
+                    const mid = pointerMidpoint(pts[0], pts[1]);
+                    zoomAt(mid.clientX, mid.clientY, pinchStartScale * (distance / pinchStartDistance));
+                    moved = true;
+                }
+                return;
+            }
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
             if (Math.abs(dx) > DRAG_THRESH || Math.abs(dy) > DRAG_THRESH) moved = true;
             tx = stx + dx;
             ty = sty + dy;
-            if (!fullscreenMode) clamp();
+            clamp();
             apply();
         }
 
         function onPointerUp(e) {
+            pointers.delete(e.pointerId);
+            resetPinchState();
             if (drag) {
                 drag = false;
                 clearBrowserSelection();
@@ -5198,6 +5245,11 @@ function initSongbookDetailImageZoom(hostArg) {
         img.addEventListener('dragstart', (e) => e.preventDefault());
 
         function afterLayout() {
+            if (fullscreenMode) {
+                scale = 1;
+                tx = 0;
+                ty = 0;
+            }
             clamp();
             apply();
         }
@@ -5228,9 +5280,9 @@ function initSongbookDetailImageZoom(hostArg) {
         overlay.className = 'bg-white overflow-hidden';
         overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:#fff;overflow:hidden;';
         overlay.innerHTML = `
-            <div class="songbook-image-zoom-host w-screen h-screen overflow-hidden bg-white relative select-none touch-manipulation outline-none focus:outline-none" data-songbook-zoom-host data-songbook-fullscreen="true" tabindex="-1" aria-label="Выява на ўвесь экран">
+            <div class="songbook-image-zoom-host w-screen h-screen overflow-hidden bg-white relative select-none outline-none focus:outline-none" data-songbook-zoom-host data-songbook-fullscreen="true" tabindex="-1" aria-label="Выява на ўвесь экран">
                 <div class="songbook-image-zoom-inner inline-block will-change-transform">
-                    <img src="${escapeHtml(url)}" alt="" class="block max-w-none pointer-events-none" style="max-width:100vw;max-height:100vh;width:auto;height:auto;" draggable="false" />
+                    <img src="${escapeHtml(url)}" alt="" class="block max-w-none pointer-events-none" style="width:100vw;height:auto;max-width:none;max-height:none;" draggable="false" />
                 </div>
             </div>
             ${songbookFullscreenButtonHtml('songbook-image-exit-fullscreen', 'Выйсці з поўнаэкраннага рэжыму', 'fas fa-compress')}`;
