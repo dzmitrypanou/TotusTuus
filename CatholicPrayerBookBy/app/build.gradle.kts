@@ -29,7 +29,11 @@ val totusPublicApiKey: String = totusPublicApiKeyRaw
 
 android {
     namespace = "by.dzmitrypanou.catholicapp"
-    compileSdk = 36
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         applicationId = "by.totustuus.app"
