@@ -150,6 +150,7 @@ function totusAssetUrl(relativePath) {
                 ? String(window.TOTUS_WEB_APP_BUILD)
                 : '';
         if (!relativePath) return relativePath;
+        if (window.location.protocol === 'file:') return relativePath;
         try {
             const u = new URL(relativePath, window.location.href);
             if (v) u.searchParams.set('v', v);
@@ -6483,7 +6484,7 @@ async function ensureScriptureTranslationsList() {
                 '<div class="h-full min-h-0 overflow-y-auto overscroll-y-contain"><div class="p-8 max-w-lg mx-auto text-center text-red-300 text-sm">Не загрузілася бібліятэка дат Luxon (патрэбна падлучэнне да інтэрнэту для загрузкі з сервера). Паспрабуйце абнавіць старонку.</div></div>';
             return;
         }
-        if (window.location.protocol === 'file:') {
+        if (window.location.protocol === 'file:' && !/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
             app.innerHTML = `
             <div class="h-full min-h-0 overflow-y-auto overscroll-y-contain flex items-center justify-center p-6 bg-amber-50">
               <div class="max-w-xl bg-white border border-amber-200 rounded-2xl p-8 shadow-lg text-stone-800 text-sm leading-relaxed">
