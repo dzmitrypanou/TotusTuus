@@ -409,6 +409,9 @@ const SCRIPTURE_TR_SHORT = {
     let ordoMissaeSearchDebounceTimer = null;
     let ordoMissaeSearchResults = [];
     let ordoMissaeSearchIndex = -1;
+    let ordoMissaeCache = null;
+
+    const ORDO_MISSAE_CACHE_KEY = 'totus_ordo_missae_cache_v1';
 
 let scriptureTranslationsList = null;
 
@@ -581,6 +584,51 @@ const apiFetchInflight = new Map();
 
         apiFetchInflight.set(url, promise);
         return promise;
+    }
+
+    function readOrdoMissaeCache() {
+        if (ordoMissaeCache) return ordoMissaeCache;
+        try {
+            const raw = localStorage.getItem(ORDO_MISSAE_CACHE_KEY);
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            if (!data || typeof data !== 'object') return null;
+            const html = String(data.html || '').trim();
+            if (!html) return null;
+            ordoMissaeCache = { html, updated_at: String(data.updated_at || '') };
+            return ordoMissaeCache;
+        } catch {
+            return null;
+        }
+    }
+
+    function writeOrdoMissaeCache(data) {
+        const html = String(data && data.html ? data.html : '').trim();
+        if (!html) return;
+        const item = {
+            html,
+            updated_at: String((data && data.updated_at) || ''),
+            cached_at: new Date().toISOString(),
+        };
+        ordoMissaeCache = item;
+        try {
+            localStorage.setItem(ORDO_MISSAE_CACHE_KEY, JSON.stringify(item));
+        } catch {
+
+        }
+    }
+
+    async function fetchOrdoMissaeVersion() {
+        if (totusIsLocalIosBundle()) return null;
+        const res = await apiFetch('ordo_missae_version.php');
+        if (!res.ok || res.data?.error) return null;
+        return String(res.data?.updated_at || '');
+    }
+
+    async function fetchAndCacheOrdoMissae() {
+        const res = await apiFetch('ordo_missae.php');
+        if (res.ok && !res.data?.error) writeOrdoMissaeCache(res.data);
+        return res;
     }
 
     function escapeHtml(s) {
@@ -3497,6 +3545,7 @@ function ordoMissaeApplyFoldMemory(hostEl, rawOriginal) {
     async function hydrateOrdoMissae() {
         const root = document.getElementById('ordo-missae-root');
         if (!root || currentView !== 'ordo-missae') return;
+        const startedView = currentView;
         const shellMin = 'min-h-[min(70dvh,640px)]';
         if (!isApiConfigured()) {
             root.innerHTML = `<div class="${shellMin}">${configBannerHtml()}</div>`;
@@ -3513,6 +3562,7 @@ function ordoMissaeApplyFoldMemory(hostEl, rawOriginal) {
         if (!res) {
             res = await fetchAndCacheOrdoMissae();
         }
+        if (currentView !== startedView) return;
         if (!res.ok || res.data.error) {
             if (cached) {
                 res = { ok: true, status: 200, data: cached };
