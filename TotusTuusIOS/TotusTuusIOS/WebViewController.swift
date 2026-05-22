@@ -56,21 +56,6 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
             let color = Self.color(fromHexString: result as? String) ?? self.fallbackBackgroundColor
             self.view.backgroundColor = color
         }
-        webView.evaluateJavaScript("window.totusCurrentTheme && window.totusCurrentTheme()") { result, _ in
-            let theme = (result as? String) == "beige" ? "beige" : "current"
-            Self.updateAppIcon(for: theme)
-        }
-    }
-
-    private static func updateAppIcon(for theme: String) {
-        guard UIApplication.shared.supportsAlternateIcons else { return }
-        let desiredIconName = theme == "beige" ? "AppIconLight" : "AppIconDark"
-        guard UIApplication.shared.alternateIconName != desiredIconName else { return }
-        UIApplication.shared.setAlternateIconName(desiredIconName) { error in
-            if let error {
-                NSLog("Failed to update app icon: \(error.localizedDescription)")
-            }
-        }
     }
 
     private static func color(fromHexString value: String?) -> UIColor? {

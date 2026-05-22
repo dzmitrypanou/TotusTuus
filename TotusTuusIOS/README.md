@@ -42,7 +42,7 @@ Documents/
 1. Open `TotusTuusIOS/TotusTuusIOS.xcodeproj` in Xcode.
 2. Select the `TotusTuusIOS` target.
 3. Set your Apple Team in `Signing & Capabilities`.
-4. If needed, change the bundle identifier from `by.dzmitrypanou.totustuus` to your registered identifier.
+4. The bundle identifier is `by.totustuus.app`.
 5. If Xcode was already open before copying the corrected project, close Xcode, reopen the project, then run `Product > Clean Build Folder`.
 6. Run on an iPhone simulator or device.
 7. For distribution, use `Product > Archive` in Xcode.

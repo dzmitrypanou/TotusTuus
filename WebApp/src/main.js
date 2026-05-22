@@ -626,7 +626,7 @@ const apiFetchInflight = new Map();
     }
 
     async function fetchAndCacheOrdoMissae() {
-        const res = await apiFetch('ordo_missae.php');
+        const res = await apiFetch('ordo_missae.php', { _: Date.now() });
         if (res.ok && !res.data?.error) writeOrdoMissaeCache(res.data);
         return res;
     }
