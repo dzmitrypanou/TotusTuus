@@ -87,7 +87,7 @@ final class TotusWebSchemeHandler: NSObject, WKURLSchemeHandler {
 
     func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
         guard let url = urlSchemeTask.request.url else {
-            fail(urlSchemeTask, code: .badURL)
+            fail(urlSchemeTask, code: NSURLErrorBadURL)
             return
         }
 
@@ -103,7 +103,7 @@ final class TotusWebSchemeHandler: NSObject, WKURLSchemeHandler {
         }
 
         guard let resourceURL = bundledWebAppURL(for: requestPath) else {
-            fail(urlSchemeTask, code: .fileDoesNotExist)
+            fail(urlSchemeTask, code: NSURLErrorFileDoesNotExist)
             return
         }
 
@@ -151,8 +151,8 @@ final class TotusWebSchemeHandler: NSObject, WKURLSchemeHandler {
         task.didFinish()
     }
 
-    private func fail(_ task: WKURLSchemeTask, code: CocoaError.Code) {
-        task.didFailWithError(CocoaError(code))
+    private func fail(_ task: WKURLSchemeTask, code: Int) {
+        task.didFailWithError(NSError(domain: NSURLErrorDomain, code: code))
     }
 
     private func mimeType(for ext: String) -> String {

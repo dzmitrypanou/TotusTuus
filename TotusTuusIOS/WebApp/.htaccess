@@ -1,0 +1,44 @@
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+</IfModule>
+
+<IfModule mod_authz_core.c>
+    <FilesMatch "^\.">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    RewriteRule ^privacy-policy/$ /privacy-policy [R=301,L]
+    RewriteRule ^privacy-policy$ /privacy-policy.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(html|htm)$">
+        Header set Cache-Control "no-cache, must-revalidate"
+    </FilesMatch>
+
+    SetEnvIf Request_URI "^/assets/" TOTUS_LONG_CACHE
+    SetEnvIf Request_URI "^/src/" TOTUS_LONG_CACHE
+    SetEnvIf Request_URI "^/api-config\.js$" TOTUS_LONG_CACHE
+
+    SetEnvIf Request_URI "/tailwind-config\.js$" TOTUS_SHORT_JS
+    SetEnvIf Request_URI "/totus-boot\.js$" TOTUS_SHORT_JS
+
+    Header set Cache-Control "public, max-age=31536000, immutable" env=TOTUS_LONG_CACHE
+    Header set Cache-Control "public, max-age=7200, must-revalidate" env=TOTUS_SHORT_JS
+
+    <Files "favicon.png">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </Files>
+    <Files "favicon.svg">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </Files>
+</IfModule>
