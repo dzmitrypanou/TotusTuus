@@ -80,6 +80,14 @@ const HOME_CARDS = [
     const SCRIPTURE_BUNDLE_BASE = 'assets/scripture';
     const SCRIPTURE_DEFAULT_TR = 'catholic_nt';
 
+function totusIsLocalIosBundle() {
+        return window.location.protocol === 'totusapp:';
+    }
+
+function totusFetchResponseOk(response) {
+        return !!response && (response.ok || (totusIsLocalIosBundle() && response.status === 0));
+    }
+
     const SCRIPTURE_TRANSLATION_ORDER = [
         'catholic_nt',
         'bokun',
@@ -101,7 +109,12 @@ function totusHomeCardWebpPath(rasterPath) {
         return s.replace(/\.(jpe?g|png)$/i, '.webp');
     }
 
+function totusShouldUseWebpImages() {
+        return !totusIsLocalIosBundle();
+    }
+
 function homeCardWebpSrcset(rasterPath, span) {
+        if (!totusShouldUseWebpImages()) return '';
         if (!rasterPath) return '';
         const s = String(rasterPath);
         if (s === 'assets/home/ordo_missae_header_image.jpg' || s === 'assets/home/kantaral_header_image.jpg') return '';
@@ -545,9 +558,6 @@ const apiFetchInflight = new Map();
         const promise = (async () => {
             try {
                 const fetchOpts = { method: 'GET', headers };
-                if (scriptName === 'ordo_missae.php') {
-                    fetchOpts.cache = 'no-store';
-                }
                 const res = await fetch(url, fetchOpts);
                 const text = await res.text();
                 let data;
@@ -840,8 +850,21 @@ function resetTextAndFontToDefaults() {
     }
 
     function applyAppTheme() {
-        document.documentElement.setAttribute('data-app-theme', readAppTheme());
+        const theme = readAppTheme();
+        document.documentElement.setAttribute('data-app-theme', theme);
+        const bg = theme === 'beige' ? '#efe7da' : '#0E1020';
+        document.documentElement.style.backgroundColor = bg;
+        document.body.style.backgroundColor = bg;
+        document.documentElement.style.colorScheme = theme === 'beige' ? 'light' : 'dark';
     }
+
+    window.totusNativeBackgroundColor = function () {
+        return readAppTheme() === 'beige' ? '#efe7da' : '#0E1020';
+    };
+
+    window.totusCurrentTheme = function () {
+        return readAppTheme();
+    };
 
 function applyFontFamily() {
         const fam = readFontFamily();
@@ -3479,14 +3502,28 @@ function ordoMissaeApplyFoldMemory(hostEl, rawOriginal) {
             root.innerHTML = `<div class="${shellMin}">${configBannerHtml()}</div>`;
             return;
         }
-        const res = await apiFetch('ordo_missae.php', { _: Date.now() });
+        const cached = readOrdoMissaeCache();
+        let res = null;
+        if (cached && String(cached.updated_at || '')) {
+            const serverVersion = await fetchOrdoMissaeVersion();
+            if (serverVersion !== null && serverVersion === String(cached.updated_at || '')) {
+                res = { ok: true, status: 200, data: cached };
+            }
+        }
+        if (!res) {
+            res = await fetchAndCacheOrdoMissae();
+        }
         if (!res.ok || res.data.error) {
-            const { apiBaseUrl } = getApiConfig();
-            const isNet = res.status === 0 || res.data.error === 'network_error';
-            const hint = isNet ? apiNetworkFailureHint(apiBaseUrl) : '';
-            const msg = res.data.message || res.data.error || 'Памылка загрузкі';
-            root.innerHTML = `<div class="${shellMin} bg-red-950/40 border border-red-500/30 text-app-error rounded-md text-sm p-4">${escapeHtml(msg)}${hint}</div>`;
-            return;
+            if (cached) {
+                res = { ok: true, status: 200, data: cached };
+            } else {
+                const { apiBaseUrl } = getApiConfig();
+                const isNet = res.status === 0 || res.data.error === 'network_error';
+                const hint = isNet ? apiNetworkFailureHint(apiBaseUrl) : '';
+                const msg = res.data.message || res.data.error || 'Памылка загрузкі';
+                root.innerHTML = `<div class="${shellMin} bg-red-950/40 border border-red-500/30 text-app-error rounded-md text-sm p-4">${escapeHtml(msg)}${hint}</div>`;
+                return;
+            }
         }
         let raw = String(res.data.html ?? '').trim();
         raw = stripOrdoDetailsOpenFromHtml(raw);
@@ -5566,7 +5603,7 @@ function normalizeScriptureCatalogDescription(s) {
                 try {
                     const url = totusAssetUrl(`${SCRIPTURE_BUNDLE_BASE}/scripture_catalog.json`);
                     const r = await fetch(url);
-                    if (r.ok) {
+                    if (totusFetchResponseOk(r)) {
                         const arr = await r.json();
                         if (Array.isArray(arr)) {
                             for (const e of arr) {
@@ -6111,7 +6148,7 @@ function scriptureWordSearchHitRowHtml(h, re) {
             try {
                 const url = totusAssetUrl(`${SCRIPTURE_BUNDLE_BASE}/${id}.json`);
                 const r = await fetch(url);
-                if (!r.ok) {
+                if (!totusFetchResponseOk(r)) {
                     scriptureJsonCache.set(id, null);
                     return null;
                 }
@@ -6142,7 +6179,7 @@ function scriptureWordSearchHitRowHtml(h, re) {
                 try {
                     const url = totusAssetUrl(`${SCRIPTURE_BUNDLE_BASE}/bundled_translations.json`);
                     const r = await fetch(url);
-                    if (r.ok) {
+                    if (totusFetchResponseOk(r)) {
                         const arr = await r.json();
                         if (Array.isArray(arr) && arr.length > 0) {
                             scriptureBundledIds = arr.map((x) => String(x)).filter(Boolean);

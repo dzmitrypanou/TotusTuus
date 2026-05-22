@@ -4,10 +4,11 @@ import WebKit
 final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
     private lazy var schemeHandler = TotusWebSchemeHandler()
     private var webView: WKWebView!
+    private let fallbackBackgroundColor = UIColor(red: 0.055, green: 0.063, blue: 0.125, alpha: 1.0)
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 0.055, green: 0.063, blue: 0.125, alpha: 1.0)
+        view.backgroundColor = fallbackBackgroundColor
 
         let configuration = WKWebViewConfiguration()
         configuration.setURLSchemeHandler(schemeHandler, forURLScheme: TotusWebSchemeHandler.scheme)
@@ -22,8 +23,8 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
         webView.navigationDelegate = self
         webView.uiDelegate = self
         webView.isOpaque = false
-        webView.backgroundColor = view.backgroundColor
-        webView.scrollView.backgroundColor = view.backgroundColor
+        webView.backgroundColor = .clear
+        webView.scrollView.backgroundColor = .clear
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.allowsBackForwardNavigationGestures = true
 
@@ -39,9 +40,49 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
         loadHomePage()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        syncNativeBackgroundWithWebTheme()
+    }
+
     private func loadHomePage() {
         guard let url = URL(string: "\(TotusWebSchemeHandler.scheme)://web/index.html") else { return }
         webView.load(URLRequest(url: url))
+    }
+
+    private func syncNativeBackgroundWithWebTheme() {
+        webView.evaluateJavaScript("window.totusNativeBackgroundColor && window.totusNativeBackgroundColor()") { [weak self] result, _ in
+            guard let self else { return }
+            let color = Self.color(fromHexString: result as? String) ?? self.fallbackBackgroundColor
+            self.view.backgroundColor = color
+        }
+        webView.evaluateJavaScript("window.totusCurrentTheme && window.totusCurrentTheme()") { result, _ in
+            let theme = (result as? String) == "beige" ? "beige" : "current"
+            Self.updateAppIcon(for: theme)
+        }
+    }
+
+    private static func updateAppIcon(for theme: String) {
+        guard UIApplication.shared.supportsAlternateIcons else { return }
+        let desiredIconName = theme == "beige" ? "AppIconLight" : "AppIconDark"
+        guard UIApplication.shared.alternateIconName != desiredIconName else { return }
+        UIApplication.shared.setAlternateIconName(desiredIconName) { error in
+            if let error {
+                NSLog("Failed to update app icon: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    private static func color(fromHexString value: String?) -> UIColor? {
+        guard let value else { return nil }
+        let raw = value.trimmingCharacters(in: CharacterSet(charactersIn: "# \n\r\t"))
+        guard raw.count == 6, let int = Int(raw, radix: 16) else { return nil }
+        return UIColor(
+            red: CGFloat((int >> 16) & 0xff) / 255.0,
+            green: CGFloat((int >> 8) & 0xff) / 255.0,
+            blue: CGFloat(int & 0xff) / 255.0,
+            alpha: 1.0
+        )
     }
 
     func webView(
@@ -70,6 +111,10 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
         }
 
         decisionHandler(.cancel)
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        syncNativeBackgroundWithWebTheme()
     }
 }
 
@@ -140,7 +185,17 @@ final class TotusWebSchemeHandler: NSObject, WKURLSchemeHandler {
     }
 
     private func respond(to task: WKURLSchemeTask, url: URL, data: Data, mimeType: String) {
-        let response = URLResponse(
+        let headers = [
+            "Content-Type": mimeType + (mimeType.hasPrefix("text/") || mimeType.contains("javascript") || mimeType.contains("json") ? "; charset=utf-8" : ""),
+            "Content-Length": String(data.count),
+            "Cache-Control": "no-cache",
+        ]
+        let response = HTTPURLResponse(
+            url: url,
+            statusCode: 200,
+            httpVersion: "HTTP/1.1",
+            headerFields: headers
+        ) ?? URLResponse(
             url: url,
             mimeType: mimeType,
             expectedContentLength: data.count,
