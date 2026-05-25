@@ -351,6 +351,7 @@ const SCRIPTURE_TR_SHORT = {
     let songbookSearchQuery = '';
     let songbookSearchDebounceTimer = null;
     let songbookActiveCatalog = 'songbook';
+    let kantaralTodayState = { loaded: false, loading: false, error: '', entryId: null, title: '' };
 
     function isSongbookLikeView() {
         return currentView === 'songbook' || currentView === 'kantaral';
@@ -2587,6 +2588,35 @@ function normalizeCalendarToday(days) {
         const dayParams = { date: dateStr };
         if (dio) dayParams.dioceses = dio;
         return apiFetch('liturgy_day.php', dayParams);
+    }
+
+    async function ensureKantaralTodayLoaded() {
+        if (kantaralTodayState.loaded || kantaralTodayState.loading) return;
+        kantaralTodayState = { loaded: false, loading: true, error: '', entryId: null, title: '' };
+        try {
+            const dateStr = luxon.DateTime.now().toISODate();
+            const { ok, data } = await loadLiturgyDay(dateStr);
+            if (!ok || data?.error) {
+                kantaralTodayState = {
+                    loaded: true,
+                    loading: false,
+                    error: data?.message || data?.error || 'Не ўдалося загрузіць кантарал на сёння.',
+                    entryId: null,
+                    title: '',
+                };
+                return;
+            }
+            const entryId = Number(data?.kantaral_entry_id || 0);
+            kantaralTodayState = {
+                loaded: true,
+                loading: false,
+                error: '',
+                entryId: Number.isFinite(entryId) && entryId > 0 ? entryId : null,
+                title: String(data?.kantaral_title || '').trim(),
+            };
+        } catch (_) {
+            kantaralTodayState = { loaded: true, loading: false, error: 'Не ўдалося загрузіць кантарал на сёння.', entryId: null, title: '' };
+        }
     }
 
 function liturgyColorNameToHex(name) {
@@ -5035,6 +5065,25 @@ function songbookBuildFlatListHtml(sortedEntries) {
     </div>`;
     }
 
+    function kantaralTodayCardHtml() {
+        if (getSongbookActiveCatalog() !== 'kantaral' || songbookBookmarksOnly) return '';
+        const baseCls = 'mb-3 w-full text-left rounded-xl border border-app-stroke bg-app-elevated p-4 shadow-sm';
+        if (kantaralTodayState.loading || !kantaralTodayState.loaded) {
+            return `<div class="${baseCls} text-app-textSec text-sm"><div class="font-semibold text-app-text mb-1">Кантарал на сённяшні дзень</div><div>Загрузка…</div></div>`;
+        }
+        if (kantaralTodayState.error) {
+            return `<div class="${baseCls} text-app-textSec text-sm"><div class="font-semibold text-app-text mb-1">Кантарал на сённяшні дзень</div><div>${escapeHtml(kantaralTodayState.error)}</div></div>`;
+        }
+        if (!kantaralTodayState.entryId) {
+            return `<div class="${baseCls} text-app-textSec text-sm"><div class="font-semibold text-app-text mb-1">Кантарал на сённяшні дзень</div><div>кантарала няма</div></div>`;
+        }
+        const title = kantaralTodayState.title || 'Адкрыць запіс кантарала';
+        return `<button type="button" data-songbook-id="${Number(kantaralTodayState.entryId)}" class="${baseCls} hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors cursor-pointer">
+            <span class="block text-sm font-semibold text-app-textSec mb-1">Кантарал на сённяшні дзень</span>
+            <span class="block text-[17px] font-semibold text-app-text leading-snug">${escapeHtml(title)}</span>
+        </button>`;
+    }
+
     function hydrateSongbookSearchResults() {
         const statusEl = document.getElementById('songbook-search-status');
         const resRoot = document.getElementById('songbook-search-results');
@@ -5078,6 +5127,9 @@ function songbookBuildFlatListHtml(sortedEntries) {
         if (!loadEl || !root) return;
 
         await ensureSongbookLoaded();
+        if (getSongbookActiveCatalog() === 'kantaral' && !songbookBookmarksOnly) {
+            await ensureKantaralTodayLoaded();
+        }
 
         if (songbookDetailId != null) {
             if (listScreen) listScreen.classList.add('hidden');
@@ -5136,7 +5188,7 @@ function songbookBuildFlatListHtml(sortedEntries) {
         const listBody = songbookBookmarksOnly
             ? songbookBuildFlatListHtml(entries)
             : songbookBuildSectionedListHtml(entries);
-        root.innerHTML = `<div class="flex flex-col gap-2">${listBody}</div>`;
+        root.innerHTML = `${kantaralTodayCardHtml()}<div class="flex flex-col gap-2">${listBody}</div>`;
     }
 
 function initSongbookDetailImageZoom(hostArg) {

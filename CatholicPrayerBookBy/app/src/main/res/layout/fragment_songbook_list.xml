@@ -13,6 +13,71 @@
     tools:context=".ui.songbook.SongbookListFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_kantaral_today_entry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/prayer_book_block_gap"
+        android:layout_marginBottom="@dimen/prayer_list_item_gap"
+        android:background="@drawable/bg_scripture_book_row"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="@dimen/scripture_book_row_min_height"
+        android:paddingStart="@dimen/scripture_book_row_padding_horizontal"
+        android:paddingTop="@dimen/scripture_book_row_padding_vertical"
+        android:paddingEnd="@dimen/scripture_book_row_padding_horizontal"
+        android:paddingBottom="@dimen/scripture_book_row_padding_vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:id="@+id/layout_kantaral_today_texts"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/image_kantaral_today_chevron"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_kantaral_today_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:text="@string/kantaral_today_title"
+                android:textColor="?attr/totusColorTextSecondary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_kantaral_today_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:text="@string/kantaral_today_loading"
+                android:textColor="?attr/totusColorTextPrimary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/image_kantaral_today_chevron"
+            android:layout_width="@dimen/scripture_book_row_chevron_size"
+            android:layout_height="@dimen/scripture_book_row_chevron_size"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_chevron_right_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="?attr/totusColorTextTertiary" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_songbook_search_entry"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

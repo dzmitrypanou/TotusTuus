@@ -1,8 +1,0 @@
-{
-  "name": "Totus Tuus",
-  "short_name": "Totus Tuus",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#1F2440",
-  "theme_color": "#1F2440"
-}

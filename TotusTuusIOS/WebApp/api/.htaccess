@@ -1,7 +1,0 @@
-<IfModule mod_authz_core.c>
-    <Files "proxy-secrets.php">
-        Require all denied
-    </Files>
-</IfModule>
-
-Options -Indexes

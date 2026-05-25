@@ -63,6 +63,8 @@ function kantaral_upload_image(int $id, array $file): bool
 
 $message = '';
 $error = '';
+$isAjaxRequest = strtolower((string)($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest'
+    || (string)($_POST['ajax'] ?? '') === '1';
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['logout'])) {
     panel_clear_login_session();
@@ -83,11 +85,24 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && !isset($_POST['logout'])
         $subRaw = trim((string)($_POST['subchapter'] ?? ''));
         $sub = $subRaw !== '' ? max(1, (int)$subRaw) : null;
         $sort = (int)($_POST['sort_order'] ?? 0);
+        $lectionaryIdsRaw = $_POST['lectionary_entry_ids'] ?? [];
+        if (!is_array($lectionaryIdsRaw)) $lectionaryIdsRaw = [];
+        $lectionaryEntryIds = [];
+        foreach ($lectionaryIdsRaw as $rawLecId) {
+            $n = (int)$rawLecId;
+            if ($n > 0 && !in_array($n, $lectionaryEntryIds, true)) $lectionaryEntryIds[] = $n;
+        }
+        $lectionaryEntryIdValue = $lectionaryEntryIds[0] ?? null;
         $type = 'image';
         $text = '';
 
         try {
-            if (isset($_POST['bulk_category']) || isset($_POST['bulk_autonumber']) || isset($_POST['bulk_clear_numbering'])) {
+            if (isset($_POST['inline_lectionary_save'])) {
+                $inlineId = (int)($_POST['inline_kantaral_id'] ?? 0);
+                if ($inlineId <= 0) throw new RuntimeException('Няправільны ID запісу.');
+                kantaral_save_lectionary_links($inlineId, $lectionaryEntryIds);
+                $message = 'Сувязі лекцыянарыя абноўлены.';
+            } elseif (isset($_POST['bulk_category']) || isset($_POST['bulk_autonumber']) || isset($_POST['bulk_clear_numbering'])) {
                 $idsRaw = $_POST['bulk_ids'] ?? [];
                 $idsRaw = is_array($idsRaw) ? $idsRaw : [];
                 $ids = [];
@@ -139,8 +154,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && !isset($_POST['logout'])
                 $oldPath = is_array($old) ? (string)($old['media_path'] ?? '') : '';
                 $hasNewImage = isset($_FILES['media']) && is_array($_FILES['media']) && (int)($_FILES['media']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK;
                 if ($oldPath === '' && !$hasNewImage) throw new RuntimeException('Загрузіце выяву.');
-                $st = db()->prepare('UPDATE kantaral_entries SET title=:t, category=:c, chapter_major=:ch, subchapter=:s, content_type=:ct, text_body=:b, sort_order=:so WHERE id=:id');
-                $st->execute([':t'=>$title, ':c'=>$category, ':ch'=>$chapter, ':s'=>$sub, ':ct'=>$type, ':b'=>$text, ':so'=>$sort, ':id'=>$id]);
+                $st = db()->prepare('UPDATE kantaral_entries SET title=:t, category=:c, chapter_major=:ch, subchapter=:s, content_type=:ct, text_body=:b, sort_order=:so, lectionary_entry_id=:le WHERE id=:id');
+                $st->execute([':t'=>$title, ':c'=>$category, ':ch'=>$chapter, ':s'=>$sub, ':ct'=>$type, ':b'=>$text, ':so'=>$sort, ':le'=>$lectionaryEntryIdValue, ':id'=>$id]);
+                kantaral_save_lectionary_links($id, $lectionaryEntryIds);
                 if ($hasNewImage) {
                     kantaral_delete_media($oldPath);
                     if (!kantaral_upload_image($id, $_FILES['media'])) $error = 'Не ўдалося захаваць выяву.';
@@ -148,9 +164,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && !isset($_POST['logout'])
                 if ($error === '') $message = 'Запіс абноўлены.';
             } else {
                 if (!isset($_FILES['media']) || !is_array($_FILES['media']) || (int)($_FILES['media']['error'] ?? 0) !== UPLOAD_ERR_OK) throw new RuntimeException('Загрузіце выяву.');
-                $st = db()->prepare('INSERT INTO kantaral_entries (title, category, chapter_major, subchapter, content_type, text_body, media_path, media_revision, sort_order, is_active) VALUES (:t,:c,:ch,:s,:ct,:b,NULL,\'\',:so,1)');
-                $st->execute([':t'=>$title, ':c'=>$category, ':ch'=>$chapter, ':s'=>$sub, ':ct'=>$type, ':b'=>$text, ':so'=>$sort]);
+                $st = db()->prepare('INSERT INTO kantaral_entries (title, category, chapter_major, subchapter, content_type, text_body, media_path, media_revision, sort_order, lectionary_entry_id, is_active) VALUES (:t,:c,:ch,:s,:ct,:b,NULL,\'\',:so,:le,1)');
+                $st->execute([':t'=>$title, ':c'=>$category, ':ch'=>$chapter, ':s'=>$sub, ':ct'=>$type, ':b'=>$text, ':so'=>$sort, ':le'=>$lectionaryEntryIdValue]);
                 $newId = (int)db()->lastInsertId();
+                kantaral_save_lectionary_links($newId, $lectionaryEntryIds);
                 if (!kantaral_upload_image($newId, $_FILES['media'])) {
                     db()->prepare('DELETE FROM kantaral_entries WHERE id=:id')->execute([':id'=>$newId]);
                     throw new RuntimeException('Не ўдалося захаваць выяву.');
@@ -160,6 +177,27 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && !isset($_POST['logout'])
         } catch (Throwable $e) {
             $error = $e->getMessage();
         }
+    }
+    if ($isAjaxRequest) {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'ok' => $error === '',
+            'message' => $message,
+            'error' => $error,
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+}
+
+function kantaral_save_lectionary_links(int $kantaralId, array $lectionaryIds): void
+{
+    db()->prepare('DELETE FROM kantaral_lectionary_links WHERE kantaral_entry_id = :id')->execute([':id' => $kantaralId]);
+    $first = $lectionaryIds[0] ?? null;
+    db()->prepare('UPDATE kantaral_entries SET lectionary_entry_id = :le WHERE id = :id')->execute([':le' => $first, ':id' => $kantaralId]);
+    if ($lectionaryIds === []) return;
+    $ins = db()->prepare('INSERT IGNORE INTO kantaral_lectionary_links (kantaral_entry_id, lectionary_entry_id) VALUES (:kid, :lid)');
+    foreach ($lectionaryIds as $lid) {
+        $ins->execute([':kid' => $kantaralId, ':lid' => (int)$lid]);
     }
 }
 
@@ -178,6 +216,17 @@ if ($editId > 0) {
 }
 $catDistinctRaw = db()->query('SELECT DISTINCT category FROM kantaral_entries ORDER BY category ASC')->fetchAll(PDO::FETCH_COLUMN);
 $catDistinct = is_array($catDistinctRaw) ? array_map('strval', $catDistinctRaw) : [];
+$lectionaryOptionsRaw = db()->query('SELECT id, title FROM liturgy_lectionary_entries WHERE is_active = 1 ORDER BY title ASC, id ASC')->fetchAll();
+$lectionaryOptions = is_array($lectionaryOptionsRaw) ? $lectionaryOptionsRaw : [];
+$lectionaryTitleById = [];
+foreach ($lectionaryOptions as $lo) $lectionaryTitleById[(int)($lo['id'] ?? 0)] = (string)($lo['title'] ?? '');
+$editLectionaryIds = [];
+if ($editId > 0) {
+    $stL = db()->prepare('SELECT lectionary_entry_id FROM kantaral_lectionary_links WHERE kantaral_entry_id = :id ORDER BY lectionary_entry_id ASC');
+    $stL->execute([':id' => $editId]);
+    $editLectionaryIds = array_map('intval', $stL->fetchAll(PDO::FETCH_COLUMN) ?: []);
+    if ($editLectionaryIds === [] && $edit && (int)($edit['lectionary_entry_id'] ?? 0) > 0) $editLectionaryIds[] = (int)$edit['lectionary_entry_id'];
+}
 $where = '';
 $exec = [];
 if (count($catSelected) > 0) {
@@ -192,7 +241,7 @@ if (count($catSelected) > 0) {
     }
     if (count($conds) > 0) $where = ' WHERE (' . implode(' OR ', $conds) . ')';
 }
-$stmtRows = db()->prepare('SELECT * FROM kantaral_entries' . $where . ' ORDER BY category ASC, chapter_major ASC, COALESCE(subchapter,0) ASC, sort_order ASC, id ASC');
+$stmtRows = db()->prepare('SELECT k.*, GROUP_CONCAT(l.title ORDER BY l.title ASC SEPARATOR " | ") AS lectionary_title, GROUP_CONCAT(l.id ORDER BY l.title ASC SEPARATOR ",") AS lectionary_ids FROM kantaral_entries k LEFT JOIN kantaral_lectionary_links kl ON kl.kantaral_entry_id = k.id LEFT JOIN liturgy_lectionary_entries l ON l.id = kl.lectionary_entry_id' . $where . ' GROUP BY k.id ORDER BY k.category ASC, k.chapter_major ASC, COALESCE(k.subchapter,0) ASC, k.sort_order ASC, k.id ASC');
 $stmtRows->execute($exec);
 $rows = $stmtRows->fetchAll();
 $rows = is_array($rows) ? $rows : [];
@@ -1333,7 +1382,7 @@ body.body-auth {
     .auth-hint code {
       font-size: 0.85em;
     }
-  </style><style>.songbook-admin-panel + table{margin-top:22px}.kantaral-page-title{margin-top:16px}.kantaral-form-card{margin-top:16px}</style></head><body>
+  </style><style>.songbook-admin-panel + table{margin-top:22px}.kantaral-page-title{margin-top:16px}.kantaral-form-card{margin-top:16px}.kantaral-table-wrap{width:100%;max-width:100%;overflow-x:auto;margin-top:22px;border-radius:var(--radius)}.kantaral-table-wrap table{margin-top:0;min-width:0;table-layout:fixed}.kantaral-table-wrap tr{border-bottom:1px solid var(--line)}.kantaral-table-wrap tr:last-child{border-bottom:none}.kantaral-table-wrap th,.kantaral-table-wrap td{border-bottom:none}.kantaral-table-wrap th:nth-child(1),.kantaral-table-wrap td:nth-child(1){width:38px}.kantaral-table-wrap th:nth-child(2),.kantaral-table-wrap td:nth-child(2){width:52px}.kantaral-table-wrap th:nth-child(3),.kantaral-table-wrap td:nth-child(3){width:100px}.kantaral-table-wrap th:nth-child(4),.kantaral-table-wrap td:nth-child(4){width:52px}.kantaral-table-wrap th:nth-child(5),.kantaral-table-wrap td:nth-child(5){width:135px}.kantaral-table-wrap th:nth-child(6),.kantaral-table-wrap td:nth-child(6){width:320px}.kantaral-table-wrap th:nth-child(7),.kantaral-table-wrap td:nth-child(7){width:70px}.kantaral-table-wrap th:nth-child(8),.kantaral-table-wrap td:nth-child(8){width:190px;overflow-wrap:anywhere}.kantaral-table-wrap th:nth-child(9),.kantaral-table-wrap td:nth-child(9){width:120px}.kantaral-lectionary-picker{position:relative}.kantaral-lectionary-picker__selected{display:flex;flex-wrap:wrap;gap:6px;margin:7px 0}.kantaral-lectionary-picker__chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;white-space:nowrap;border:1px solid rgba(148,163,184,.25);background:rgba(15,23,42,.58);color:var(--text);border-radius:999px;padding:5px 6px 5px 9px;font-size:.76rem;line-height:16px}.kantaral-lectionary-picker__chip span{overflow:hidden;text-overflow:ellipsis}.kantaral-lectionary-picker__chip button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:16px;height:16px;border:0;background:rgba(148,163,184,.12);border-radius:999px;color:var(--muted);padding:0;margin:0;cursor:pointer;font-weight:700;font-size:12px;line-height:16px;vertical-align:middle}.kantaral-lectionary-picker__chip button:hover{background:rgba(248,113,113,.18);color:#fecaca}.kantaral-lectionary-picker__results{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;padding:10px;border:1px solid rgba(148,163,184,.18);border-radius:12px;background:rgba(15,23,42,.45)}.kantaral-lectionary-picker__results[hidden]{display:none}.kantaral-lectionary-picker__option{border:1px solid rgba(148,163,184,.22);background:rgba(30,41,59,.72);color:var(--text);border-radius:10px;padding:8px 10px;box-shadow:none;cursor:pointer;font-size:.88rem}.kantaral-lectionary-picker__option:hover{background:rgba(51,65,85,.85);border-color:rgba(196,163,90,.42)}.kantaral-lectionary-picker__empty{color:var(--muted);font-size:.9rem;padding:4px}.kantaral-inline-lectionary{min-width:0}.kantaral-inline-lectionary .kantaral-lectionary-picker__results{max-height:170px;overflow:auto}.kantaral-inline-lectionary input[type=search]{min-width:0;width:100%}.kantaral-inline-actions{display:flex;gap:8px;align-items:center;margin-top:8px}.kantaral-ajax-status{font-size:.82rem;color:var(--muted);min-height:1em}.kantaral-ajax-status--ok{color:var(--success)}.kantaral-ajax-status--err{color:var(--danger)}</style></head><body>
 <div class="header"><div class="header-brand"><h1>Totus Tuus</h1><p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p></div><?php $panelNavPage='kantaral'; $panelNavView='kantaral'; $panelNavCalYear=(int)date('Y'); require __DIR__ . '/../includes/panel_admin_nav.php'; ?></div>
 <h2 class="table-section-title kantaral-page-title">Кантарал</h2>
 <?php if ($message !== ''): ?><p class="ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>
@@ -1357,6 +1406,13 @@ body.body-auth {
     <input type="number" min="1" name="subchapter" value="<?= $edit && $edit['subchapter'] !== null ? (int)$edit['subchapter'] : '' ?>">
     <label>Парадак</label>
     <input type="number" name="sort_order" value="<?= (int)($edit['sort_order'] ?? 0) ?>">
+    <label>Запіс лекцыянарыя</label>
+    <div class="kantaral-lectionary-picker" data-kantaral-lectionary-picker>
+      <div data-kantaral-lectionary-hidden><?php foreach ($editLectionaryIds as $lid): ?><input type="hidden" name="lectionary_entry_ids[]" value="<?= (int)$lid ?>"><?php endforeach; ?></div>
+      <div class="kantaral-lectionary-picker__selected" data-kantaral-lectionary-selected></div>
+      <input type="search" autocomplete="off" placeholder="Пачніце ўводзіць назву запісу лекцыянарыя…" value="">
+      <div class="kantaral-lectionary-picker__results" data-kantaral-lectionary-results hidden></div>
+    </div>
     <label>Выява JPEG, PNG, WebP, GIF, AVIF</label>
     <input type="file" name="media" accept=".jpg,.jpeg,.png,.webp,.gif,.avif,image/*">
 <?php if ($edit && !empty($edit['media_path'])): ?>
@@ -1371,7 +1427,75 @@ body.body-auth {
 <?php else: ?>
 <div class="songbook-toolbar-top" style="margin:12px 0 0"><a class="btn btn-pill btn-pill--purple" href="/admin/kantaral.php?add=1">Дадаць запіс</a></div>
 <div class="songbook-admin-panel"><form method="get" class="songbook-panel-section songbook-filter-form" aria-label="Фільтр па катэгорыях кантарала"><details class="panel-filter-details"<?= count($catSelected) > 0 ? ' open' : '' ?>><summary class="panel-filter-summary"><span class="panel-filter-summary__title">Выбар катэгорый</span><span class="panel-filter-summary__meta"><?= count($catSelected) > 0 ? 'У фільтры: ' . (string)count($catSelected) : 'Усе запісы' ?></span><span class="panel-filter-summary__hint">Націсніце, каб разгарнуць або згарнуць спіс катэгорый і галачак.</span></summary><div class="panel-filter-details__body"><p class="songbook-panel-section__hint">Некалькі галачак працуюць як <strong>АБО</strong>: у спісе застаюцца запісы з любой з абраных катэгорый.</p><div class="songbook-filter-chips" role="group" aria-label="Катэгорыі"><?php $hasEmpty = in_array('', array_map('trim', $catDistinct), true); if ($hasEmpty): ?><label class="songbook-filter-chip"><input type="checkbox" name="cat[]" value="<?= htmlspecialchars($catEmptyToken, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= in_array($catEmptyToken, $catSelected, true) ? ' checked' : '' ?>><span>(без катэгорыі)</span></label><?php endif; ?><?php foreach ($catDistinct as $dc): ?><?php if (trim($dc) === '') continue; ?><label class="songbook-filter-chip"><input type="checkbox" name="cat[]" value="<?= htmlspecialchars($dc, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"<?= in_array($dc, $catSelected, true) ? ' checked' : '' ?>><span><?= htmlspecialchars($dc, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span></label><?php endforeach; ?></div><?php if (count($catDistinct) === 0): ?><p class="songbook-panel-section__empty">Катэгорыі з’явяцца пасля дадання запісаў.</p><?php endif; ?><div class="songbook-panel-actions"><button type="submit" class="btn btn-pill btn-pill--purple">Паказаць</button><a class="btn btn-pill btn-pill--muted" href="/admin/kantaral.php">Скід фільтра</a></div></div></details></form><div class="songbook-panel-divider" role="presentation"></div><form id="kantaral-bulk-form" method="post" class="songbook-panel-section songbook-bulk-form"><?= panel_csrf_field() ?><div class="songbook-panel-section__head"><span class="songbook-panel-section__title">Масавыя дзеянні</span></div><p class="songbook-panel-section__hint">Пазначыце радкі ў табліцы ніжэй. Можна або змяніць ім агульную катэгорыю, або выставіць нумарацыю <strong>1…N</strong> па парадку выбраных радкоў.</p><div class="songbook-bulk-row"><label for="bulk_category_value" class="bulk-songbook-label">Новая катэгорыя</label><input id="bulk_category_value" name="bulk_category_value" type="text" maxlength="255" class="bulk-songbook-input" placeholder="Напрыклад, Адвэнт; пуста — без загалоўка"><button type="submit" name="bulk_category" value="1" class="btn btn-pill btn-pill--gold">Ужыць катэгорыю</button><button type="submit" name="bulk_autonumber" value="1" class="btn btn-pill btn-pill--purple">Аўтанумарацыя 1…N</button><button type="submit" name="bulk_clear_numbering" value="1" class="btn btn-pill btn-pill--muted">Ачысціць нумарацыю</button></div></form></div>
-<table><thead><tr><th class="cell-checkbox"><input type="checkbox" id="kantaral-bulk-select-all" title="Абраць усе" aria-label="Абраць усе запісы"></th><th>ID</th><th>Катэгорыя</th><th>№</th><th>Назва</th><th>Тып</th><th>Файл</th><th>Дзеянні</th></tr></thead><tbody><?php foreach ($rows as $r): ?><tr><td class="cell-checkbox"><input type="checkbox" class="kantaral-bulk-id-cb" name="bulk_ids[]" value="<?= (int)$r['id'] ?>" form="kantaral-bulk-form" aria-label="Абраць запіс<?= (int)$r['id'] ?>"></td><td><?= (int)$r['id'] ?></td><td><?= htmlspecialchars((string)$r['category'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td><td><?= (int)$r['chapter_major'] ?><?= $r['subchapter'] !== null ? '.' . (int)$r['subchapter'] : '.' ?></td><td><?= htmlspecialchars((string)$r['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td><td><?= htmlspecialchars((string)$r['content_type'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td><td><?= htmlspecialchars((string)($r['media_path'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td><td class="actions"><a class="btn-pill btn-pill--sm btn-pill--purple" href="/admin/kantaral.php?edit=<?= (int)$r['id'] ?>">Рэдагаваць</a><form method="post" onsubmit="return confirm('Выдаліць запіс кантарала?')"><?= panel_csrf_field() ?><input type="hidden" name="delete_id" value="<?= (int)$r['id'] ?>"><button class="btn-pill btn-pill--sm btn-pill--danger" type="submit">Выдаліць</button></form></td></tr><?php endforeach; ?></tbody></table><script>document.getElementById('kantaral-bulk-select-all')?.addEventListener('change',function(){document.querySelectorAll('.kantaral-bulk-id-cb').forEach(function(cb){cb.checked=this.checked}.bind(this));});</script>
+<div class="kantaral-table-wrap"><table><thead><tr><th class="cell-checkbox"><input type="checkbox" id="kantaral-bulk-select-all" title="Абраць усе" aria-label="Абраць усе запісы"></th><th>ID</th><th>Катэгорыя</th><th>№</th><th>Назва</th><th>Лекцыянарый</th><th>Тып</th><th>Файл</th><th>Дзеянні</th></tr></thead><tbody><?php foreach ($rows as $r): ?><?php $rowLecIds = array_values(array_filter(array_map('intval', explode(',', (string)($r['lectionary_ids'] ?? ''))))); ?><tr><td class="cell-checkbox"><input type="checkbox" class="kantaral-bulk-id-cb" name="bulk_ids[]" value="<?= (int)$r['id'] ?>" form="kantaral-bulk-form" aria-label="Абраць запіс<?= (int)$r['id'] ?>"></td><td><?= (int)$r['id'] ?></td><td><?= htmlspecialchars((string)$r['category'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td><td><?= (int)$r['chapter_major'] ?><?= $r['subchapter'] !== null ? '.' . (int)$r['subchapter'] : '.' ?></td><td><?= htmlspecialchars((string)$r['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td><td><form method="post" class="kantaral-inline-lectionary js-kantaral-ajax-form"><?= panel_csrf_field() ?><input type="hidden" name="ajax" value="1"><input type="hidden" name="inline_lectionary_save" value="1"><input type="hidden" name="inline_kantaral_id" value="<?= (int)$r['id'] ?>"><div class="kantaral-lectionary-picker" data-kantaral-lectionary-picker><div data-kantaral-lectionary-hidden><?php foreach ($rowLecIds as $lid): ?><input type="hidden" name="lectionary_entry_ids[]" value="<?= (int)$lid ?>"><?php endforeach; ?></div><div class="kantaral-lectionary-picker__selected" data-kantaral-lectionary-selected></div><input type="search" autocomplete="off" placeholder="Пошук лекцыянарыя…"><div class="kantaral-lectionary-picker__results" data-kantaral-lectionary-results hidden></div></div><div class="kantaral-inline-actions"><button class="btn-pill btn-pill--sm btn-pill--muted" type="submit">Захаваць</button><span class="kantaral-ajax-status" data-kantaral-ajax-status></span></div></form></td><td><?= htmlspecialchars((string)$r['content_type'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td><td><?= htmlspecialchars((string)($r['media_path'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td><td class="actions"><a class="btn-pill btn-pill--sm btn-pill--purple" href="/admin/kantaral.php?edit=<?= (int)$r['id'] ?>">Рэдагаваць</a><form method="post" onsubmit="return confirm('Выдаліць запіс кантарала?')"><?= panel_csrf_field() ?><input type="hidden" name="delete_id" value="<?= (int)$r['id'] ?>"><button class="btn-pill btn-pill--sm btn-pill--danger" type="submit">Выдаліць</button></form></td></tr><?php endforeach; ?></tbody></table></div><script>document.getElementById('kantaral-bulk-select-all')?.addEventListener('change',function(){document.querySelectorAll('.kantaral-bulk-id-cb').forEach(function(cb){cb.checked=this.checked}.bind(this));});</script>
 <?php endif; ?>
+<script>
+(function(){
+  const options = <?= json_encode(array_map(static fn($lo) => ['id' => (int)($lo['id'] ?? 0), 'title' => (string)($lo['title'] ?? '')], $lectionaryOptions), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+  function norm(v){ return String(v || '').toLowerCase().replace(/i/g,'і').trim(); }
+  function esc(v){ return String(v || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+  function titleById(id){ const row = options.find(function(o){ return Number(o.id) === Number(id); }); return row ? row.title : ''; }
+  document.querySelectorAll('[data-kantaral-lectionary-picker]').forEach(function(picker){
+    const hiddenBox = picker.querySelector('[data-kantaral-lectionary-hidden]');
+    const selectedBox = picker.querySelector('[data-kantaral-lectionary-selected]');
+    const input = picker.querySelector('input[type="search"]');
+    const results = picker.querySelector('[data-kantaral-lectionary-results]');
+    if (!hiddenBox || !selectedBox || !input || !results) return;
+    let selected = Array.from(hiddenBox.querySelectorAll('input[name="lectionary_entry_ids[]"]')).map(function(i){ return Number(i.value); }).filter(Boolean);
+    function syncHidden(){ hiddenBox.innerHTML = selected.map(function(id){ return '<input type="hidden" name="lectionary_entry_ids[]" value="'+Number(id)+'">'; }).join(''); }
+    function renderSelected(){
+      selectedBox.innerHTML = selected.length ? selected.map(function(id){ return '<span class="kantaral-lectionary-picker__chip"><span>'+esc(titleById(id) || ('ID '+id))+'</span><button type="button" data-remove-lec-id="'+Number(id)+'" aria-label="Прыбраць">×</button></span>'; }).join('') : '<span class="muted">— няма сувязі —</span>';
+    }
+    function close(){ results.hidden = true; results.innerHTML = ''; }
+    function pick(id){
+      id = Number(id || 0);
+      if (id <= 0) selected = [];
+      else if (!selected.includes(id)) selected.push(id);
+      syncHidden(); renderSelected(); input.value = ''; close();
+    }
+    function renderResults(){
+      const q = norm(input.value);
+      if (q === '') { close(); return; }
+      const matches = options.filter(function(o){ return !selected.includes(Number(o.id)) && (q === '' || norm(o.title).indexOf(q) !== -1); }).slice(0, 30);
+      const rows = ['<button type="button" data-lec-id="0" class="kantaral-lectionary-picker__option">— няма сувязі —</button>'].concat(matches.map(function(o){ return '<button type="button" data-lec-id="'+Number(o.id)+'" class="kantaral-lectionary-picker__option">'+esc(o.title)+'</button>'; }));
+      results.innerHTML = rows.join('') || '<div class="kantaral-lectionary-picker__empty">Нічога не знойдзена.</div>';
+      results.hidden = false;
+    }
+    selectedBox.addEventListener('click', function(e){
+      const btn = e.target.closest('[data-remove-lec-id]');
+      if (!btn) return;
+      selected = selected.filter(function(id){ return Number(id) !== Number(btn.dataset.removeLecId); });
+      syncHidden(); renderSelected(); renderResults();
+    });
+    input.addEventListener('input', renderResults);
+    input.addEventListener('focus', renderResults);
+    results.addEventListener('click', function(e){ const btn = e.target.closest('[data-lec-id]'); if (btn) pick(btn.dataset.lecId); });
+    renderSelected(); syncHidden();
+  });
+  document.addEventListener('click', function(e){ if (!e.target.closest('[data-kantaral-lectionary-picker]')) document.querySelectorAll('[data-kantaral-lectionary-results]').forEach(function(r){ r.hidden = true; }); });
+  document.querySelectorAll('.js-kantaral-ajax-form').forEach(function(form){
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      const status = form.querySelector('[data-kantaral-ajax-status]');
+      const btn = form.querySelector('button[type="submit"]');
+      if (status) { status.textContent = 'Захаванне…'; status.className = 'kantaral-ajax-status'; }
+      if (btn) btn.disabled = true;
+      fetch(form.action || window.location.href, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin'
+      }).then(function(r){ return r.json(); }).then(function(data){
+        if (status) {
+          status.textContent = data && data.ok ? (data.message || 'Захавана') : (data.error || 'Памылка');
+          status.className = 'kantaral-ajax-status ' + (data && data.ok ? 'kantaral-ajax-status--ok' : 'kantaral-ajax-status--err');
+          if (data && data.ok) setTimeout(function(){ status.textContent = ''; status.className = 'kantaral-ajax-status'; }, 1800);
+        }
+      }).catch(function(){
+        if (status) { status.textContent = 'Памылка сеткі'; status.className = 'kantaral-ajax-status kantaral-ajax-status--err'; }
+      }).finally(function(){ if (btn) btn.disabled = false; });
+    });
+  });
+})();
+</script>
 </body></html>
-

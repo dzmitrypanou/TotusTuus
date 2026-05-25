@@ -70,6 +70,7 @@ try {
         $date,
         $optionalMemorialPrefixAuto
     );
+    $kantaralToday = liturgy_day_kantaral_entry_for_resolved_readings((string)($resolvedReadings['lectionary_key'] ?? ''));
     $effectiveColor = liturgy_resolve_liturgical_color_for_day(
         $date,
         $overrideColor,
@@ -98,6 +99,8 @@ try {
         'readings_full' => $resolvedReadings['readings_full'],
         'lectionary_key' => $resolvedReadings['lectionary_key'],
         'lectionary_source' => $resolvedReadings['lectionary_source'],
+        'kantaral_entry_id' => $kantaralToday !== null ? (int)$kantaralToday['id'] : null,
+        'kantaral_title' => $kantaralToday !== null ? (string)$kantaralToday['title'] : '',
         'updated_at' => is_array($entry) ? (string)($entry['updated_at'] ?? '') : '',
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (Throwable $e) {
@@ -108,3 +111,30 @@ try {
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
 
+function liturgy_day_kantaral_entry_for_resolved_readings(string $lectionaryKeyList): ?array
+{
+    $keys = [];
+    foreach (explode('|', $lectionaryKeyList) as $part) {
+        $key = trim($part);
+        if ($key !== '' && !in_array($key, $keys, true)) {
+            $keys[] = $key;
+        }
+    }
+    if ($keys === []) {
+        return null;
+    }
+
+    $placeholders = implode(',', array_fill(0, count($keys), '?'));
+    $stmt = db()->prepare(
+        'SELECT k.id, k.title, l.lookup_key
+         FROM kantaral_entries k
+         INNER JOIN kantaral_lectionary_links kl ON kl.kantaral_entry_id = k.id
+         INNER JOIN liturgy_lectionary_entries l ON l.id = kl.lectionary_entry_id
+         WHERE k.is_active = 1 AND l.is_active = 1 AND l.lookup_key IN (' . $placeholders . ')
+         ORDER BY FIELD(l.lookup_key, ' . $placeholders . '), k.sort_order ASC, k.id ASC
+         LIMIT 1'
+    );
+    $stmt->execute(array_merge($keys, $keys));
+    $row = $stmt->fetch();
+    return is_array($row) ? $row : null;
+}

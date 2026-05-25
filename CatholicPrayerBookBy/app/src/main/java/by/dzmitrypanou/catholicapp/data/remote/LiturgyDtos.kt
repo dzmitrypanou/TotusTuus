@@ -48,6 +48,8 @@ data class LiturgyDayDto(
     @SerializedName("liturgical_color_hex") val liturgicalColorHex: String?,
     @SerializedName("readings") val readings: String?,
     @SerializedName("readings_full") val readingsFull: String?,
+    @SerializedName("kantaral_entry_id") val kantaralEntryId: Long? = null,
+    @SerializedName("kantaral_title") val kantaralTitle: String? = null,
     @SerializedName("updated_at") val updatedAt: String?
 )
 
@@ -69,4 +71,3 @@ data class LiturgyCalendarRangeDayDto(
     @SerializedName("readings_full") val readingsFull: String?,
     @SerializedName("updated_at") val updatedAt: String?
 )
-

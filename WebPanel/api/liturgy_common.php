@@ -311,7 +311,6 @@ function liturgy_important_title_uses_cycle_suffix(DateTimeImmutable $date, stri
         || $baseTitle === 'Пальмовая нядзеля'
         || $baseTitle === 'Урачыстасць Найсвяцейшага Цела і Крыві Хрыста'
         || $baseTitle === 'Урачыстасць Найсвяцейшага Сэрца Пана Езуса'
-        || $baseTitle === 'Пасхальная вігілія ў святую ноч'
     ) {
         return true;
     }

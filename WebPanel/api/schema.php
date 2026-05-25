@@ -181,8 +181,10 @@ function ensureKantaralEntriesTable(): void
             media_path VARCHAR(512) NULL,
             media_revision VARCHAR(64) NOT NULL DEFAULT \'\',
             sort_order INT NOT NULL DEFAULT 0,
+            lectionary_entry_id BIGINT NULL,
             is_active TINYINT(1) NOT NULL DEFAULT 1,
-            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            KEY idx_kantaral_lectionary_entry_id (lectionary_entry_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
     );
     ensureTableColumnExists(
@@ -199,6 +201,36 @@ function ensureKantaralEntriesTable(): void
         'kantaral_entries',
         'show_badge',
         'ALTER TABLE kantaral_entries ADD COLUMN show_badge TINYINT(1) NOT NULL DEFAULT 0 AFTER show_number'
+    );
+    ensureTableColumnExists(
+        'kantaral_entries',
+        'lectionary_entry_id',
+        'ALTER TABLE kantaral_entries ADD COLUMN lectionary_entry_id BIGINT NULL AFTER sort_order'
+    );
+    ensureTableIndexExists(
+        'kantaral_entries',
+        'idx_kantaral_lectionary_entry_id',
+        'ALTER TABLE kantaral_entries ADD INDEX idx_kantaral_lectionary_entry_id (lectionary_entry_id)'
+    );
+    ensureKantaralLectionaryLinksTable();
+}
+
+function ensureKantaralLectionaryLinksTable(): void
+{
+    db()->exec(
+        'CREATE TABLE IF NOT EXISTS kantaral_lectionary_links (
+            kantaral_entry_id BIGINT NOT NULL,
+            lectionary_entry_id BIGINT NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (kantaral_entry_id, lectionary_entry_id),
+            KEY idx_kantaral_links_lectionary (lectionary_entry_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
+    );
+    db()->exec(
+        'INSERT IGNORE INTO kantaral_lectionary_links (kantaral_entry_id, lectionary_entry_id)
+         SELECT id, lectionary_entry_id
+         FROM kantaral_entries
+         WHERE lectionary_entry_id IS NOT NULL AND lectionary_entry_id > 0'
     );
 }
 
@@ -435,6 +467,26 @@ function ensureTableColumnExists(string $tableName, string $columnName, string $
         ':schema' => DB_NAME,
         ':table_name' => $tableName,
         ':column_name' => $columnName,
+    ]);
+    $exists = (int)($stmt->fetch()['cnt'] ?? 0) > 0;
+    if (!$exists) {
+        db()->exec($alterSql);
+    }
+}
+
+function ensureTableIndexExists(string $tableName, string $indexName, string $alterSql): void
+{
+    $stmt = db()->prepare(
+        'SELECT COUNT(*) AS cnt
+         FROM information_schema.STATISTICS
+         WHERE TABLE_SCHEMA = :schema
+           AND TABLE_NAME = :table_name
+           AND INDEX_NAME = :index_name'
+    );
+    $stmt->execute([
+        ':schema' => DB_NAME,
+        ':table_name' => $tableName,
+        ':index_name' => $indexName,
     ]);
     $exists = (int)($stmt->fetch()['cnt'] ?? 0) > 0;
     if (!$exists) {

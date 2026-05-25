@@ -258,6 +258,10 @@
     <string name="songbook_empty">Пакуль няма спеваў. Уключыце інтэрнэт (або згоду на аўтаабнаўленне ў наладах) — змест падцягваецца з сервера.</string>
     <string name="kantaral_loading">Загрузка кантарала…</string>
     <string name="kantaral_load_progress">Загрузка кантарала: %1$d / %2$d</string>
+    <string name="kantaral_today_title">Кантарал на сённяшні дзень</string>
+    <string name="kantaral_today_none">кантарала няма</string>
+    <string name="kantaral_today_loading">Загрузка…</string>
+    <string name="kantaral_today_error">Не ўдалося загрузіць кантарал на сёння.</string>
     <string name="songbook_search_title">Пошук у спеўніку</string>
     <string name="kantaral_search_title">Пошук у кантарале</string>
     <string name="songbook_category_uncategorized">Без раздзелу</string>
