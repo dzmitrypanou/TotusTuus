@@ -53,6 +53,22 @@ object SyncScheduler {
         )
     }
 
+    fun checkAppUpdatesNow(context: Context) {
+        val app = context.applicationContext
+        if (!AppUpdateCheckStore.isEnabled(app)) return
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val once = OneTimeWorkRequestBuilder<AppUpdateCheckWorker>()
+            .setConstraints(constraints)
+            .build()
+        WorkManager.getInstance(app).enqueueUniqueWork(
+            APP_UPDATE_ONE_SHOT_WORK,
+            ExistingWorkPolicy.REPLACE,
+            once
+        )
+    }
+
     private fun scheduleAppUpdateChecks(app: Context, wm: WorkManager) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)

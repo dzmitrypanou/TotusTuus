@@ -46,6 +46,7 @@ import by.dzmitrypanou.catholicapp.data.AppColorSchemeStore
 import by.dzmitrypanou.catholicapp.data.SongbookRepository
 import by.dzmitrypanou.catholicapp.databinding.ActivityMainBinding
 import by.dzmitrypanou.catholicapp.sync.AppUpdateCheckStore
+import by.dzmitrypanou.catholicapp.sync.SyncScheduler
 import by.dzmitrypanou.catholicapp.ui.PrayerBookUiTypography
 import by.dzmitrypanou.catholicapp.ui.ReadingTextScaleToolbar
 import by.dzmitrypanou.catholicapp.ui.liturgy.LiturgyDayFragment
@@ -83,8 +84,11 @@ open class MainActivity : AppCompatActivity() {
     private var navigationInitialized: Boolean = false
 
     private val requestNotificationPermission =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             AppUpdateCheckStore.markNotificationPermissionPrompted(this)
+            if (granted) {
+                SyncScheduler.checkAppUpdatesNow(this)
+            }
         }
 
     override fun attachBaseContext(newBase: Context) {
@@ -142,6 +146,7 @@ open class MainActivity : AppCompatActivity() {
             consumePrayerRefreshLaunchIntent(intent)
         }
         maybeAskNotificationPermissionForAppUpdates()
+        SyncScheduler.checkAppUpdatesNow(this)
     }
 
     private fun maybeAskNotificationPermissionForAppUpdates() {

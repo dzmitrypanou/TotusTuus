@@ -303,8 +303,7 @@ class SongbookListFragment : Fragment(), SongbookToolbarActions {
             KantaralTodayUiState.Error -> getString(R.string.kantaral_today_error)
             is KantaralTodayUiState.Ready -> state.title.ifBlank { state.entry.listLabel() }
         }
-        b.layoutKantaralTodayEntry.contentDescription =
-            getString(R.string.kantaral_today_title) + ". " + b.textKantaralTodayStatus.text
+        b.layoutKantaralTodayEntry.contentDescription = b.textKantaralTodayStatus.text
     }
 
     private fun navigateToSongbookEntry(entry: SongbookEntry, displayCategory: String) {

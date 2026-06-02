@@ -5067,20 +5067,24 @@ function songbookBuildFlatListHtml(sortedEntries) {
 
     function kantaralTodayCardHtml() {
         if (getSongbookActiveCatalog() !== 'kantaral' || songbookBookmarksOnly) return '';
-        const baseCls = 'mb-3 w-full text-left rounded-xl border border-app-stroke bg-app-elevated p-4 shadow-sm';
+        const baseCls = 'mb-2 w-full text-left rounded-xl border border-app-stroke bg-app-elevated p-4 shadow-sm';
+        const lightTheme = readAppTheme() === 'beige';
+        const infoIconBg = lightTheme ? '#9CA3AF' : '#374151';
+        const infoIconFg = '#FFFFFF';
+        const infoIcon = `<span class="shrink-0 inline-flex items-center justify-center rounded-full" style="width:24px;height:24px;background-color:${infoIconBg};color:${infoIconFg};"><i class="fas fa-info text-[12px]" aria-hidden="true"></i></span>`;
+        const row = (bodyHtml) => `<span class="flex items-center gap-2.5">${infoIcon}<span class="min-w-0 flex-1">${bodyHtml}</span></span>`;
         if (kantaralTodayState.loading || !kantaralTodayState.loaded) {
-            return `<div class="${baseCls} text-app-textSec text-sm"><div class="font-semibold text-app-text mb-1">Кантарал на сённяшні дзень</div><div>Загрузка…</div></div>`;
+            return `<div class="${baseCls} text-app-textSec text-sm">${row('<span class="font-semibold text-app-text">Загрузка…</span>')}</div>`;
         }
         if (kantaralTodayState.error) {
-            return `<div class="${baseCls} text-app-textSec text-sm"><div class="font-semibold text-app-text mb-1">Кантарал на сённяшні дзень</div><div>${escapeHtml(kantaralTodayState.error)}</div></div>`;
+            return `<div class="${baseCls} text-app-textSec text-sm">${row(`<span>${escapeHtml(kantaralTodayState.error)}</span>`)}</div>`;
         }
         if (!kantaralTodayState.entryId) {
-            return `<div class="${baseCls} text-app-textSec text-sm"><div class="font-semibold text-app-text mb-1">Кантарал на сённяшні дзень</div><div>кантарала няма</div></div>`;
+            return `<div class="${baseCls} text-app-textSec text-sm">${row('<span class="font-semibold text-app-text">Кантарал на сёння адсутнічае.</span>')}</div>`;
         }
         const title = kantaralTodayState.title || 'Адкрыць запіс кантарала';
         return `<button type="button" data-songbook-id="${Number(kantaralTodayState.entryId)}" class="${baseCls} hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors cursor-pointer">
-            <span class="block text-sm font-semibold text-app-textSec mb-1">Кантарал на сённяшні дзень</span>
-            <span class="block text-[17px] font-semibold text-app-text leading-snug">${escapeHtml(title)}</span>
+            ${row(`<span class="block text-[17px] font-semibold text-app-text leading-snug">${escapeHtml(title)}</span>`)}
         </button>`;
     }
 

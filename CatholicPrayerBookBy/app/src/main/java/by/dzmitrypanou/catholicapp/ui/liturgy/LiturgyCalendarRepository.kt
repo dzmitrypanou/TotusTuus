@@ -5,10 +5,7 @@ import by.dzmitrypanou.catholicapp.data.remote.LiturgyCalendarMonthDto
 import by.dzmitrypanou.catholicapp.data.remote.LiturgyDayDto
 import by.dzmitrypanou.catholicapp.data.remote.PrayerApiClient
 import com.google.gson.Gson
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import java.time.LocalDate
 
 object LiturgyCalendarRepository {
 
@@ -19,8 +16,6 @@ object LiturgyCalendarRepository {
     private const val DAY_KEY_PREFIX = "day_"
 
     private val gson = Gson()
-    private val apiDateFmt = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-
     private fun diocesesQuery(context: Context): String? =
         LiturgyDiocesePreferences.apiQueryParam(context.applicationContext)
 
@@ -35,15 +30,15 @@ object LiturgyCalendarRepository {
     }
 
     suspend fun prefetchCurrentMonth(context: Context) {
-        val now = Calendar.getInstance()
-        val year = now.get(Calendar.YEAR)
-        val month = now.get(Calendar.MONTH) + 1
+        val now = LocalDate.now()
+        val year = now.year
+        val month = now.monthValue
         val dio = diocesesQuery(context)
         runCatching {
             PrayerApiClient.service.getLiturgyCalendarMonth(year, month, dio)
         }.onSuccess { dto ->
             cacheMonth(context, dto)
-            val today = apiDateFmt.format(Date())
+            val today = now.toString()
             runCatching { PrayerApiClient.service.getLiturgyDay(today, dio) }
                 .onSuccess { day -> cacheDay(context, day) }
         }

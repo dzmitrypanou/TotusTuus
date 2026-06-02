@@ -302,8 +302,7 @@ function liturgy_important_title_uses_cycle_suffix(DateTimeImmutable $date, stri
 {
     $baseTitle = liturgy_strip_cycle_suffix($title);
     if (
-        $baseTitle === 'Унебаўшэсце Пана'
-        || $baseTitle === 'Урачыстасць Хрыста Валадара Сусвету'
+        $baseTitle === 'Урачыстасць Хрыста Валадара Сусвету'
         || $baseTitle === 'Свята Святой Сям’і — Езуса, Марыі і Юзафа'
         || $baseTitle === 'I Нядзеля Адвэнту'
         || $baseTitle === 'Першая нядзеля Адвэнту'

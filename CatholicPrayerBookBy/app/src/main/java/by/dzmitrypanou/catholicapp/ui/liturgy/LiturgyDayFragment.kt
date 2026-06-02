@@ -27,7 +27,6 @@ import by.dzmitrypanou.catholicapp.data.remote.LiturgyDayDto
 import by.dzmitrypanou.catholicapp.databinding.FragmentLiturgyDayBinding
 import by.dzmitrypanou.catholicapp.ui.PrayerBookUiTypography
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.launch
@@ -43,8 +42,6 @@ class LiturgyDayFragment : Fragment() {
 
     private val apiDateFmt = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     private val displayDateFmt = SimpleDateFormat("d MMMM yyyy 'г.'", Locale.forLanguageTag("be"))
-    private val ordinaryWeekRegex =
-        Regex("([IVXLCDM]+)(\\s+Тыдзень\\s+Звычайнага\\s+часу)", RegexOption.IGNORE_CASE)
     private val selectedDate: String
         get() = arguments?.getString(ARG_DATE).orEmpty().ifBlank { apiDateFmt.format(Date()) }
 
@@ -112,9 +109,9 @@ fun applyReadingTextScaleFromToolbar() {
         lastLiturgyDayDto = day
         val dayDate = day.date.orEmpty().ifBlank { selectedDate }
         val sourceTitle = day.title.orEmpty().ifBlank { getString(R.string.liturgy_ordinary_day) }
-        val title = mainLiturgyDisplayTitle(sourceTitle, dayDate)
+        val title = sourceTitle
         val optionalMemorialRaw = day.optionalMemorialTitle.orEmpty().trim()
-        val optionalMemorial = if (isPaschalOctaveWeekday(dayDate)) "" else optionalMemorialRaw
+        val optionalMemorial = optionalMemorialRaw
         val optionalMemorialColors = if (optionalMemorial.isNotBlank()) {
             day.optionalMemorialColors.orEmpty().map { it.trim() }
         } else {
@@ -142,7 +139,7 @@ fun applyReadingTextScaleFromToolbar() {
         apiDateYmd: String,
         mainDisplayTitle: String? = null
     ) {
-        val normalized = preprocessReadingsHtmlForPaschalOctave(content.trim(), apiDateYmd)
+        val normalized = content.trim()
         if (normalized.isBlank()) {
             binding.layoutLiturgyDayReadingsSections.isVisible = false
             binding.textLiturgyDayReadings.isVisible = true
@@ -210,21 +207,6 @@ private fun htmlOutsideDetailsBlocks(html: String): String =
         container.addView(introView, 0)
     }
 
-private fun preprocessReadingsHtmlForPaschalOctave(html: String, dateRaw: String): String {
-        if (!isPaschalOctaveWeekday(dateRaw)) return html
-        val detailsRegex = Regex("(?is)<details\\b[^>]*>.*?</details>")
-        return detailsRegex.replace(html) { match ->
-            val block = match.value
-            val summaryMatch = Regex("(?is)<summary\\b[^>]*>(.*?)</summary>").find(block)
-                ?: return@replace block
-            val plain = HtmlCompat.fromHtml(
-                summaryMatch.groupValues.getOrNull(1).orEmpty(),
-                HtmlCompat.FROM_HTML_MODE_COMPACT
-            ).toString().trim()
-            if (isOptionalMemorialReadingsSummary(plain)) "" else block
-        }.trim()
-    }
-
     private fun parseExpandableReadingsSections(value: String, apiDateYmd: String): List<ReadingsSection> {
         val detailsRegex = Regex("(?is)<details\\b[^>]*>(.*?)</details>")
         val summaryRegex = Regex("(?is)<summary\\b[^>]*>(.*?)</summary>")
@@ -234,8 +216,7 @@ private fun preprocessReadingsHtmlForPaschalOctave(html: String, dateRaw: String
             val detailsBlock = detailsMatch.groupValues.getOrNull(1).orEmpty()
             val summaryMatch = summaryRegex.find(detailsBlock) ?: return@forEach
             val summaryHtml = summaryMatch.groupValues.getOrNull(1).orEmpty().trim()
-            var summaryText = HtmlCompat.fromHtml(summaryHtml, HtmlCompat.FROM_HTML_MODE_COMPACT).toString().trim()
-            summaryText = normalizeReadingsSummaryForDisplay(summaryText, apiDateYmd)
+            val summaryText = HtmlCompat.fromHtml(summaryHtml, HtmlCompat.FROM_HTML_MODE_COMPACT).toString().trim()
             if (summaryText.isBlank()) return@forEach
 
             val bodyRaw = detailsBlock.substring(summaryMatch.range.last + 1).trim()
@@ -482,243 +463,6 @@ private fun splitOptionalMemorialTitles(combined: String): List<String> =
             setColor(fillColor)
             setStroke((0.5f + r * 0.5f).toInt().coerceAtLeast(1), Color.argb(55, 255, 255, 255))
         }
-    }
-
-    private fun stripLiturgicalYearSuffix(title: String): String {
-        return title.trim()
-            .replace(Regex(""",\s*Год\s*[A-Ca-c]\s*$""", RegexOption.IGNORE_CASE), "")
-            .replace(Regex(""",\s*Год\s*A\s*,\s*B\s*,\s*C\s*$""", RegexOption.IGNORE_CASE), "")
-            .trim()
-    }
-
-    private fun calendarFromApiDate(dateRaw: String): Calendar? {
-        val parsed = runCatching { apiDateFmt.parse(dateRaw) }.getOrNull() ?: return null
-        return Calendar.getInstance(Locale.US).apply {
-            time = parsed
-            clearTimePart()
-        }
-    }
-
-private fun mainLiturgyDisplayTitle(sourceTitle: String, dateRaw: String): String {
-        val ordinary = normalizeOrdinaryWeekTitle(sourceTitle, dateRaw)
-        if (isPaschalOctaveWeekday(dateRaw)) {
-            val wd = calendarWeekdayNameBe(dateRaw) ?: return normalizePaschalOctaveLegacyTitle(ordinary, dateRaw)
-            return "$wd ў актаве Пасхі"
-        }
-        return normalizePaschalOctaveLegacyTitle(ordinary, dateRaw)
-    }
-
-    private fun calendarWeekdayNameBe(dateRaw: String): String? =
-        when (calendarFromApiDate(dateRaw)?.get(Calendar.DAY_OF_WEEK)) {
-            Calendar.MONDAY -> "Панядзелак"
-            Calendar.TUESDAY -> "Аўторак"
-            Calendar.WEDNESDAY -> "Серада"
-            Calendar.THURSDAY -> "Чацвер"
-            Calendar.FRIDAY -> "Пятніца"
-            Calendar.SATURDAY -> "Субота"
-            else -> null
-        }
-
-private fun isOptionalMemorialReadingsSummary(summaryPlain: String): Boolean {
-        val t = summaryPlain.lowercase(Locale.forLanguageTag("be"))
-        return t.contains("успамін") || t.contains("успамінам")
-    }
-
-    private fun normalizeReadingsSummaryForDisplay(summaryPlain: String, dateRaw: String): String {
-        if (!isPaschalOctaveWeekday(dateRaw)) {
-            return normalizePaschalOctaveLegacyTitle(summaryPlain, dateRaw)
-        }
-        val trimmed = summaryPlain.trim()
-        if (trimmed.isEmpty()) return trimmed
-        if (isOptionalMemorialReadingsSummary(trimmed)) return ""
-        val wd = calendarWeekdayNameBe(dateRaw) ?: return normalizePaschalOctaveLegacyTitle(summaryPlain, dateRaw)
-        return "$wd ў актаве Пасхі"
-    }
-
-    private fun isPaschalOctaveWeekday(dateRaw: String): Boolean {
-        val target = calendarFromApiDate(dateRaw) ?: return false
-        if (target.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) return false
-        val year = target.get(Calendar.YEAR)
-        val easter = gregorianEaster(year)
-        val from = (easter.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, 1) }
-        val until = (easter.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, 6) }
-        return !target.before(from) && !target.after(until)
-    }
-
-    private val paschalOctaveLegacyTitleRegex = Regex(
-        """^(Панядзелак|Аўторак|Серада|Чацвер|Пятніца|Субота)\s*\p{Pd}\s*[IІ]\s+Тыдзень\s+Велікоднага\s+перыяду$""",
-        RegexOption.IGNORE_CASE
-    )
-    private val paschalOctaveLegacyShortRegex = Regex(
-        """^[IІ]\s+Тыдзень\s+Велікоднага\s+перыяду$""",
-        RegexOption.IGNORE_CASE
-    )
-
-private fun normalizePaschalOctaveLegacyTitle(title: String, dateRaw: String): String {
-        if (!isPaschalOctaveWeekday(dateRaw)) return title
-        val base = stripLiturgicalYearSuffix(title)
-        if (!paschalOctaveLegacyTitleRegex.matches(base) && !paschalOctaveLegacyShortRegex.matches(base)) return title
-        val wd = calendarWeekdayNameBe(dateRaw) ?: return title
-        return "$wd ў актаве Пасхі"
-    }
-
-    private fun normalizeOrdinaryWeekTitle(title: String, dateRaw: String): String {
-        val match = ordinaryWeekRegex.find(title) ?: return title
-        val expectedWeek = ordinaryTimeWeekNumber(dateRaw) ?: return title
-        val currentWeek = romanToInt(match.groupValues[1]) ?: return title
-        if (currentWeek == expectedWeek) return title
-        val expectedRoman = intToRoman(expectedWeek)
-        val romanGroup = match.groups[1] ?: return title
-        return title.replaceRange(romanGroup.range, expectedRoman)
-    }
-
-    private fun ordinaryTimeWeekNumber(dateRaw: String): Int? {
-        val parsedDate = runCatching { apiDateFmt.parse(dateRaw) }.getOrNull() ?: return null
-        val target = Calendar.getInstance().apply {
-            time = parsedDate
-            clearTimePart()
-        }
-        val isSunday = target.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
-        val year = target.get(Calendar.YEAR)
-
-        val easter = gregorianEaster(year).apply { clearTimePart() }
-        val ashWednesday = (easter.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, -46) }
-        val pentecost = (easter.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, 49) }
-        val adventStart = firstAdventSunday(year).apply { clearTimePart() }
-
-        val ordinaryStart = baptismOfLordMonday(year).apply { clearTimePart() }
-        val beforeLentEnd = (ashWednesday.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, -1) }
-
-        if (!target.before(ordinaryStart) && !target.after(beforeLentEnd)) {
-            val days = daysBetween(ordinaryStart, target)
-            val baseWeek = 1 + (days / 7)
-            return baseWeek + if (isSunday) 1 else 0
-        }
-
-        val afterPentecostStart = (pentecost.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, 1) }
-        val ordinaryEnd = (adventStart.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, -1) }
-        if (!target.before(afterPentecostStart) && !target.after(ordinaryEnd)) {
-            val firstPartDays = daysBetween(ordinaryStart, beforeLentEnd)
-            val firstPartLastWeek = 1 + (firstPartDays / 7)
-            val secondPartStartWeek = firstPartLastWeek + 1
-            val days = daysBetween(afterPentecostStart, target)
-            val baseWeek = secondPartStartWeek + (days / 7)
-            return baseWeek + if (isSunday) 1 else 0
-        }
-
-        return null
-    }
-
-    private fun gregorianEaster(year: Int): Calendar {
-        val a = year % 19
-        val b = year / 100
-        val c = year % 100
-        val d = b / 4
-        val e = b % 4
-        val f = (b + 8) / 25
-        val g = (b - f + 1) / 3
-        val h = (19 * a + b - d - g + 15) % 30
-        val i = c / 4
-        val k = c % 4
-        val l = (32 + 2 * e + 2 * i - h - k) % 7
-        val m = (a + 11 * h + 22 * l) / 451
-        val month = (h + l - 7 * m + 114) / 31
-        val day = ((h + l - 7 * m + 114) % 31) + 1
-        return Calendar.getInstance().apply {
-            set(Calendar.YEAR, year)
-            set(Calendar.MONTH, month - 1)
-            set(Calendar.DAY_OF_MONTH, day)
-            clearTimePart()
-        }
-    }
-
-    private fun baptismOfLordMonday(year: Int): Calendar {
-        val jan6 = Calendar.getInstance().apply {
-            set(Calendar.YEAR, year)
-            set(Calendar.MONTH, Calendar.JANUARY)
-            set(Calendar.DAY_OF_MONTH, 6)
-            clearTimePart()
-        }
-        val baptismSunday = (jan6.clone() as Calendar).apply {
-            val delta = (Calendar.SUNDAY - get(Calendar.DAY_OF_WEEK) + 7) % 7
-            add(Calendar.DAY_OF_YEAR, delta)
-        }
-        return baptismSunday.apply { add(Calendar.DAY_OF_YEAR, 1) }
-    }
-
-    private fun firstAdventSunday(year: Int): Calendar {
-        val christmas = Calendar.getInstance().apply {
-            set(Calendar.YEAR, year)
-            set(Calendar.MONTH, Calendar.DECEMBER)
-            set(Calendar.DAY_OF_MONTH, 25)
-            clearTimePart()
-        }
-        val cDow = christmas.get(Calendar.DAY_OF_WEEK)
-        val offset = if (cDow == Calendar.SUNDAY) 28 else cDow - 1
-        return (christmas.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, -offset) }
-    }
-
-    private fun daysBetween(start: Calendar, end: Calendar): Int {
-        val s = start.clone() as Calendar
-        val e = end.clone() as Calendar
-        s.clearTimePart()
-        e.clearTimePart()
-        val diffMs = e.timeInMillis - s.timeInMillis
-        return (diffMs / 86_400_000L).toInt()
-    }
-
-    private fun romanToInt(roman: String): Int? {
-        if (roman.isBlank()) return null
-        val values = mapOf('I' to 1, 'V' to 5, 'X' to 10, 'L' to 50, 'C' to 100, 'D' to 500, 'M' to 1000)
-        val s = roman.uppercase(Locale.ROOT)
-        var total = 0
-        var i = 0
-        while (i < s.length) {
-            val cur = values[s[i]] ?: return null
-            val next = if (i + 1 < s.length) values[s[i + 1]] else null
-            if (next != null && next > cur) {
-                total += (next - cur)
-                i += 2
-            } else {
-                total += cur
-                i++
-            }
-        }
-        return total
-    }
-
-    private fun intToRoman(value: Int): String {
-        val pairs = listOf(
-            1000 to "M",
-            900 to "CM",
-            500 to "D",
-            400 to "CD",
-            100 to "C",
-            90 to "XC",
-            50 to "L",
-            40 to "XL",
-            10 to "X",
-            9 to "IX",
-            5 to "V",
-            4 to "IV",
-            1 to "I"
-        )
-        var n = value.coerceAtLeast(1)
-        val sb = StringBuilder()
-        for ((arabic, roman) in pairs) {
-            while (n >= arabic) {
-                sb.append(roman)
-                n -= arabic
-            }
-        }
-        return sb.toString()
-    }
-
-    private fun Calendar.clearTimePart() {
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
     }
 
     private fun formatDisplayDate(rawDate: String): String {

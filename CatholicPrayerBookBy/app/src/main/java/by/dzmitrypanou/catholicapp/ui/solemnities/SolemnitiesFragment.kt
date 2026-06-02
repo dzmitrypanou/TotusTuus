@@ -23,7 +23,7 @@ import by.dzmitrypanou.catholicapp.ui.PrayerBookUiTypography
 import by.dzmitrypanou.catholicapp.ui.ReadingTextScaleToolbar
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import java.time.Year
 
 class SolemnitiesFragment : Fragment() {
 
@@ -45,7 +45,7 @@ class SolemnitiesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        selectedYear = savedInstanceState?.getInt(KEY_SELECTED_YEAR) ?: LocalDate.now().year
+        selectedYear = savedInstanceState?.getInt(KEY_SELECTED_YEAR) ?: Year.now().value
         setupToolbarTextScaleMenu()
         bindTypography()
         solemnitiesAdapter = SolemnitiesAdapter(
@@ -116,14 +116,14 @@ class SolemnitiesFragment : Fragment() {
         binding.textSolemnitiesYear.text = selectedYear.toString()
         binding.buttonSolemnitiesPrevYear.isEnabled = selectedYear > MIN_YEAR
         binding.buttonSolemnitiesNextYear.isEnabled = selectedYear < MAX_YEAR
-        solemnitiesAdapter.submitItems(visibleItems(remoteItemsByYear[selectedYear] ?: buildItems(selectedYear)))
+        solemnitiesAdapter.submitItems(visibleItems(remoteItemsByYear[selectedYear] ?: emptyList()))
         loadRemoteItems(selectedYear)
     }
 
     private fun toggleSection(title: String) {
         val nextExpanded = !SolemnitiesSectionExpandStore.isExpanded(requireContext(), title)
         SolemnitiesSectionExpandStore.setExpanded(requireContext(), title, nextExpanded)
-        solemnitiesAdapter.submitItems(visibleItems(remoteItemsByYear[selectedYear] ?: buildItems(selectedYear)))
+        solemnitiesAdapter.submitItems(visibleItems(remoteItemsByYear[selectedYear] ?: emptyList()))
     }
 
     private fun visibleItems(source: List<SolemnityListItem>): List<SolemnityListItem> {
@@ -179,57 +179,6 @@ class SolemnitiesFragment : Fragment() {
         val ctx = context ?: return
         PrayerBookUiTypography.applyContentSp(binding.textSolemnitiesYearLabel, R.dimen.text_list_row_subtitle, ctx)
         PrayerBookUiTypography.applyContentSp(binding.textSolemnitiesYear, R.dimen.text_list_row_title, ctx)
-    }
-
-    private fun buildItems(year: Int): List<SolemnityListItem> {
-        val dates = MovableDates.forYear(year)
-        return listOf(
-        SolemnityListItem.Header(getString(R.string.solemnities_section_required)),
-        SolemnityListItem.Entry("1 студзеня", "Святой Багародзіцы Марыі"),
-        SolemnityListItem.Entry("6 студзеня", "Аб’яўлення Пана (Тры Каралі)"),
-        SolemnityListItem.Entry("19 сакавіка", "Святога Юзафа"),
-        SolemnityListItem.Entry(dates.ascension, "Унебаўшэсця Пана"),
-        SolemnityListItem.Entry(dates.corpusChristi, "Цела і Крыві Хрыста (Божага Цела)"),
-        SolemnityListItem.Entry("29 чэрвеня", "Святых апосталаў Пятра і Паўла"),
-        SolemnityListItem.Entry("15 жніўня", "Унебаўзяцце Найсвяцейшай Панны Марыі"),
-        SolemnityListItem.Entry("1 лістапада", "Усіх Святых"),
-        SolemnityListItem.Entry("8 снежня", "Беззаганнага Зачацця Найсвяцейшай Панны Марыі"),
-        SolemnityListItem.Entry("25 снежня", "Нараджэнне Пана"),
-
-        SolemnityListItem.Header(getString(R.string.solemnities_section_movable)),
-        SolemnityListItem.Entry(dates.ashWednesday, "Папялец"),
-        SolemnityListItem.Entry(dates.easter, "Вялікдзень"),
-        SolemnityListItem.Entry(dates.ascension, "Унебаўшэсце"),
-        SolemnityListItem.Entry(dates.pentecost, "Спасланне Духа Святога"),
-        SolemnityListItem.Entry(dates.corpusChristi, "Цела і Крыві Пана"),
-        SolemnityListItem.Entry(dates.firstAdventSunday, "Першая нядзеля Адвэнту"),
-
-        SolemnityListItem.Header(getString(R.string.solemnities_section_general_order)),
-        SolemnityListItem.Entry("1 студзеня", "Урачыстасць Святой Багародзіцы Марыі"),
-        SolemnityListItem.Entry("6 студзеня", "Аб’яўленне Пана, Тры Каралі"),
-        SolemnityListItem.Entry("2 лютага", "Ахвяраванне Пана"),
-        SolemnityListItem.Entry(dates.ashWednesday, "Папяльцовая серада – пачатак Вялікага посту"),
-        SolemnityListItem.Entry("22 лютага", "Свята Катэдры святога Пятра"),
-        SolemnityListItem.Entry("19 сакавіка", "Урачыстасць святога Юзафа"),
-        SolemnityListItem.Entry("25 сакавіка", "Звеставанне Пана"),
-        SolemnityListItem.Entry(dates.palmSunday, "Пальмовая нядзеля"),
-        SolemnityListItem.Entry(dates.easter, "Уваскрасенне Пана"),
-        SolemnityListItem.Entry(dates.ascension, "Унебаўшэсце Пана, урачыстасць"),
-        SolemnityListItem.Entry(dates.pentecost, "Спасланне Духа Святога"),
-        SolemnityListItem.Entry(dates.corpusChristi, "Урачыстасць Найсвяцейшага Цела і Крыві Хрыста"),
-        SolemnityListItem.Entry(dates.sacredHeart, "Урачыстасць Найсвяцейшага Сэрца Пана Езуса"),
-        SolemnityListItem.Entry("24 чэрвеня", "Нараджэнне святога Яна Хрысціцеля"),
-        SolemnityListItem.Entry("29 чэрвеня", "Урачыстасць святых апосталаў Пятра і Паўла"),
-        SolemnityListItem.Entry("2 ліпеня", "Урачыстасць Найсвяцейшай Панны Марыі Будслаўскай"),
-        SolemnityListItem.Entry("6 жніўня", "Перамяненне Пана"),
-        SolemnityListItem.Entry("15 жніўня", "Унебаўзяцце Найсвяцейшай Панны Марыі"),
-        SolemnityListItem.Entry("14 верасня", "Свята Узвышэння Святога Крыжа"),
-        SolemnityListItem.Entry("1 лістапада", "Урачыстасць Усіх Святых"),
-        SolemnityListItem.Entry("2 лістапада", "Успамін усіх памерлых вернікаў"),
-        SolemnityListItem.Entry(dates.christKing, "Урачыстасць Пана Нашага Езуса Хрыста, Валадара Сусвету"),
-        SolemnityListItem.Entry("8 снежня", "Беззаганнае Зачацце Найсвяцейшай Панны Марыі"),
-        SolemnityListItem.Entry("25 снежня", "Нараджэнне Пана"),
-        )
     }
 
     private companion object {
@@ -320,76 +269,3 @@ private class SolemnitiesAdapter(
         const val VIEW_TYPE_ENTRY = 2
     }
 }
-
-private data class MovableDates(
-    val ashWednesday: String,
-    val palmSunday: String,
-    val easter: String,
-    val ascension: String,
-    val pentecost: String,
-    val corpusChristi: String,
-    val sacredHeart: String,
-    val christKing: String,
-    val firstAdventSunday: String,
-) {
-    companion object {
-        fun forYear(year: Int): MovableDates {
-            val easter = westernEaster(year)
-            val advent = firstAdventSunday(year)
-            return MovableDates(
-                ashWednesday = easter.minusDays(46).formatBy(),
-                palmSunday = easter.minusDays(7).formatBy(),
-                easter = easter.formatBy(),
-                ascension = easter.plusDays(39).formatBy(),
-                pentecost = easter.plusDays(49).formatBy(),
-                corpusChristi = easter.plusDays(60).formatBy(),
-                sacredHeart = easter.plusDays(68).formatBy(),
-                christKing = advent.minusDays(7).formatBy(),
-                firstAdventSunday = advent.formatBy(),
-            )
-        }
-
-        private fun westernEaster(year: Int): LocalDate {
-            val a = year % 19
-            val b = year / 100
-            val c = year % 100
-            val d = b / 4
-            val e = b % 4
-            val f = (b + 8) / 25
-            val g = (b - f + 1) / 3
-            val h = (19 * a + b - d - g + 15) % 30
-            val i = c / 4
-            val k = c % 4
-            val l = (32 + 2 * e + 2 * i - h - k) % 7
-            val m = (a + 11 * h + 22 * l) / 451
-            val month = (h + l - 7 * m + 114) / 31
-            val day = ((h + l - 7 * m + 114) % 31) + 1
-            return LocalDate.of(year, month, day)
-        }
-
-        private fun firstAdventSunday(year: Int): LocalDate {
-            var date = LocalDate.of(year, 11, 27)
-            while (date.dayOfWeek.value != 7) {
-                date = date.plusDays(1)
-            }
-            return date
-        }
-    }
-}
-
-private fun LocalDate.formatBy(): String = "$dayOfMonth ${BELARUSIAN_MONTHS[monthValue - 1]}*"
-
-private val BELARUSIAN_MONTHS = listOf(
-    "студзеня",
-    "лютага",
-    "сакавіка",
-    "красавіка",
-    "мая",
-    "чэрвеня",
-    "ліпеня",
-    "жніўня",
-    "верасня",
-    "кастрычніка",
-    "лістапада",
-    "снежня",
-)

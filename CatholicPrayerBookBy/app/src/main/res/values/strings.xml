@@ -259,7 +259,7 @@
     <string name="kantaral_loading">Загрузка кантарала…</string>
     <string name="kantaral_load_progress">Загрузка кантарала: %1$d / %2$d</string>
     <string name="kantaral_today_title">Кантарал на сённяшні дзень</string>
-    <string name="kantaral_today_none">кантарала няма</string>
+    <string name="kantaral_today_none">Кантарал на сёння адсутнічае.</string>
     <string name="kantaral_today_loading">Загрузка…</string>
     <string name="kantaral_today_error">Не ўдалося загрузіць кантарал на сёння.</string>
     <string name="songbook_search_title">Пошук у спеўніку</string>

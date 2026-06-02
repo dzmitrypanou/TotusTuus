@@ -1,14 +1,19 @@
 package by.dzmitrypanou.catholicapp.ui.settings
 
+import android.Manifest
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import by.dzmitrypanou.catholicapp.ui.themeColor
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -18,6 +23,7 @@ import by.dzmitrypanou.catholicapp.data.AppFontFamilyStore
 import by.dzmitrypanou.catholicapp.data.AppGlobalTextScaleStore
 import by.dzmitrypanou.catholicapp.databinding.FragmentSettingsBinding
 import by.dzmitrypanou.catholicapp.sync.AppUpdateCheckStore
+import by.dzmitrypanou.catholicapp.sync.SyncScheduler
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -30,6 +36,14 @@ class SettingsFragment : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
+
+    private val requestNotificationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            AppUpdateCheckStore.markNotificationPermissionPrompted(requireContext())
+            if (granted) {
+                SyncScheduler.checkAppUpdatesNow(requireContext())
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -87,7 +101,22 @@ class SettingsFragment : Fragment() {
         binding.checkboxAppUpdateNotifications.isChecked = AppUpdateCheckStore.isEnabled(ctx)
         binding.checkboxAppUpdateNotifications.setOnCheckedChangeListener { _, checked ->
             AppUpdateCheckStore.setEnabled(ctx, checked)
+            if (checked) {
+                requestNotificationPermissionOrCheckNow()
+            }
         }
+    }
+
+    private fun requestNotificationPermissionOrCheckNow() {
+        val ctx = requireContext()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            return
+        }
+        SyncScheduler.checkAppUpdatesNow(ctx)
     }
 
     private fun applyGlobalPreview() {

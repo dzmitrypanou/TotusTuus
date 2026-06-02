@@ -29,9 +29,10 @@ import by.dzmitrypanou.catholicapp.data.remote.LiturgyCalendarMonthDto
 import by.dzmitrypanou.catholicapp.databinding.FragmentLiturgyCalendarBinding
 import by.dzmitrypanou.catholicapp.databinding.ItemLiturgyCalendarDayBinding
 import by.dzmitrypanou.catholicapp.ui.PrayerBookUiTypography
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
@@ -41,14 +42,11 @@ class LiturgyCalendarFragment : Fragment() {
     private var _binding: FragmentLiturgyCalendarBinding? = null
     private val binding get() = _binding!!
 
-    private val monthCursor: Calendar = Calendar.getInstance().apply {
-        set(Calendar.DAY_OF_MONTH, 1)
-        clearTimePart()
-    }
-    private val apiDateFmt = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-    private val monthTitleFmt = SimpleDateFormat("LLLL yyyy", Locale.forLanguageTag("be"))
+    private val beLocale = Locale.forLanguageTag("be")
+    private var monthCursor: YearMonth = YearMonth.now()
+    private val apiDateFmt = DateTimeFormatter.ISO_LOCAL_DATE
     private val todayDate: String
-        get() = apiDateFmt.format(Date())
+        get() = LocalDate.now().format(apiDateFmt)
     private var dayMap: Map<String, LiturgyCalendarDayCellDto> = emptyMap()
     private lateinit var adapter: LiturgyCalendarAdapter
     private var lastLiturgyDioceseCacheKey: String? = null
@@ -131,9 +129,13 @@ class LiturgyCalendarFragment : Fragment() {
     }
 
     private fun setupCalendarSwipeNavigation() {
+        bindCalendarSwipeNavigation(binding.recyclerviewLiturgyCalendar)
+    }
+
+    private fun bindCalendarSwipeNavigation(target: View) {
         var downX = 0f
         var downY = 0f
-        binding.recyclerviewLiturgyCalendar.setOnTouchListener { v, event ->
+        target.setOnTouchListener { v, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     downX = event.x
@@ -165,96 +167,97 @@ class LiturgyCalendarFragment : Fragment() {
     }
 
     private fun shiftMonth(delta: Int) {
-        monthCursor.add(Calendar.MONTH, delta)
-        monthCursor.set(Calendar.DAY_OF_MONTH, 1)
+        monthCursor = monthCursor.plusMonths(delta.toLong())
         loadMonth()
     }
 
     private fun loadMonth() {
-        val year = monthCursor.get(Calendar.YEAR)
-        val month = monthCursor.get(Calendar.MONTH) + 1
-        binding.textLiturgyMonthTitle.text = monthTitleFmt.format(monthCursor.time).replaceFirstChar { ch ->
-            if (ch.isLowerCase()) ch.titlecase(Locale.forLanguageTag("be")) else ch.toString()
-        }
+        val year = monthCursor.year
+        val month = monthCursor.monthValue
+        binding.textLiturgyMonthTitle.text = monthTitle(monthCursor)
 
         val cachedMonth = LiturgyCalendarRepository.getCachedMonth(requireContext(), year, month)
         if (cachedMonth != null) {
 
-            applyMonthDto(cachedMonth, forceGray = false)
+            applyMonthDto(cachedMonth)
         } else {
 
             dayMap = emptyMap()
-            val cells = buildGridCells(forceGray = true)
-            adapter.submitList(cells)
+            adapter.submitList(buildPlaceholderGridCells())
             adapter.setSelectedDate(todayDate)
         }
 
+        val requestedMonth = monthCursor
         viewLifecycleOwner.lifecycleScope.launch {
             val dto = LiturgyCalendarRepository.getMonthFromNetworkAndCache(requireContext(), year, month)
+            if (monthCursor != requestedMonth) return@launch
             if (dto != null) {
-                applyMonthDto(dto, forceGray = false)
+                applyMonthDto(dto)
             } else if (cachedMonth != null) {
-                applyMonthDto(cachedMonth, forceGray = false)
+                applyMonthDto(cachedMonth)
+            } else {
+                adapter.submitList(buildPlaceholderGridCells())
+                adapter.setSelectedDate(todayDate)
             }
         }
     }
 
-    private fun applyMonthDto(dto: LiturgyCalendarMonthDto, forceGray: Boolean) {
+    private fun applyMonthDto(dto: LiturgyCalendarMonthDto) {
         dayMap = dto.days.associateBy { it.date }
-        val cells = buildGridCells(forceGray = forceGray)
-        adapter.submitList(cells)
-        adapter.setSelectedDate(todayDate)
-    }
-
-    private fun buildGridCells(forceGray: Boolean = false): List<UiCalendarCell> {
-        val start = (monthCursor.clone() as Calendar).apply {
-            set(Calendar.DAY_OF_MONTH, 1)
-            clearTimePart()
-            val offset = get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY
-            add(Calendar.DAY_OF_MONTH, -offset)
-        }
-
-        val result = ArrayList<UiCalendarCell>(42)
-        val currentMonth = monthCursor.get(Calendar.MONTH)
-        for (i in 0 until 42) {
-            val c = start.clone() as Calendar
-            c.add(Calendar.DAY_OF_MONTH, i)
-            val date = apiDateFmt.format(c.time)
-            val apiDay = dayMap[date]
-            val inCurrent = c.get(Calendar.MONTH) == currentMonth
-            val colorHex = if (forceGray) "#6B7280" else (apiDay?.liturgicalColorHex ?: "#6B7280")
-            result.add(
-                UiCalendarCell(
-                    date = date,
-                    dayNumber = c.get(Calendar.DAY_OF_MONTH),
-                    inCurrentMonth = inCurrent,
-                    liturgicalHexes = if (forceGray) {
-                        listOf("#6B7280")
-                    } else {
-                        buildList {
-                            add(colorHex)
-                            if (apiDay?.hasOptionalMemorial == true) {
-                                val optionalColorNames = apiDay.optionalMemorialColors
-                                    ?.map { it.trim() }
-                                    ?.filter { it.isNotEmpty() }
-                                    .orEmpty()
-                                if (optionalColorNames.isNotEmpty()) {
-                                    optionalColorNames.forEach { add(optionalMemorialColorHex(it)) }
-                                } else {
-                                    add(optionalMemorialColorHex(apiDay.optionalMemorialColor))
-                                }
-                            }
-                        }.distinctBy { it.lowercase(Locale.ROOT) }.take(3)
-                    },
-
-                    isToday = date == todayDate,
-                    isImportant = apiDay?.isImportant == true,
-                    hasContent = apiDay?.hasContent == true,
-                    lectionaryCount = resolveLectionaryCount(apiDay)
-                )
+        val cells = dto.days.map { apiDay ->
+            val colorHex = apiDay.liturgicalColorHex
+            UiCalendarCell(
+                date = apiDay.date,
+                dayNumber = apiDay.day,
+                inCurrentMonth = apiDay.isCurrentMonth,
+                liturgicalHexes = buildList {
+                    add(colorHex)
+                    if (apiDay.hasOptionalMemorial) {
+                        val optionalColorNames = apiDay.optionalMemorialColors
+                            ?.map { it.trim() }
+                            ?.filter { it.isNotEmpty() }
+                            .orEmpty()
+                        if (optionalColorNames.isNotEmpty()) {
+                            optionalColorNames.forEach { add(optionalMemorialColorHex(it)) }
+                        } else {
+                            add(optionalMemorialColorHex(apiDay.optionalMemorialColor))
+                        }
+                    }
+                }.distinctBy { it.lowercase(Locale.ROOT) }.take(3),
+                isToday = apiDay.isToday,
+                isImportant = apiDay.isImportant,
+                hasContent = apiDay.hasContent,
+                lectionaryCount = resolveLectionaryCount(apiDay)
             )
         }
-        return result
+        adapter.submitList(cells)
+        adapter.setSelectedDate(dto.days.firstOrNull { it.isToday }?.date.orEmpty())
+    }
+
+    private fun buildPlaceholderGridCells(): List<UiCalendarCell> {
+        val first = monthCursor.atDay(1)
+        val daysFromSunday = first.dayOfWeek.value % 7
+        val start = first.minusDays(daysFromSunday.toLong())
+        return (0 until 42).map { offset ->
+            val date = start.plusDays(offset.toLong())
+            UiCalendarCell(
+                date = date.format(apiDateFmt),
+                dayNumber = date.dayOfMonth,
+                inCurrentMonth = YearMonth.from(date) == monthCursor,
+                liturgicalHexes = listOf("#6B7280"),
+                isToday = date.format(apiDateFmt) == todayDate,
+                isImportant = false,
+                hasContent = false,
+                lectionaryCount = 1
+            )
+        }
+    }
+
+    private fun monthTitle(month: YearMonth): String {
+        val raw = "${month.month.getDisplayName(TextStyle.FULL_STANDALONE, beLocale)} ${month.year}"
+        return raw.replaceFirstChar { ch ->
+            if (ch.isLowerCase()) ch.titlecase(beLocale) else ch.toString()
+        }
     }
 
     private fun resolveLectionaryCount(apiDay: LiturgyCalendarDayCellDto?): Int {
@@ -492,12 +495,6 @@ class LiturgyCalendarFragment : Fragment() {
     }
 }
 
-private fun Calendar.clearTimePart() {
-    set(Calendar.HOUR_OF_DAY, 0)
-    set(Calendar.MINUTE, 0)
-    set(Calendar.SECOND, 0)
-    set(Calendar.MILLISECOND, 0)
-}
 
 private fun bestReadableTextColor(backgroundColor: Int): Int {
     val whiteContrast = ColorUtils.calculateContrast(Color.WHITE, backgroundColor)
@@ -561,4 +558,3 @@ private class MultiSplitRoundedRectDrawable(
 
     override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
 }
-
