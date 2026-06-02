@@ -5360,8 +5360,6 @@ function initSongbookDetailImageZoom(hostArg) {
         }
 
         function onWheel(e) {
-            if (!fullscreenMode) return;
-
             const w = host.clientWidth;
             const h = host.clientHeight;
             const iw = img.offsetWidth * scale;
@@ -5375,6 +5373,8 @@ function initSongbookDetailImageZoom(hostArg) {
                 apply();
                 return;
             }
+
+            if (!fullscreenMode) return;
 
             e.preventDefault();
             const factor = Math.exp(-e.deltaY * WHEEL_ZOOM_STEP);
@@ -5617,7 +5617,7 @@ function initSongbookDetailImageZoom(hostArg) {
 
         if (ct === 'image' && mediaUrl) {
             lightPaper = true;
-            inner = `<div class="songbook-image-zoom-host w-full min-h-[200px] max-h-[min(72vh,640px)] shrink-0 overflow-hidden bg-white relative select-none touch-manipulation outline-none focus:outline-none" data-songbook-zoom-host tabindex="-1" aria-label="Выява: павялічыць клікам, перацягнуць пры павелічэнні">
+            inner = `<div class="songbook-image-zoom-host w-full min-h-[200px] max-h-[min(72vh,640px)] shrink-0 overflow-hidden bg-white relative select-none outline-none focus:outline-none" style="touch-action:none;" data-songbook-zoom-host tabindex="-1" aria-label="Выява: павялічыць клікам, перацягнуць пры павелічэнні">
                 <div class="songbook-image-zoom-inner inline-block will-change-transform">
                     <img src="${escapeHtml(mediaUrl)}" alt="" class="block w-full h-auto max-w-none pointer-events-none" draggable="false" />
                 </div>
