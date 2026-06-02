@@ -5253,6 +5253,8 @@ function initSongbookDetailImageZoom(hostArg) {
         let stx = 0;
         let sty = 0;
         let moved = false;
+        let documentPointerHandlers = false;
+        let documentTouchHandlers = false;
         const pointers = new Map();
         let pinchStartDistance = 0;
         let pinchStartScale = 1;
@@ -5316,7 +5318,12 @@ function initSongbookDetailImageZoom(hostArg) {
         function onPointerDown(e) {
             if (e.target.closest('button, [data-action]')) return;
             if (e.pointerType === 'mouse' && e.button !== 0) return;
-            if (!fullscreenMode && scale <= 1.01) return;
+            const w = host.clientWidth;
+            const h = host.clientHeight;
+            const iw = img.offsetWidth * scale;
+            const ih = img.offsetHeight * scale;
+            const isOversized = iw > w || ih > h;
+            if (!fullscreenMode && scale <= 1.01 && !isOversized) return;
             pointers.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
             resetPinchState();
             drag = true;
@@ -5325,11 +5332,15 @@ function initSongbookDetailImageZoom(hostArg) {
             startY = e.clientY;
             stx = tx;
             sty = ty;
-            e.preventDefault();
             try {
                 host.setPointerCapture(e.pointerId);
             } catch (_) {
-
+                if (!documentPointerHandlers) {
+                    document.addEventListener('pointermove', onPointerMove);
+                    document.addEventListener('pointerup', onPointerUp);
+                    document.addEventListener('pointercancel', onPointerUp);
+                    documentPointerHandlers = true;
+                }
             }
         }
 
@@ -5402,16 +5413,32 @@ function initSongbookDetailImageZoom(hostArg) {
         }
 
         function onPointerUp(e) {
-            pointers.delete(e.pointerId);
+            if (typeof e.pointerId !== 'undefined') {
+                pointers.delete(e.pointerId);
+            }
             resetPinchState();
             if (drag) {
                 drag = false;
                 clearBrowserSelection();
                 try {
-                    host.releasePointerCapture(e.pointerId);
+                    if (typeof e.pointerId !== 'undefined') {
+                        host.releasePointerCapture(e.pointerId);
+                    }
                 } catch (_) {
 
                 }
+            }
+            if (documentPointerHandlers) {
+                document.removeEventListener('pointermove', onPointerMove);
+                document.removeEventListener('pointerup', onPointerUp);
+                document.removeEventListener('pointercancel', onPointerUp);
+                documentPointerHandlers = false;
+            }
+            if (documentTouchHandlers) {
+                document.removeEventListener('touchmove', onTouchMove);
+                document.removeEventListener('touchend', onPointerUp);
+                document.removeEventListener('touchcancel', onPointerUp);
+                documentTouchHandlers = false;
             }
         }
 
@@ -5433,7 +5460,11 @@ function initSongbookDetailImageZoom(hostArg) {
             if (e.touches.length !== 1) return;
             const touch = e.touches[0];
             if (touch.target.closest('button, [data-action]')) return;
-            if (!fullscreenMode && scale <= 1.01) return;
+            const w = host.clientWidth;
+            const h = host.clientHeight;
+            const iw = img.offsetWidth * scale;
+            const ih = img.offsetHeight * scale;
+            const isOversized = iw > w || ih > h;
             pointers.set(-1, { clientX: touch.clientX, clientY: touch.clientY });
             resetPinchState();
             drag = true;
@@ -5442,7 +5473,17 @@ function initSongbookDetailImageZoom(hostArg) {
             startY = touch.clientY;
             stx = tx;
             sty = ty;
-            e.preventDefault();
+            if (!fullscreenMode && scale <= 1.01 && !isOversized) {
+                drag = false;
+                pointers.delete(-1);
+                return;
+            }
+            if (!documentTouchHandlers) {
+                document.addEventListener('touchmove', onTouchMove, { passive: false });
+                document.addEventListener('touchend', onPointerUp);
+                document.addEventListener('touchcancel', onPointerUp);
+                documentTouchHandlers = true;
+            }
         }
 
         function onTouchMove(e) {
@@ -5450,8 +5491,19 @@ function initSongbookDetailImageZoom(hostArg) {
             const touch = e.touches[0];
             e.preventDefault();
             clearBrowserSelection();
-            tx = stx + (touch.clientX - startX);
-            ty = sty + (touch.clientY - startY);
+            const w = host.clientWidth;
+            const h = host.clientHeight;
+            const iw = img.offsetWidth * scale;
+            const ih = img.offsetHeight * scale;
+            const isOversized = iw > w || ih > h;
+            const dx = touch.clientX - startX;
+            const dy = touch.clientY - startY;
+            if (Math.abs(dx) > DRAG_THRESH || Math.abs(dy) > DRAG_THRESH) moved = true;
+            if (!fullscreenMode && scale <= 1.01 && !isOversized) {
+                return;
+            }
+            tx = stx + dx;
+            ty = sty + dy;
             clamp();
             apply();
         }
