@@ -27,11 +27,67 @@ function panel_configure_session_before_start(): void
     }
 }
 
+function panel_session_remember_seconds(): int
+{
+    return 60 * 60 * 24 * 30;
+}
+
+function panel_remember_me_from_post(): bool
+{
+    return isset($_POST['panel_remember']) && (string)$_POST['panel_remember'] === '1';
+}
+
+function panel_set_session_remember_me(bool $remember): void
+{
+    if ($remember) {
+        $_SESSION['panel_remember_me'] = true;
+    } else {
+        unset($_SESSION['panel_remember_me']);
+    }
+}
+
+function panel_session_remember_me(): bool
+{
+    return !empty($_SESSION['panel_remember_me']);
+}
+
+function panel_refresh_session_cookie(): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE || !panel_session_remember_me()) {
+        return;
+    }
+    $params = session_get_cookie_params();
+    $expires = time() + panel_session_remember_seconds();
+    $name = session_name();
+    $id = session_id();
+    if (PHP_VERSION_ID >= 70300) {
+        setcookie($name, $id, [
+            'expires' => $expires,
+            'path' => $params['path'] !== '' ? (string)$params['path'] : '/',
+            'domain' => (string)$params['domain'],
+            'secure' => (bool)$params['secure'],
+            'httponly' => (bool)$params['httponly'],
+            'samesite' => $params['samesite'] ?? 'Lax',
+        ]);
+    } else {
+        setcookie(
+            $name,
+            $id,
+            $expires,
+            $params['path'] !== '' ? (string)$params['path'] : '/',
+            (string)$params['domain'],
+            (bool)$params['secure'],
+            (bool)$params['httponly']
+        );
+    }
+}
+
 function panel_ensure_csrf_token(): void
 {
     if (empty($_SESSION['panel_csrf']) || !is_string($_SESSION['panel_csrf'])) {
         $_SESSION['panel_csrf'] = bin2hex(random_bytes(32));
     }
+    panel_refresh_session_cookie();
 }
 
 function panel_rotate_csrf_token(): void

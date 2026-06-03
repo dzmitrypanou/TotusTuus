@@ -496,6 +496,8 @@ if ($authReady && !$isSetupRequired && $_SERVER['REQUEST_METHOD'] === 'POST'
     if ($loginResult['ok']) {
         session_regenerate_id(true);
         panel_set_logged_in_user((int)$loginResult['user_id']);
+        panel_set_session_remember_me(panel_remember_me_from_post());
+        panel_refresh_session_cookie();
         panel_rotate_csrf_token();
         header('Location: /');
         exit;
@@ -2688,6 +2690,26 @@ if ($authReady && $isLoggedIn) {
       border-color: rgba(124, 108, 240, 0.55);
       box-shadow: 0 0 0 4px var(--accent-glow);
     }
+    .auth-form .auth-remember {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      font-size: 0.9375rem;
+      font-weight: 400;
+      letter-spacing: normal;
+      text-transform: none;
+      color: #cbd5e1;
+      cursor: pointer;
+      user-select: none;
+    }
+    .auth-form .auth-remember input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: var(--accent, #7c6cf0);
+      cursor: pointer;
+    }
     .auth-form button[type="submit"] {
       width: 100%;
       margin-top: 26px;
@@ -2772,7 +2794,6 @@ if ($authReady && $isLoggedIn) {
           <p class="auth-eyebrow">Totus Tuus</p>
           <div class="auth-icon"><?= $authLockSvg ?></div>
           <h2>Уваход у панэль</h2>
-          <p class="auth-lead">Каталог малітваў, катэгорыі і тэксты Бібліі для праграмы.</p>
         </div>
 <?php if ($error !== null && $error !== ''): ?>
           <div class="auth-alert"><?= htmlspecialchars($error, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></div>
@@ -2783,6 +2804,11 @@ if ($authReady && $isLoggedIn) {
 
           <label for="panel_password">Пароль</label>
           <input id="panel_password" name="panel_password" type="password" required autocomplete="current-password" placeholder="Увядзіце пароль">
+
+          <label class="auth-remember" for="panel_remember">
+            <input id="panel_remember" name="panel_remember" type="checkbox" value="1">
+            <span>Запомніць мяне</span>
+          </label>
 
           <button type="submit">Увайсці</button>
         </form>

@@ -28,7 +28,7 @@ function panel_set_logged_in_user(int $userId): void
 
 function panel_clear_login_session(): void
 {
-    unset($_SESSION['panel_user_id'], $_SESSION['is_admin_logged_in']);
+    unset($_SESSION['panel_user_id'], $_SESSION['is_admin_logged_in'], $_SESSION['panel_remember_me']);
     panel_invalidate_user_cache();
 }
 
