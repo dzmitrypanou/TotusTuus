@@ -312,12 +312,12 @@ if ($exportKind === 'txt' || $exportKind === 'txt_md') {
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --text: #e2e8f0;
-      --muted: #94a3b8;
+      --text:
+      --muted:
       --line: rgba(148, 163, 184, 0.22);
-      --bg-deep: #0a0c14;
-      --bg-mid: #12182a;
-      --bg-glow: #1a2240;
+      --bg-deep:
+      --bg-mid:
+      --bg-glow:
       --radius: 14px;
       --radius-sm: 10px;
     }
@@ -343,7 +343,7 @@ if ($exportKind === 'txt' || $exportKind === 'txt_md') {
       font-weight: 600;
       letter-spacing: 0.02em;
       line-height: 1.1;
-      background: linear-gradient(120deg, #f1f5f9 0%, #e2d5b8 45%, #c7d2fe 100%);
+      background: linear-gradient(120deg,
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -397,18 +397,18 @@ if ($exportKind === 'txt' || $exportKind === 'txt_md') {
     }
     .toolbar-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
     .grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
-    .card { background: #111827; border: 1px solid #334155; border-radius: 14px; padding: 14px; overflow: hidden; }
+    .card { background:
     .table-wrap { overflow-x: auto; }
     .table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .table th, .table td { border-bottom: 1px solid #273449; padding: 7px 6px; text-align: left; vertical-align: top; }
+    .table th, .table td { border-bottom: 1px solid
     .table tr:last-child td { border-bottom: none; }
-    .muted { color: #94a3b8; font-size: 13px; }
-    label { display: block; margin-top: 10px; margin-bottom: 4px; font-size: 13px; color: #cbd5e1; font-weight: 600; }
+    .muted { color:
+    label { display: block; margin-top: 10px; margin-bottom: 4px; font-size: 13px; color:
     input[type="number"] {
       width: 100%;
-      border: 1px solid #334155;
-      background: #0f172a;
-      color: #e2e8f0;
+      border: 1px solid
+      background:
+      color:
       border-radius: 10px;
       padding: 10px 11px;
       font: inherit;
@@ -444,9 +444,9 @@ if ($exportKind === 'txt' || $exportKind === 'txt_md') {
       filter: none;
     }
     button {
-      border: 1px solid #334155;
-      background: #7c6cf0;
-      color: #fff;
+      border: 1px solid
+      background:
+      color:
       font-weight: 700;
       border-radius: 10px;
       padding: 10px 12px;

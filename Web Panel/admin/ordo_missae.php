@@ -188,16 +188,16 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --text: #e2e8f0;
-      --muted: #94a3b8;
+      --text:
+      --muted:
       --line: rgba(148, 163, 184, 0.22);
-      --bg-deep: #0a0c14;
-      --bg-mid: #12182a;
-      --bg-glow: #1a2240;
+      --bg-deep:
+      --bg-mid:
+      --bg-glow:
       --radius: 14px;
       --radius-sm: 10px;
-      --accent: #7c6cf0;
-      --accent-2: #c4a35a;
+      --accent:
+      --accent-2:
     }
     * { box-sizing: border-box; }
     html { color-scheme: dark; scrollbar-gutter: stable; }
@@ -221,7 +221,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       font-weight: 600;
       letter-spacing: 0.02em;
       line-height: 1.1;
-      background: linear-gradient(120deg, #f1f5f9 0%, #e2d5b8 45%, #c7d2fe 100%);
+      background: linear-gradient(120deg,
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -284,13 +284,13 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
     a.btn-pill.active, button.btn-pill.active {
       background: linear-gradient(135deg, rgba(124, 108, 240, 0.35), rgba(196, 163, 90, 0.18));
       border-color: rgba(196, 163, 90, 0.35);
-      color: #fff;
+      color:
     }
     button.btn-pill { margin-top: 0; font-family: inherit; box-shadow: none; }
     .grid { display: grid; grid-template-columns: 1fr; gap: 14px; width: 100%; min-width: 0; }
     .card {
-      background: #111827;
-      border: 1px solid #334155;
+      background:
+      border: 1px solid
       border-radius: 14px;
       padding: 16px;
       min-width: 0;
@@ -315,7 +315,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       max-width: min(360px, calc(100vw - 32px));
       padding: 12px 14px;
       border-radius: var(--radius-sm);
-      color: #fff;
+      color:
       font-size: 14px;
       font-weight: 600;
       line-height: 1.35;
@@ -323,8 +323,8 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       border: 1px solid rgba(255, 255, 255, 0.12);
       animation: ordoToastIn 0.22s ease;
     }
-    .toast.ok { background: linear-gradient(135deg, #15803d, #22c55e); }
-    .toast.err { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+    .toast.ok { background: linear-gradient(135deg,
+    .toast.err { background: linear-gradient(135deg,
     @keyframes ordoToastIn {
       from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -342,7 +342,6 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       overflow: visible;
     }
 
-    #ordo-toolbar.rich-toolbar {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
@@ -352,7 +351,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       background: rgba(15, 23, 42, 0.65);
       border-radius: var(--radius-sm) var(--radius-sm) 0 0;
     }
-    #ordo-toolbar .rich-toolbar-group {
+
       display: inline-flex;
       flex-wrap: wrap;
       align-items: center;
@@ -361,12 +360,12 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       margin-right: 2px;
       border-right: 1px solid var(--line);
     }
-    #ordo-toolbar .rich-toolbar-group:last-child {
+
       border-right: none;
       margin-right: 0;
       padding-right: 0;
     }
-    #ordo-toolbar .rich-toolbar-label {
+
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
@@ -374,7 +373,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       color: var(--muted);
       margin-right: 2px;
     }
-    #ordo-toolbar .rich-btn {
+
       margin: 0;
       padding: 6px 11px;
       border-radius: 8px;
@@ -382,18 +381,17 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       font-family: inherit;
       font-weight: 600;
       background: rgba(124, 108, 240, 0.2);
-      color: #e0e7ff;
+      color:
       border: 1px solid rgba(124, 108, 240, 0.25);
       cursor: pointer;
       box-shadow: none;
     }
-    #ordo-toolbar .rich-btn:hover { background: rgba(124, 108, 240, 0.32); }
-    #ordo-toolbar .rich-btn.active {
-      background: linear-gradient(135deg, var(--accent), #5b4fc9);
-      color: #fff;
+
+      background: linear-gradient(135deg, var(--accent),
+      color:
       border-color: transparent;
     }
-    #ordo-toolbar .rich-btn-icon {
+
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -401,13 +399,12 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       min-height: 38px;
       padding: 7px;
     }
-    #ordo-toolbar .rich-btn-icon svg { display: block; flex-shrink: 0; }
-    #ordo-toolbar .rich-color-picker-wrap {
+
       position: relative;
       display: inline-flex;
       align-items: center;
     }
-    #ordo-toolbar .rich-color-toggle {
+
       width: 34px;
       height: 34px;
       min-width: 34px;
@@ -416,15 +413,15 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       margin: 0;
       border-radius: 8px;
       border: 2px solid rgba(148, 163, 184, 0.45);
-      background: #ffffff;
+      background:
       cursor: pointer;
       box-shadow: none;
     }
-    #ordo-toolbar .rich-color-picker-wrap.open .rich-color-toggle {
-      border-color: #ffffff;
+
+      border-color:
       box-shadow: 0 0 0 2px rgba(124, 108, 240, 0.55);
     }
-    #ordo-toolbar .rich-color-dropdown {
+
       position: absolute;
       top: calc(100% + 8px);
       left: 0;
@@ -440,12 +437,12 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       overflow-y: auto;
       overscroll-behavior: contain;
     }
-    #ordo-toolbar .rich-color-picker-wrap.open .rich-color-dropdown {
+
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 6px;
     }
-    #ordo-toolbar .rich-color-swatch {
+
       width: 18px;
       height: 18px;
       margin: 0;
@@ -455,15 +452,12 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       cursor: pointer;
       box-shadow: none;
     }
-    #ordo-toolbar .rich-color-swatch:hover { filter: brightness(1.1); }
-    #ordo-toolbar .rich-color-swatch.active,
-    #ordo-toolbar .rich-color-swatch:focus-visible {
-      border-color: #ffffff;
+
+      border-color:
       box-shadow: 0 0 0 1px rgba(124, 108, 240, 0.65);
       outline: none;
     }
-    #ordo-toolbar .rich-color-swatch--white { border-color: rgba(203, 213, 225, 0.9); }
-    #ordo-quick-toolbar.rich-quick-toolbar {
+
       position: absolute;
       z-index: 100050;
       display: none;
@@ -478,7 +472,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
         0 0 0 1px rgba(124, 108, 240, 0.35),
         0 0 28px rgba(99, 102, 241, 0.3);
     }
-    #ordo-quick-toolbar .rich-btn {
+
       margin: 0;
       min-width: 34px;
       min-height: 34px;
@@ -488,18 +482,17 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       font-family: inherit;
       font-weight: 600;
       background: rgba(124, 108, 240, 0.2);
-      color: #e0e7ff;
+      color:
       border: 1px solid rgba(124, 108, 240, 0.25);
       cursor: pointer;
       box-shadow: none;
     }
-    #ordo-quick-toolbar .rich-btn:hover { background: rgba(124, 108, 240, 0.32); }
-    #ordo-quick-toolbar .rich-color-picker-wrap {
+
       position: relative;
       display: inline-flex;
       align-items: center;
     }
-    #ordo-quick-toolbar .rich-color-toggle {
+
       width: 34px;
       height: 34px;
       min-width: 34px;
@@ -508,14 +501,14 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       margin: 0;
       border-radius: 8px;
       border: 2px solid rgba(148, 163, 184, 0.45);
-      background: #ffffff;
+      background:
       cursor: pointer;
     }
-    #ordo-quick-toolbar .rich-color-picker-wrap.open .rich-color-toggle {
-      border-color: #ffffff;
+
+      border-color:
       box-shadow: 0 0 0 2px rgba(124, 108, 240, 0.55);
     }
-    #ordo-quick-toolbar .rich-color-dropdown {
+
       position: absolute;
       top: calc(100% + 8px);
       left: auto;
@@ -532,12 +525,12 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       overflow-y: auto;
       overscroll-behavior: contain;
     }
-    #ordo-quick-toolbar .rich-color-picker-wrap.open .rich-color-dropdown {
+
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 6px;
     }
-    #ordo-quick-toolbar .rich-color-swatch {
+
       width: 18px;
       height: 18px;
       margin: 0;
@@ -546,7 +539,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       border: 1px solid rgba(148, 163, 184, 0.5);
       cursor: pointer;
     }
-    #ordo-quick-toolbar .rich-color-swatch--white { border-color: rgba(203, 213, 225, 0.9); }
+
     .ordo-body {
       display: block;
       width: 100%;
@@ -581,7 +574,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       font-weight: 700;
       font-size: 0.95rem;
       letter-spacing: 0.02em;
-      color: #e0e7ff;
+      color:
       background: rgba(15, 23, 42, 0.75);
       border-left: 3px solid rgba(124, 108, 240, 0.55);
     }
@@ -628,14 +621,14 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       border-radius: 10px;
       border: 1px solid rgba(124, 108, 240, 0.35);
       background: rgba(124, 108, 240, 0.18);
-      color: #e0e7ff;
+      color:
       cursor: pointer;
       font: inherit;
     }
     .ordo-title-edit-btn:hover {
       background: rgba(124, 108, 240, 0.32);
       border-color: rgba(196, 163, 90, 0.35);
-      color: #fff;
+      color:
     }
     .ordo-title-edit-btn svg { display: block; }
     .ordo-section-title-input {
@@ -647,7 +640,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       border-radius: 8px;
       border: 1px solid rgba(148, 163, 184, 0.35);
       background: rgba(6, 8, 14, 0.65);
-      color: #f1f5f9;
+      color:
       font: inherit;
       font-size: 0.95rem;
       font-weight: 600;
@@ -660,7 +653,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
     details.ordo-section--title-editing > summary .ordo-section-title-input {
       display: block !important;
     }
-    .ordo-section-title-input::placeholder { color: #64748b; font-weight: 500; }
+    .ordo-section-title-input::placeholder { color:
     .ordo-section-title-input:focus {
       outline: none;
       border-color: rgba(124, 108, 240, 0.65);
@@ -679,8 +672,8 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
     .ordo-actions button[type="submit"] {
       margin: 0;
       border: 1px solid rgba(124, 108, 240, 0.45);
-      background: linear-gradient(135deg, #6d5dfc 0%, #8b7cf5 50%, #a78bfa 100%);
-      color: #fff;
+      background: linear-gradient(135deg,
+      color:
       font-weight: 700;
       border-radius: 10px;
       padding: 12px 22px;
@@ -708,7 +701,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       border-radius: 8px;
       border: 1px solid rgba(148, 163, 184, 0.35);
       background: rgba(15, 23, 42, 0.65);
-      color: #cbd5e1;
+      color:
       cursor: pointer;
       font: inherit;
       font-size: 14px;
@@ -717,7 +710,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
     }
     .ordo-move-btn:hover:not(:disabled) {
       border-color: rgba(124, 108, 240, 0.55);
-      color: #fff;
+      color:
       background: rgba(124, 108, 240, 0.22);
     }
     .ordo-move-btn:disabled {
@@ -734,13 +727,13 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       border-radius: 8px;
       border: 1px solid rgba(239, 68, 68, 0.45);
       background: rgba(127, 29, 29, 0.35);
-      color: #fecaca;
+      color:
       cursor: pointer;
       font: inherit;
     }
     .ordo-remove-custom:hover {
       background: rgba(185, 28, 28, 0.55);
-      color: #fff;
+      color:
     }
     .ordo-add-section-wrap {
       padding: 12px 16px;
@@ -755,7 +748,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
       border-radius: 10px;
       border: 1px dashed rgba(124, 108, 240, 0.45);
       background: rgba(124, 108, 240, 0.12);
-      color: #e0e7ff;
+      color:
       font: inherit;
       font-weight: 600;
       cursor: pointer;
@@ -1379,7 +1372,7 @@ $ordoSavePath = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? '/adm
         + '<button type="button" class="rich-btn rich-btn-icon" data-cmd="justifyRight" title="Управа" aria-label="Управа">R</button>'
         + '<button type="button" class="rich-btn rich-btn-icon" data-cmd="justifyFull" title="Па шырыні" aria-label="Па шырыні">J</button>'
         + '<div class="rich-color-picker-wrap">'
-        + '<button type="button" class="rich-color-toggle" data-color="#ffffff" style="background:#ffffff;" title="Абраць колер" aria-label="Абраць колер"></button>'
+        + '<button type="button" class="rich-color-toggle" data-color="
         + '<div class="rich-color-dropdown" role="group" aria-label="Колер тэксту"></div>'
         + '</div>';
       document.body.appendChild(quick);

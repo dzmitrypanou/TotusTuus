@@ -1575,19 +1575,19 @@ if ($authReady && $isLoggedIn) {
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-deep: #0a0c14;
-      --bg-mid: #12182a;
-      --bg-glow: #1a2240;
+      --bg-deep:
+      --bg-mid:
+      --bg-glow:
       --card: rgba(22, 28, 46, 0.72);
-      --card-solid: #161c2e;
-      --text: #e8ecf4;
-      --muted: #94a3b8;
+      --card-solid:
+      --text:
+      --muted:
       --line: rgba(148, 163, 184, 0.18);
-      --accent: #7c6cf0;
-      --accent-2: #c4a35a;
+      --accent:
+      --accent-2:
       --accent-glow: rgba(124, 108, 240, 0.35);
-      --danger: #f87171;
-      --success: #4ade80;
+      --danger:
+      --success:
       --radius: 14px;
       --radius-sm: 10px;
     }
@@ -1616,7 +1616,7 @@ if ($authReady && $isLoggedIn) {
       font-weight: 600;
       letter-spacing: 0.02em;
       line-height: 1.1;
-      background: linear-gradient(120deg, #f1f5f9 0%, #e2d5b8 45%, #c7d2fe 100%);
+      background: linear-gradient(120deg,
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -1630,7 +1630,7 @@ if ($authReady && $isLoggedIn) {
       border-radius: 6px;
       background: rgba(124, 108, 240, 0.15);
       border: 1px solid var(--line);
-      color: #ddd6fe;
+      color:
     }
     .header {
       position: relative;
@@ -1711,7 +1711,7 @@ if ($authReady && $isLoggedIn) {
     button.btn-pill.active {
       background: linear-gradient(135deg, rgba(124, 108, 240, 0.35), rgba(196, 163, 90, 0.18));
       border-color: rgba(196, 163, 90, 0.35);
-      color: #fff;
+      color:
     }
     .btn-pill--sm {
       padding: 6px 10px;
@@ -1719,43 +1719,43 @@ if ($authReady && $isLoggedIn) {
     }
     .btn-pill--purple {
       background: rgba(124, 108, 240, 0.22);
-      color: #e0e7ff;
+      color:
       border-color: rgba(124, 108, 240, 0.3);
     }
     .btn-pill--purple:hover {
       background: rgba(124, 108, 240, 0.32);
       border-color: rgba(124, 108, 240, 0.45);
-      color: #fff;
+      color:
     }
     .btn-pill--gold {
       background: rgba(196, 163, 90, 0.12);
-      color: #e8d5a3;
+      color:
       border-color: rgba(196, 163, 90, 0.28);
     }
     .btn-pill--gold:hover {
       background: rgba(196, 163, 90, 0.2);
       border-color: rgba(196, 163, 90, 0.4);
-      color: #f5ecd4;
+      color:
     }
     .btn-pill--muted {
       background: rgba(15, 23, 42, 0.55);
-      color: #94a3b8;
+      color:
       border-color: rgba(148, 163, 184, 0.2);
     }
     .btn-pill--muted:hover {
       background: rgba(30, 41, 59, 0.75);
       border-color: rgba(148, 163, 184, 0.35);
-      color: #cbd5e1;
+      color:
     }
     .btn-pill--danger {
       background: rgba(248, 113, 113, 0.12);
-      color: #fca5a5;
+      color:
       border-color: rgba(248, 113, 113, 0.28);
     }
     .btn-pill--danger:hover {
       background: rgba(248, 113, 113, 0.2);
       border-color: rgba(248, 113, 113, 0.45);
-      color: #fecaca;
+      color:
     }
     .form-actions-row {
       display: flex;
@@ -1800,11 +1800,11 @@ if ($authReady && $isLoggedIn) {
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #94a3b8;
+      color:
     }
     .songbook-panel-section__meta {
       font-size: 0.8rem;
-      color: #a5b4fc;
+      color:
       font-weight: 600;
     }
     .songbook-panel-section__hint {
@@ -1814,7 +1814,7 @@ if ($authReady && $isLoggedIn) {
       color: var(--muted);
       max-width: 58rem;
     }
-    .songbook-panel-section__hint strong { color: #c4b5fd; font-weight: 600; }
+    .songbook-panel-section__hint strong { color:
     .songbook-panel-section__empty {
       margin: 0 0 12px;
       font-size: 0.875rem;
@@ -1842,7 +1842,7 @@ if ($authReady && $isLoggedIn) {
       cursor: pointer;
       user-select: none;
       font-size: 0.875rem;
-      color: #e2e8f0;
+      color:
       transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
     }
     .songbook-filter-chip:hover {
@@ -1859,7 +1859,7 @@ if ($authReady && $isLoggedIn) {
       height: 1rem;
       margin: 0;
       flex-shrink: 0;
-      accent-color: #7c6cf0;
+      accent-color:
       cursor: pointer;
     }
     .songbook-filter-chip span { line-height: 1.25; }
@@ -1897,7 +1897,7 @@ if ($authReady && $isLoggedIn) {
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #94a3b8;
+      color:
     }
     .panel-filter-summary__hint {
       width: 100%;
@@ -1912,7 +1912,7 @@ if ($authReady && $isLoggedIn) {
     }
     .panel-filter-summary__meta {
       font-size: 0.8rem;
-      color: #a5b4fc;
+      color:
       font-weight: 600;
     }
     .panel-filter-details__body {
@@ -1933,7 +1933,7 @@ if ($authReady && $isLoggedIn) {
       margin: 0;
       font-weight: 600;
       font-size: 0.875rem;
-      color: #cbd5e1;
+      color:
       white-space: nowrap;
     }
     .songbook-bulk-form .bulk-songbook-input {
@@ -1966,7 +1966,7 @@ if ($authReady && $isLoggedIn) {
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
     }
     .card p { margin: 8px 0 0; }
-    label { display: block; margin: 14px 0 7px; font-weight: 600; font-size: 0.875rem; color: #cbd5e1; }
+    label { display: block; margin: 14px 0 7px; font-weight: 600; font-size: 0.875rem; color:
     input, textarea, select {
       width: 100%;
       padding: 11px 12px;
@@ -2008,7 +2008,7 @@ if ($authReady && $isLoggedIn) {
       margin: 0 0 6px;
       font-size: 0.8rem;
       letter-spacing: 0.02em;
-      color: #94a3b8;
+      color:
     }
     .scripture-nav-field--chapter { flex: 0 0 108px; max-width: 120px; }
     .scripture-nav-field--chapter select { min-width: 0; }
@@ -2030,7 +2030,7 @@ if ($authReady && $isLoggedIn) {
       font-weight: 600;
       font-size: 0.9rem;
       text-decoration: none;
-      color: #e2e8f0;
+      color:
       background: rgba(30, 41, 59, 0.75);
       border: 1px solid rgba(148, 163, 184, 0.28);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
@@ -2039,7 +2039,7 @@ if ($authReady && $isLoggedIn) {
     a.scripture-back-btn:hover {
       background: rgba(51, 65, 85, 0.9);
       border-color: rgba(124, 108, 240, 0.45);
-      color: #fff;
+      color:
     }
     a.scripture-back-btn:active { transform: translateY(1px); }
     a.scripture-back-btn .scripture-back-icon {
@@ -2065,16 +2065,16 @@ if ($authReady && $isLoggedIn) {
     }
     a.btn-scripture:active { transform: translateY(1px); }
     a.btn-scripture-primary {
-      color: #fff;
-      background: linear-gradient(135deg, #6d5dfc 0%, #8b7cf5 50%, #a78bfa 100%);
+      color:
+      background: linear-gradient(135deg,
       box-shadow: 0 8px 24px rgba(109, 93, 252, 0.35);
     }
     a.btn-scripture-primary:hover {
       filter: brightness(1.08);
-      color: #fff;
+      color:
     }
     a.btn-scripture-secondary {
-      color: #e2e8f0;
+      color:
       background: rgba(30, 41, 59, 0.75);
       border-color: rgba(148, 163, 184, 0.28);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
@@ -2082,7 +2082,7 @@ if ($authReady && $isLoggedIn) {
     a.btn-scripture-secondary:hover {
       background: rgba(51, 65, 85, 0.92);
       border-color: rgba(124, 108, 240, 0.45);
-      color: #fff;
+      color:
     }
     ul.scripture-translation-list {
       list-style: none;
@@ -2173,13 +2173,13 @@ if ($authReady && $isLoggedIn) {
       border-radius: 8px;
       font-size: 13px;
       background: rgba(124, 108, 240, 0.2);
-      color: #e0e7ff;
+      color:
       border: 1px solid rgba(124, 108, 240, 0.25);
     }
     .rich-btn:hover { background: rgba(124, 108, 240, 0.32); }
     .rich-btn.active {
-      background: linear-gradient(135deg, var(--accent), #5b4fc9);
-      color: #fff;
+      background: linear-gradient(135deg, var(--accent),
+      color:
       border-color: transparent;
     }
     .rich-btn-icon {
@@ -2208,12 +2208,12 @@ if ($authReady && $isLoggedIn) {
       margin-top: 0;
       border-radius: 8px;
       border: 2px solid rgba(148, 163, 184, 0.45);
-      background: #ffffff;
+      background:
       cursor: pointer;
       box-shadow: none;
     }
     .rich-color-picker-wrap.open .rich-color-toggle {
-      border-color: #ffffff;
+      border-color:
       box-shadow: 0 0 0 2px rgba(124, 108, 240, 0.55);
     }
     .rich-color-dropdown {
@@ -2253,7 +2253,7 @@ if ($authReady && $isLoggedIn) {
     }
     .rich-color-swatch.active,
     .rich-color-swatch:focus-visible {
-      border-color: #ffffff;
+      border-color:
       box-shadow: 0 0 0 1px rgba(124, 108, 240, 0.65);
       outline: none;
     }
@@ -2299,8 +2299,8 @@ if ($authReady && $isLoggedIn) {
       font-weight: 600;
       font-size: 0.9rem;
       cursor: pointer;
-      background: linear-gradient(135deg, #6d5dfc 0%, #8b7cf5 50%, #a78bfa 100%);
-      color: #fff;
+      background: linear-gradient(135deg,
+      color:
       box-shadow: 0 8px 24px rgba(109, 93, 252, 0.35);
       transition: filter 0.15s ease, transform 0.1s ease;
     }
@@ -2333,7 +2333,7 @@ if ($authReady && $isLoggedIn) {
     .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
     .actions form { display: inline; margin: 0; }
     .prayers-filter-form { margin: 0 0 8px; }
-    #dynamic-sections > .prayers-filter-form:first-child { margin-top: 16px; }
+
     .prayers-filter-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -2349,7 +2349,7 @@ if ($authReady && $isLoggedIn) {
       margin: 0 0 6px;
       font-size: 0.8rem;
       font-weight: 600;
-      color: #94a3b8;
+      color:
     }
     .prayers-filter-actions {
       display: flex;
@@ -2420,12 +2420,12 @@ if ($authReady && $isLoggedIn) {
     }
     .btn-mini.secondary {
       background: rgba(124, 108, 240, 0.22);
-      color: #e0e7ff;
+      color:
       border: 1px solid rgba(124, 108, 240, 0.3);
     }
     .btn-mini.danger {
       background: rgba(248, 113, 113, 0.12);
-      color: #fca5a5;
+      color:
       border: 1px solid rgba(248, 113, 113, 0.25);
     }
     .drag-handle {
@@ -2459,7 +2459,7 @@ if ($authReady && $isLoggedIn) {
       padding: 0 10px;
       border-radius: 999px;
       background: rgba(196, 163, 90, 0.15);
-      color: #e8d5a3;
+      color:
       font-size: 11px;
       font-weight: 600;
       margin-left: 0;
@@ -2476,7 +2476,7 @@ if ($authReady && $isLoggedIn) {
       font-size: 12px;
       line-height: 1;
       background: rgba(124, 108, 240, 0.2);
-      color: #e0e7ff;
+      color:
       border: 1px solid rgba(124, 108, 240, 0.28);
       box-shadow: none;
       display: inline-flex;
@@ -2507,7 +2507,7 @@ if ($authReady && $isLoggedIn) {
       padding: 3px 10px;
       border-radius: 999px;
       background: rgba(196, 163, 90, 0.15);
-      color: #e8d5a3;
+      color:
       font-size: 11px;
       font-weight: 600;
       margin-left: 6px;
@@ -2521,7 +2521,7 @@ if ($authReady && $isLoggedIn) {
       width: 14px;
       height: 14px;
       border: 2px solid rgba(255, 255, 255, 0.35);
-      border-top-color: #fff;
+      border-top-color:
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       vertical-align: text-bottom;
@@ -2533,13 +2533,13 @@ if ($authReady && $isLoggedIn) {
       max-width: 360px;
       padding: 12px 14px;
       border-radius: var(--radius-sm);
-      color: #fff;
+      color:
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
       border: 1px solid rgba(255, 255, 255, 0.1);
       animation: fadeIn 0.2s ease;
     }
-    .toast.ok { background: linear-gradient(135deg, #15803d, #22c55e); }
-    .toast.err { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+    .toast.ok { background: linear-gradient(135deg,
+    .toast.err { background: linear-gradient(135deg,
     .table-section-title { margin-top: 24px; margin-bottom: 0; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -2630,7 +2630,7 @@ if ($authReady && $isLoggedIn) {
       background: linear-gradient(145deg, rgba(124, 108, 240, 0.35), rgba(196, 163, 90, 0.12));
       border: 1px solid rgba(124, 108, 240, 0.35);
       box-shadow: 0 8px 24px rgba(109, 93, 252, 0.25);
-      color: #e9d5ff;
+      color:
     }
     .auth-icon svg {
       width: 26px;
@@ -2659,12 +2659,12 @@ if ($authReady && $isLoggedIn) {
       line-height: 1.45;
       border: 1px solid rgba(248, 113, 113, 0.35);
       background: rgba(127, 29, 29, 0.35);
-      color: #fecaca;
+      color:
     }
     .auth-alert--system {
       border-color: rgba(251, 191, 36, 0.4);
       background: rgba(120, 53, 15, 0.35);
-      color: #fde68a;
+      color:
     }
     .auth-form label {
       margin-top: 18px;
@@ -2672,7 +2672,7 @@ if ($authReady && $isLoggedIn) {
       font-size: 0.8125rem;
       letter-spacing: 0.03em;
       text-transform: uppercase;
-      color: #94a3b8;
+      color:
     }
     .auth-form label:first-of-type {
       margin-top: 0;
@@ -2699,7 +2699,7 @@ if ($authReady && $isLoggedIn) {
       font-weight: 400;
       letter-spacing: normal;
       text-transform: none;
-      color: #cbd5e1;
+      color:
       cursor: pointer;
       user-select: none;
     }
@@ -2707,7 +2707,7 @@ if ($authReady && $isLoggedIn) {
       width: 18px;
       height: 18px;
       margin: 0;
-      accent-color: var(--accent, #7c6cf0);
+      accent-color: var(--accent,
       cursor: pointer;
     }
     .auth-form button[type="submit"] {
@@ -2918,7 +2918,7 @@ if ($authReady && $isLoggedIn) {
 
 <?php if ($view === 'add-category' && $editCategory !== null): ?>
       <div class="card">
-        <h2>Рэдагаванне катэгорыі #<?= (int)$editCategory['id'] ?></h2>
+        <h2>Рэдагаванне катэгорыі
         <form method="post"><?= panel_csrf_field() ?>
           <input type="hidden" name="update_category_id" value="<?= (int)$editCategory['id'] ?>">
 
@@ -3077,7 +3077,7 @@ if ($authReady && $isLoggedIn) {
       $prayersReturnHref = '/?' . http_build_query($prayersReturnGet);
       ?>
       <div class="card">
-        <h2>Рэдагаванне малітвы #<?= (int)$editPrayer['id'] ?></h2>
+        <h2>Рэдагаванне малітвы
         <form method="post" class="js-ajax-form" data-refresh="1"><?= panel_csrf_field() ?>
           <input type="hidden" name="update_prayer_id" value="<?= (int)$editPrayer['id'] ?>">
 

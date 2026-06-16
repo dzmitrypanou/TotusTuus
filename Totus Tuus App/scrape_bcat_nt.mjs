@@ -1,7 +1,7 @@
 import { writeFileSync } from "node:fs";
 
 const BASE = (process.env.SCRIPTURE_SCRAPE_BASE || "").replace(/\/?$/, "/");
-if (!BASE || !/^https?:\/\//i.test(BASE)) {
+if (!BASE || !/^https?:\/\
   console.error("Set SCRIPTURE_SCRAPE_BASE to the NT catalog root URL (trailing slash optional).");
   process.exit(1);
 }

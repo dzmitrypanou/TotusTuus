@@ -163,11 +163,11 @@ $formRow = $editRow ?: [
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
-    :root { --text:#e2e8f0; --muted:#94a3b8; --line:rgba(148,163,184,.22); --card:rgba(22,28,46,.72); --bg-deep:#0a0c14; --bg-mid:#12182a; --bg-glow:#1a2240; --accent:#7c6cf0; --radius:14px; --radius-sm:10px; }
+    :root { --text:
     * { box-sizing:border-box; }
     html { color-scheme:dark; scrollbar-gutter:stable; }
     body { font-family:"DM Sans",system-ui,sans-serif; max-width:1120px; margin:0 auto; padding:28px 16px 48px; color:var(--text); min-height:100vh; background:radial-gradient(ellipse 120% 80% at 100% -20%, rgba(124,108,240,.22), transparent 50%), radial-gradient(ellipse 90% 60% at -10% 50%, rgba(196,163,90,.08), transparent 45%), linear-gradient(165deg, var(--bg-deep) 0%, var(--bg-mid) 42%, var(--bg-glow) 100%); background-attachment:fixed; }
-    h1 { margin:0; font-family:"Cormorant Garamond","Times New Roman",serif; font-size:clamp(2rem,4vw,2.75rem); font-weight:600; letter-spacing:.02em; line-height:1.1; background:linear-gradient(120deg,#f1f5f9 0%,#e2d5b8 45%,#c7d2fe 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    h1 { margin:0; font-family:"Cormorant Garamond","Times New Roman",serif; font-size:clamp(2rem,4vw,2.75rem); font-weight:600; letter-spacing:.02em; line-height:1.1; background:linear-gradient(120deg,
     h2 { margin:0 0 12px; font-size:1.05rem; }
     .header { position:relative; overflow:hidden; border-radius:calc(var(--radius) + 4px); padding:22px 24px; display:flex; align-items:center; justify-content:space-between; gap:20px; border:1px solid var(--line); background:linear-gradient(135deg, rgba(30,27,75,.95) 0%, rgba(15,23,42,.92) 50%, rgba(30,41,59,.88) 100%); box-shadow:0 4px 24px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.04) inset, 0 1px 0 rgba(255,255,255,.06) inset; margin-bottom:16px; }
     .header::before { content:""; position:absolute; inset:0; background:linear-gradient(105deg, transparent 40%, rgba(196,163,90,.06) 70%, rgba(124,108,240,.12) 100%); pointer-events:none; }
@@ -176,7 +176,7 @@ $formRow = $editRow ?: [
     .header-brand h1 { text-align:center; }
     .header-tagline { margin:0; max-width:22rem; font-size:calc(.8125rem * .7); font-weight:500; color:var(--muted); letter-spacing:.04em; text-transform:uppercase; line-height:1.4; text-align:center; }
     .card { border:1px solid var(--line); border-radius:var(--radius); background:var(--card); box-shadow:0 18px 70px rgba(0,0,0,.35); padding:18px; backdrop-filter:blur(18px); max-width:720px; }
-    label { display:block; margin:12px 0 6px; font-weight:700; font-size:.86rem; color:#cbd5e1; }
+    label { display:block; margin:12px 0 6px; font-weight:700; font-size:.86rem; color:
     input[type="text"], input[type="number"], select { width:100%; border:1px solid rgba(148,163,184,.28); border-radius:10px; background:rgba(15,23,42,.7); color:var(--text); padding:10px 12px; font:inherit; }
     select:not([multiple]) { appearance:none; -webkit-appearance:none; -moz-appearance:none; padding:10px 40px 10px 12px; background-color:rgba(15,23,42,.82); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; background-size:14px 14px; cursor:pointer; }
     select:not([multiple]):hover { border-color:rgba(148,163,184,.42); background-color:rgba(15,23,42,.95); }
@@ -185,18 +185,18 @@ $formRow = $editRow ?: [
     .checkbox-row { display:flex; align-items:center; gap:8px; margin-top:12px; }
     .checkbox-row label { margin:0; }
     a.btn-pill, button.btn-pill { display:inline-flex; align-items:center; justify-content:center; color:var(--text); text-decoration:none; font-weight:600; font-size:.875rem; padding:8px 12px; border-radius:var(--radius-sm); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); line-height:1.2; cursor:pointer; }
-    a.btn-pill.active, button.btn-pill.active { background:linear-gradient(135deg, rgba(124,108,240,.35), rgba(196,163,90,.18)); border-color:rgba(196,163,90,.35); color:#fff; }
+    a.btn-pill.active, button.btn-pill.active { background:linear-gradient(135deg, rgba(124,108,240,.35), rgba(196,163,90,.18)); border-color:rgba(196,163,90,.35); color:
     button.btn-pill { margin-top:0; font-family:inherit; font-weight:600; padding:8px 12px; border-radius:var(--radius-sm); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); color:var(--text); box-shadow:none; filter:none; }
     button.btn-pill:hover:not(:disabled) { filter:brightness(1.08); box-shadow:none; }
     button.btn-pill:active:not(:disabled) { transform:none; }
     .btn-pill--muted { background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.08); color:var(--text); }
-    button { border:1px solid #334155; background:#7c6cf0; color:#fff; font-weight:700; border-radius:10px; padding:10px 12px; cursor:pointer; }
+    button { border:1px solid
     .toolbar-row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px; }
     .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
     .muted { color:var(--muted); font-size:.88rem; line-height:1.45; }
     .msg { margin:0 0 12px; padding:10px 12px; border-radius:10px; font-size:.92rem; }
-    .msg--ok { background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.35); color:#bbf7d0; }
-    .msg--err { background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.35); color:#fecaca; }
+    .msg--ok { background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.35); color:
+    .msg--err { background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.35); color:
     @media (max-width:1180px) { .header { flex-direction:column; align-items:flex-start; } .header-brand { align-self:center; } }
   </style>
 </head>

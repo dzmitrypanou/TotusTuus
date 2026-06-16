@@ -219,7 +219,7 @@ $optPrefixAutoChecked = $editRow === null
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
-    :root { --text: #e2e8f0; --muted: #94a3b8; --line: rgba(148, 163, 184, 0.22); --bg-deep: #0a0c14; --bg-mid: #12182a; --bg-glow: #1a2240; --radius: 14px; --radius-sm: 10px; }
+    :root { --text:
     * { box-sizing: border-box; }
     html { color-scheme: dark; scrollbar-gutter: stable; }
     body {
@@ -242,12 +242,12 @@ $optPrefixAutoChecked = $editRow === null
       font-weight: 600;
       letter-spacing: 0.02em;
       line-height: 1.1;
-      background: linear-gradient(120deg, #f1f5f9 0%, #e2d5b8 45%, #c7d2fe 100%);
+      background: linear-gradient(120deg,
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
     }
-    h2 { margin: 0 0 8px; font-size: 1rem; color: #f1f5f9; }
+    h2 { margin: 0 0 8px; font-size: 1rem; color:
     .header {
       position: relative;
       overflow: hidden;
@@ -295,21 +295,21 @@ $optPrefixAutoChecked = $editRow === null
       font-family: inherit;
     }
     .msg { margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; }
-    .ok { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.45); color: #bbf7d0; }
-    .err { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.45); color: #fecaca; }
-    .card { background: #111827; border: 1px solid #334155; border-radius: 14px; padding: 16px; overflow: hidden; }
-    label { display: block; margin-top: 10px; margin-bottom: 4px; font-size: 13px; color: #cbd5e1; font-weight: 600; }
+    .ok { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.45); color:
+    .err { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.45); color:
+    .card { background:
+    label { display: block; margin-top: 10px; margin-bottom: 4px; font-size: 13px; color:
     label.checkbox-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-weight: 600; }
     label.checkbox-row input { width: auto; }
     input[type="text"], input[type="number"], select, textarea {
-      width: 100%; border: 1px solid #334155; background: #0f172a; color: #e2e8f0;
+      width: 100%; border: 1px solid
       border-radius: 10px; padding: 10px 11px; font: inherit;
     }
     select:not([multiple]) {
       appearance: none;
       -webkit-appearance: none;
       padding: 10px 40px 10px 11px;
-      background-color: #0f172a;
+      background-color:
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 12px center;
@@ -317,11 +317,11 @@ $optPrefixAutoChecked = $editRow === null
     }
     textarea { min-height: 90px; resize: vertical; max-width: 100%; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
-    button { border: 1px solid #334155; background: #7c6cf0; color: #fff; font-weight: 700; border-radius: 10px; padding: 10px 12px; cursor: pointer; font-family: inherit; }
-    .danger { background: #7f1d1d; border-color: #b91c1c; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; padding: 8px 12px; font-weight: 600; }
-    .muted { color: #94a3b8; font-size: 13px; }
-    code { font-size: 12px; background: rgba(15, 23, 42, 0.8); padding: 2px 6px; border-radius: 6px; border: 1px solid #334155; }
+    button { border: 1px solid
+    .danger { background:
+    .btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 10px; border: 1px solid
+    .muted { color:
+    code { font-size: 12px; background: rgba(15, 23, 42, 0.8); padding: 2px 6px; border-radius: 6px; border: 1px solid
     .optional-prefix-block { margin-top: 4px; }
     @media (max-width: 1180px) {
       .header { flex-direction: column; align-items: flex-start; }

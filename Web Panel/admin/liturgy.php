@@ -204,12 +204,12 @@ foreach ($monthDayMeta as $k => $meta) {
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --text: #e2e8f0;
-      --muted: #94a3b8;
+      --text:
+      --muted:
       --line: rgba(148, 163, 184, 0.22);
-      --bg-deep: #0a0c14;
-      --bg-mid: #12182a;
-      --bg-glow: #1a2240;
+      --bg-deep:
+      --bg-mid:
+      --bg-glow:
       --radius: 14px;
       --radius-sm: 10px;
     }
@@ -238,7 +238,7 @@ foreach ($monthDayMeta as $k => $meta) {
       font-weight: 600;
       letter-spacing: 0.02em;
       line-height: 1.1;
-      background: linear-gradient(120deg, #f1f5f9 0%, #e2d5b8 45%, #c7d2fe 100%);
+      background: linear-gradient(120deg,
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -308,18 +308,18 @@ foreach ($monthDayMeta as $k => $meta) {
     a.btn-pill.active, button.btn-pill.active {
       background: linear-gradient(135deg, rgba(124, 108, 240, 0.35), rgba(196, 163, 90, 0.18));
       border-color: rgba(196, 163, 90, 0.35);
-      color: #fff;
+      color:
     }
     button.btn-pill { margin-top: 0; font-family: inherit; box-shadow: none; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; padding: 8px 12px; font-weight: 600; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 10px; border: 1px solid
     .msg { margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; }
-    .ok { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.45); color: #bbf7d0; }
-    .err { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.45); color: #fecaca; }
+    .ok { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.45); color:
+    .err { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.45); color:
     .grid { display: grid; grid-template-columns: 1fr; gap: 14px; width: 100%; }
-    .card { background: #111827; border: 1px solid #334155; border-radius: 14px; padding: 16px; overflow: hidden; }
+    .card { background:
     .table-wrap { overflow-x: auto; }
     .table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; min-width: 820px; }
-    .table th, .table td { border-bottom: 1px solid #273449; padding: 10px 8px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+    .table th, .table td { border-bottom: 1px solid
     .table tbody tr.row-sunday td { background: rgba(124, 108, 240, 0.14); }
     .table tr:last-child td { border-bottom: none; }
     .table .btn { white-space: nowrap; padding: 6px 10px; }
@@ -333,23 +333,23 @@ foreach ($monthDayMeta as $k => $meta) {
       border-radius: 999px;
       font-size: 12px;
       font-weight: 700;
-      border: 1px solid #334155;
-      background: #0f172a;
-      color: #cbd5e1;
+      border: 1px solid
+      background:
+      color:
       white-space: nowrap;
     }
-    .status-chip.ok { border-color: rgba(34,197,94,0.45); color: #86efac; }
-    .status-chip.empty { border-color: rgba(239,68,68,0.45); color: #fca5a5; }
-    .muted { color: #94a3b8; font-size: 13px; }
+    .status-chip.ok { border-color: rgba(34,197,94,0.45); color:
+    .status-chip.empty { border-color: rgba(239,68,68,0.45); color:
+    .muted { color:
     .day-actions { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
     .day-actions-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
     .day-actions .btn { justify-content: center; padding: 5px 9px; font-size: 12px; }
     .date-stack { display: flex; flex-direction: column; gap: 2px; line-height: 1.25; }
-    .date-stack .d-num { font-weight: 700; font-variant-numeric: tabular-nums; color: #f1f5f9; }
+    .date-stack .d-num { font-weight: 700; font-variant-numeric: tabular-nums; color:
     .date-stack .wkday { font-size: 11px; font-weight: 600; color: rgba(148, 163, 184, 0.95); text-transform: uppercase; letter-spacing: 0.06em; }
     .day-primary { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
     .day-primary .dot { flex-shrink: 0; margin-top: 4px; }
-    .day-title-text { font-weight: 600; color: #f1f5f9; line-height: 1.35; }
+    .day-title-text { font-weight: 600; color:
     .readings-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
     .readings-chip {
       display: inline-flex;
@@ -361,8 +361,8 @@ foreach ($monthDayMeta as $k => $meta) {
       font-weight: 700;
       letter-spacing: 0.02em;
     }
-    .readings-chip.ok { background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.35); color: #86efac; }
-    .readings-chip.empty { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; }
+    .readings-chip.ok { background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.35); color:
+    .readings-chip.empty { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); color:
     .readings-src { font-size: 10px; color: rgba(148, 163, 184, 0.85); max-width: 100%; }
     .readings-slots {
       margin-top: 8px;
@@ -394,11 +394,11 @@ foreach ($monthDayMeta as $k => $meta) {
       font-size: 9px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: #94a3b8;
+      color:
       white-space: nowrap;
       padding-top: 2px;
     }
-    .reading-slot-label { color: #cbd5e1; line-height: 1.35; min-width: 0; }
+    .reading-slot-label { color:
     .reading-slot-meta {
       display: flex;
       flex-wrap: wrap;
@@ -406,20 +406,20 @@ foreach ($monthDayMeta as $k => $meta) {
       align-items: center;
       justify-content: flex-end;
     }
-    .reading-slot-ok { color: #86efac; font-weight: 700; font-size: 10px; white-space: nowrap; }
-    .reading-slot-miss { color: #fca5a5; font-weight: 700; font-size: 10px; white-space: nowrap; }
+    .reading-slot-ok { color:
+    .reading-slot-miss { color:
     .reading-slot-link {
       font-size: 10px;
       font-weight: 700;
-      color: #a5b4fc;
+      color:
       text-decoration: none;
       white-space: nowrap;
     }
     .reading-slot-link:hover { text-decoration: underline; }
     .readings-slots-empty { font-size: 11px; color: rgba(148, 163, 184, 0.85); margin: 0; padding: 4px 0; }
-    label { display: block; margin-top: 10px; margin-bottom: 4px; font-size: 13px; color: #cbd5e1; font-weight: 600; }
+    label { display: block; margin-top: 10px; margin-bottom: 4px; font-size: 13px; color:
     input[type="date"], input[type="text"], select, textarea {
-      width: 100%; border: 1px solid #334155; background: #0f172a; color: #e2e8f0;
+      width: 100%; border: 1px solid
       border-radius: 10px; padding: 10px 11px; font: inherit;
     }
     select:not([multiple]) {
@@ -427,7 +427,7 @@ foreach ($monthDayMeta as $k => $meta) {
       -webkit-appearance: none;
       -moz-appearance: none;
       padding: 10px 40px 10px 11px;
-      background-color: #0f172a;
+      background-color:
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 12px center;
@@ -461,11 +461,11 @@ foreach ($monthDayMeta as $k => $meta) {
       font-weight: 600;
       cursor: pointer;
       font-size: 13px;
-      color: #cbd5e1;
+      color:
     }
     label.diocese-cb-cal input { width: auto; margin: 0; }
-    button { border: 1px solid #334155; background: #7c6cf0; color: #fff; font-weight: 700; border-radius: 10px; padding: 10px 12px; cursor: pointer; }
-    .danger { background: #7f1d1d; border-color: #b91c1c; }
+    button { border: 1px solid
+    .danger { background:
     @media (max-width: 1180px) {
       .header { flex-direction: column; align-items: flex-start; }
       .header-brand { align-self: center; }

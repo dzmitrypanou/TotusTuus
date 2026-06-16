@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg_dark_primary">#0E1020</color>
-    <color name="bg_dark_secondary">#171A2A</color>
-    <color name="surface_dark">#1D2236</color>
-    <color name="surface_stroke">#39415E</color>
-    <color name="text_primary_light">#FFFFFFFF</color>
-    <color name="text_secondary_light">#B8C0D9</color>
-    <color name="text_tertiary_light">#7A8499</color>
-    <color name="text_error_light">#FF8A8A</color>
-    <color name="purple_200">#FF7C8CFF</color>
-    <color name="purple_500">#FF1F2440</color>
-    <color name="purple_700">#FF13172C</color>
-    <color name="teal_200">#FF8B5CF6</color>
-    <color name="teal_700">#FF5B21B6</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="ripple_card">#33FFFFFF</color>
-    <color name="surface_elevated">#252B42</color>
-    <color name="scripture_verse_highlight_fill">#2F354F</color>
-    <color name="scripture_verse_highlight_stroke">#E2D5B8</color>
+    <color name="bg_dark_primary">
+    <color name="bg_dark_secondary">
+    <color name="surface_dark">
+    <color name="surface_stroke">
+    <color name="text_primary_light">
+    <color name="text_secondary_light">
+    <color name="text_tertiary_light">
+    <color name="text_error_light">
+    <color name="purple_200">
+    <color name="purple_500">
+    <color name="purple_700">
+    <color name="teal_200">
+    <color name="teal_700">
+    <color name="black">
+    <color name="white">
+    <color name="ripple_card">
+    <color name="surface_elevated">
+    <color name="scripture_verse_highlight_fill">
+    <color name="scripture_verse_highlight_stroke">
 
     <color name="scripture_chapter_nav_button_fill">@color/bg_dark_secondary</color>
     <color name="scripture_chapter_nav_button_stroke">@color/surface_stroke</color>
     <color name="scripture_chapter_nav_button_fill_disabled">@color/purple_700</color>
-    <color name="scripture_chapter_nav_button_stroke_disabled">#303648</color>
+    <color name="scripture_chapter_nav_button_stroke_disabled">
 
-    <color name="brand_totus_mist">#FFF1F5F9</color>
-    <color name="brand_totus_gold">#FFE2D5B8</color>
-    <color name="brand_totus_lavender">#FFC7D2FE</color>
+    <color name="brand_totus_mist">
+    <color name="brand_totus_gold">
+    <color name="brand_totus_lavender">
 </resources>

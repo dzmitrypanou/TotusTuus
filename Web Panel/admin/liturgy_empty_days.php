@@ -136,12 +136,12 @@ ksort($emptyByTitle, SORT_NATURAL | SORT_FLAG_CASE);
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --text: #e2e8f0;
-      --muted: #94a3b8;
+      --text:
+      --muted:
       --line: rgba(148, 163, 184, 0.22);
-      --bg-deep: #0a0c14;
-      --bg-mid: #12182a;
-      --bg-glow: #1a2240;
+      --bg-deep:
+      --bg-mid:
+      --bg-glow:
       --radius: 14px;
       --radius-sm: 10px;
     }
@@ -167,7 +167,7 @@ ksort($emptyByTitle, SORT_NATURAL | SORT_FLAG_CASE);
       font-weight: 600;
       letter-spacing: 0.02em;
       line-height: 1.1;
-      background: linear-gradient(120deg, #f1f5f9 0%, #e2d5b8 45%, #c7d2fe 100%);
+      background: linear-gradient(120deg,
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -250,20 +250,20 @@ ksort($emptyByTitle, SORT_NATURAL | SORT_FLAG_CASE);
     button.btn-pill.active {
       background: linear-gradient(135deg, rgba(124, 108, 240, 0.35), rgba(196, 163, 90, 0.18));
       border-color: rgba(196, 163, 90, 0.35);
-      color: #fff;
+      color:
     }
-    .btn { display:inline-flex; align-items:center; justify-content:center; padding:8px 12px; border:1px solid #334155; border-radius:10px; background:#1e293b; color:#e2e8f0; text-decoration:none; font-weight:600; }
-    .btn.active { background:#334155; }
-    .card { background:#111827; border:1px solid #334155; border-radius:14px; padding:14px; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; padding:8px 12px; border:1px solid
+    .btn.active { background:
+    .card { background:
     .filters { display:grid; grid-template-columns: repeat(2, minmax(160px, 1fr)); gap:10px; align-items:end; margin-bottom:12px; }
     .filters-actions { grid-column: 1 / -1; display:flex; justify-content:flex-start; }
     .filters-actions .btn { min-width: 120px; }
-    label { display:block; margin-bottom:4px; font-size:13px; color:#cbd5e1; font-weight:600; }
-    input { width:100%; border:1px solid #334155; background:#0f172a; color:#e2e8f0; border-radius:10px; padding:10px 11px; font:inherit; }
+    label { display:block; margin-bottom:4px; font-size:13px; color:
+    input { width:100%; border:1px solid
     table { width:100%; border-collapse:collapse; font-size:13px; }
-    th, td { border-bottom:1px solid #273449; padding:8px 6px; text-align:left; vertical-align:top; }
+    th, td { border-bottom:1px solid
     tr:last-child td { border-bottom:none; }
-    .muted { color:#94a3b8; font-size:13px; }
+    .muted { color:
     @media (max-width: 1180px) {
       .header { flex-direction: column; align-items: flex-start; }
       .header-brand { align-self: center; }

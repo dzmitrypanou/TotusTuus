@@ -197,12 +197,12 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --text: #e2e8f0;
-      --muted: #94a3b8;
+      --text:
+      --muted:
       --line: rgba(148, 163, 184, 0.22);
-      --bg-deep: #0a0c14;
-      --bg-mid: #12182a;
-      --bg-glow: #1a2240;
+      --bg-deep:
+      --bg-mid:
+      --bg-glow:
       --radius: 14px;
       --radius-sm: 10px;
     }
@@ -228,7 +228,7 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
       font-weight: 600;
       letter-spacing: 0.02em;
       line-height: 1.1;
-      background: linear-gradient(120deg, #f1f5f9 0%, #e2d5b8 45%, #c7d2fe 100%);
+      background: linear-gradient(120deg,
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -294,13 +294,13 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
       cursor: pointer;
     }
     button.btn-pill { margin-top: 0; font-family: inherit; box-shadow: none; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; padding: 8px 12px; font-weight: 600; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 10px; border: 1px solid
     .msg { margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; }
-    .ok { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.45); color: #bbf7d0; }
-    .err { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.45); color: #fecaca; }
-    .card { background: #111827; border: 1px solid #334155; border-radius: 14px; padding: 16px; overflow: hidden; }
+    .ok { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.45); color:
+    .err { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.45); color:
+    .card { background:
     .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; border: 1px solid rgba(255,255,255,0.25); vertical-align: middle; }
-    .muted { color: #94a3b8; font-size: 13px; }
+    .muted { color:
     .toolbar-back { margin: 0 0 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .readings-slots {
       margin-top: 8px;
@@ -332,11 +332,11 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
       font-size: 9px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: #94a3b8;
+      color:
       white-space: nowrap;
       padding-top: 2px;
     }
-    .reading-slot-label { color: #cbd5e1; line-height: 1.35; min-width: 0; }
+    .reading-slot-label { color:
     .reading-slot-meta {
       display: flex;
       flex-wrap: wrap;
@@ -344,19 +344,19 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
       align-items: center;
       justify-content: flex-end;
     }
-    .reading-slot-ok { color: #86efac; font-weight: 700; font-size: 10px; white-space: nowrap; }
-    .reading-slot-miss { color: #fca5a5; font-weight: 700; font-size: 10px; white-space: nowrap; }
+    .reading-slot-ok { color:
+    .reading-slot-miss { color:
     .reading-slot-link {
       font-size: 10px;
       font-weight: 700;
-      color: #a5b4fc;
+      color:
       text-decoration: none;
       white-space: nowrap;
     }
     .reading-slot-link:hover { text-decoration: underline; }
-    label { display: block; margin-top: 10px; margin-bottom: 4px; font-size: 13px; color: #cbd5e1; font-weight: 600; }
+    label { display: block; margin-top: 10px; margin-bottom: 4px; font-size: 13px; color:
     input[type="date"], input[type="text"], select, textarea {
-      width: 100%; border: 1px solid #334155; background: #0f172a; color: #e2e8f0;
+      width: 100%; border: 1px solid
       border-radius: 10px; padding: 10px 11px; font: inherit;
     }
     select:not([multiple]) {
@@ -364,7 +364,7 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
       -webkit-appearance: none;
       -moz-appearance: none;
       padding: 10px 40px 10px 11px;
-      background-color: #0f172a;
+      background-color:
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 12px center;
@@ -376,8 +376,8 @@ $selectedReadingSlots = liturgy_admin_reading_slots(
     }
     textarea { min-height: 90px; resize: vertical; max-width: 100%; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-    button { border: 1px solid #334155; background: #7c6cf0; color: #fff; font-weight: 700; border-radius: 10px; padding: 10px 12px; cursor: pointer; }
-    .danger { background: #7f1d1d; border-color: #b91c1c; }
+    button { border: 1px solid
+    .danger { background:
     @media (max-width: 1180px) {
       .header { flex-direction: column; align-items: flex-start; }
       .header-brand { align-self: center; }

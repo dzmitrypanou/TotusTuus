@@ -455,7 +455,7 @@ function getResolvedDirectApiBase() {
             raw = '../WebPanel/api';
         }
         const s = String(raw).replace(/\/$/, '');
-        if (/^https?:\/\//i.test(s)) {
+        if (/^https?:\/\
             return s;
         }
         try {
@@ -489,7 +489,7 @@ function getResolvedWebPanelRoot() {
         let raw = c.webPanelRootUrl;
         if (raw != null && String(raw).trim() !== '') {
             const s = String(raw).replace(/\/$/, '');
-            if (/^https?:\/\//i.test(s)) return s;
+            if (/^https?:\/\
             try {
                 return new URL(s + '/', window.location.href).href.replace(/\/$/, '');
             } catch {
@@ -652,7 +652,7 @@ function scriptureCompareIconSvg(filled, extraClass = '') {
 
         const sz = 'width="1.6875rem" height="1.6875rem"';
         if (filled) {
-            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"${classAttr} ${sz} fill="currentColor" aria-hidden="true" focusable="false"><path d="M10,3L6,7l4,4V8h7V6h-7V3zM14,13v3H7v2h7v3l4,-4l-4,-4z"/></svg>`;
+            return `<svg xmlns="http:
         }
         return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"${classAttr} ${sz} aria-hidden="true" focusable="false"><path fill="currentColor" d="M10,3L6,7l4,4V8h7V6h-7V3z"/><path fill="currentColor" fill-opacity="0.55" d="M14,13v3H7v2h7v3l4,-4l-4,-4z"/></svg>`;
     }
@@ -754,9 +754,9 @@ function apiNetworkFailureHint(apiBaseUrl) {
         const baseLine = `<p><strong>База API зараз:</strong> <code class="bg-black/30 px-1 rounded break-all text-[11px]">${escapeHtml(String(apiBaseUrl || '—'))}</code></p>`;
         chunks.push(baseLine);
 
-        if (window.location.protocol === 'https:' && /^http:\/\//i.test(apiBaseUrl)) {
+        if (window.location.protocol === 'https:' && /^http:\/\
             chunks.push(
-                '<p><strong>Змешаны змест:</strong> старонка адкрыта па HTTPS, а ў <code>api-config.js</code> пазначаны API па HTTP — браўзер блакуе запыт. Пастаўце ў <code>apiBaseUrl</code> адрас з <strong>https://</strong> (уключыце SSL для дамена API).</p>'
+                '<p><strong>Змешаны змест:</strong> старонка адкрыта па HTTPS, а ў <code>api-config.js</code> пазначаны API па HTTP — браўзер блакуе запыт. Пастаўце ў <code>apiBaseUrl</code> адрас з <strong>https:
             );
         }
 
@@ -4974,7 +4974,7 @@ function songbookBuildFlatListHtml(sortedEntries) {
         if (!path) return null;
         const p = String(path).trim();
         if (!p) return null;
-        if (/^https?:\/\//i.test(p)) return p;
+        if (/^https?:\/\
         const { apiBaseUrl, useServerProxy } = getApiConfig();
         const base = useServerProxy
             ? getResolvedWebPanelRoot()
@@ -5225,11 +5225,10 @@ function initSongbookDetailImageZoom(hostArg) {
                 btn.style.opacity = '1';
                 btn.style.visibility = 'visible';
             } catch (_) {
-                // ignore positioning errors
+
             }
         }
 
-        // remove previous handlers for this host (if any)
         if (host._songbookBtnPosHandler) {
             try {
                 window.removeEventListener('resize', host._songbookBtnPosHandler);
@@ -5241,7 +5240,7 @@ function initSongbookDetailImageZoom(hostArg) {
         window.addEventListener('resize', _posHandler);
         window.addEventListener('scroll', _posHandler, { passive: true });
         host._songbookBtnPosHandler = _posHandler;
-        // initial placement
+
         positionOpenFullscreenButtonForHost();
 
         let scale = 1;
@@ -5741,7 +5740,7 @@ function initSongbookDetailImageZoom(hostArg) {
       <section class="totus-about-card rounded-md border border-app-stroke bg-app-elevated p-[18px] flex flex-col text-sm leading-snug">
         <p class="text-app-textSec m-0">Totus Tuus - гэта прыкладанне для каталікоў на беларускай мове. Дадатак аб'ядноўвае ў адным месцы малітоўнік, спеўнік, Святое Пісанне і літургічны каляндар, каб патрэбныя тэксты заўсёды былі пад рукой.</p>
         <p class="text-app-textSec m-0">Просьба пра памылкі ці ідэі пісаць на Email:<br><a href="mailto:dzmitrypanou@gmail.com" class="text-app-text underline-offset-2 hover:underline">dzmitrypanou@gmail.com</a></p>
-        <p class="text-app-textSec m-0">Вэб-дадатак:<br><a href="https://app.kasciolhomiel.by/" target="_blank" rel="noopener noreferrer" class="text-app-text underline-offset-2 hover:underline">app.kasciolhomiel.by</a></p>
+        <p class="text-app-textSec m-0">Вэб-дадатак:<br><a href="https:
         <p class="text-app-textSec m-0">Версія: v${escapeHtml(totusWebDisplayedVersion())}</p>
       </section>
     </div>`;
@@ -6785,10 +6784,10 @@ async function ensureScriptureTranslationsList() {
             <div class="h-full min-h-0 overflow-y-auto overscroll-y-contain flex items-center justify-center p-6 bg-amber-50">
               <div class="max-w-xl bg-white border border-amber-200 rounded-2xl p-8 shadow-lg text-stone-800 text-sm leading-relaxed">
                 <h2 class="text-lg font-bold text-amber-900 mb-3">Гэты сайт не працуе пры адкрыцці файла з дыска</h2>
-                <p class="mb-4">Браўзер блакіруе зварот да API пры пратаколе <code class="bg-stone-100 px-1 rounded">file://</code>. Запусціце лакальны сервер з PHP.</p>
+                <p class="mb-4">Браўзер блакіруе зварот да API пры пратаколе <code class="bg-stone-100 px-1 rounded">file:
                 <p class="mb-2 font-medium text-stone-700">У тэрмінале, у каталозе праекта (напрыклад AndroidStudioProjects):</p>
                 <pre class="bg-stone-900 text-green-400 text-xs p-4 rounded-xl overflow-x-auto text-left mb-4">php -S localhost:8080</pre>
-                <p class="mb-4">Затым адкрыйце: <code class="bg-stone-100 px-1 rounded break-all">http://localhost:8080/WebApp/index.html</code></p>
+                <p class="mb-4">Затым адкрыйце: <code class="bg-stone-100 px-1 rounded break-all">http:
                 <p class="text-stone-600 text-xs">На хасцінгу загрузіце папкі WebApp і WebPanel на адзін дамен і адкрывайце старонку праз HTTPS.</p>
               </div>
             </div>`;

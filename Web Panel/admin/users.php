@@ -258,15 +258,15 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-deep: #0a0c14;
-      --bg-mid: #12182a;
-      --bg-glow: #1a2240;
+      --bg-deep:
+      --bg-mid:
+      --bg-glow:
       --card: rgba(22, 28, 46, 0.72);
-      --card-solid: #161c2e;
-      --text: #e8ecf4;
-      --muted: #94a3b8;
+      --card-solid:
+      --text:
+      --muted:
       --line: rgba(148, 163, 184, 0.18);
-      --accent: #7c6cf0;
+      --accent:
       --accent-glow: rgba(124, 108, 240, 0.35);
       --radius: 14px;
       --radius-sm: 10px;
@@ -293,7 +293,7 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
       font-weight: 600;
       letter-spacing: 0.02em;
       line-height: 1.1;
-      background: linear-gradient(120deg, #f1f5f9 0%, #e2d5b8 45%, #c7d2fe 100%);
+      background: linear-gradient(120deg,
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -377,9 +377,9 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
     button.btn-pill.active {
       background: linear-gradient(135deg, rgba(124, 108, 240, 0.35), rgba(196, 163, 90, 0.18));
       border-color: rgba(196, 163, 90, 0.35);
-      color: #fff;
+      color:
     }
-    #dynamic-sections { margin-top: 16px; }
+
     .card {
       background: var(--card);
       backdrop-filter: blur(12px);
@@ -402,14 +402,14 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
     .msg.ok {
       border: 1px solid rgba(74, 222, 128, 0.35);
       background: rgba(22, 163, 74, 0.22);
-      color: #bbf7d0;
+      color:
     }
     .msg.err {
       border: 1px solid rgba(248, 113, 113, 0.35);
       background: rgba(127, 29, 29, 0.35);
-      color: #fecaca;
+      color:
     }
-    label { display: block; margin: 14px 0 7px; font-weight: 600; font-size: 0.875rem; color: #cbd5e1; }
+    label { display: block; margin: 14px 0 7px; font-weight: 600; font-size: 0.875rem; color:
     input {
       width: 100%;
       padding: 11px 12px;
@@ -491,8 +491,8 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
       font-weight: 600;
       font-size: 0.9rem;
       cursor: pointer;
-      background: linear-gradient(135deg, #6d5dfc 0%, #8b7cf5 50%, #a78bfa 100%);
-      color: #fff;
+      background: linear-gradient(135deg,
+      color:
       box-shadow: 0 8px 24px rgba(109, 93, 252, 0.35);
       transition: filter 0.15s ease, transform 0.1s ease;
     }
@@ -507,12 +507,12 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
     }
     .btn-mini.secondary {
       background: rgba(124, 108, 240, 0.22);
-      color: #e0e7ff;
+      color:
       border: 1px solid rgba(124, 108, 240, 0.3);
     }
     .btn-mini.danger {
       background: rgba(248, 113, 113, 0.12);
-      color: #fca5a5;
+      color:
       border: 1px solid rgba(248, 113, 113, 0.25);
     }
     .muted { color: var(--muted); font-size: 0.875rem; }
@@ -579,25 +579,25 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
     }
     .badge-role-admin {
       background: rgba(196, 163, 90, 0.2);
-      color: #e8d5a3;
+      color:
       border: 1px solid rgba(196, 163, 90, 0.35);
     }
     .badge-role-user {
       background: rgba(124, 108, 240, 0.18);
-      color: #c4b5fd;
+      color:
       border: 1px solid rgba(124, 108, 240, 0.3);
     }
-    .badge-on { color: #86efac; border: 1px solid rgba(74, 222, 128, 0.35); background: rgba(22, 163, 74, 0.15); }
-    .badge-off { color: #fca5a5; border: 1px solid rgba(248, 113, 113, 0.3); background: rgba(127, 29, 29, 0.2); }
+    .badge-on { color:
+    .badge-off { color:
     .badge-sec {
       font-size: 0.6875rem;
       font-weight: 500;
       padding: 2px 6px;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--line);
-      color: #cbd5e1;
+      color:
     }
-    .badge-all { font-size: 0.6875rem; color: #a5b4fc; border-color: rgba(124, 108, 240, 0.35); }
+    .badge-all { font-size: 0.6875rem; color:
     details.user-edit--in-table {
       margin: 0;
       border: none;
@@ -778,7 +778,7 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
                 ?>
                     <details class="user-edit user-edit--in-table" id="user-edit-<?= $uid ?>"<?= $detailsOpen ? ' open' : '' ?>>
                       <summary class="user-edit-summary-grid">
-                        <span class="cell-login"><?= $loginEsc ?> <span class="muted" style="font-weight:400;font-size:0.8rem;">#<?= $uid ?></span></span>
+                        <span class="cell-login"><?= $loginEsc ?> <span class="muted" style="font-weight:400;font-size:0.8rem;">
                         <span class="cell-role">
 <?php if ($isAdminRow): ?>
                             <span class="badge badge-role-admin">Адмін</span>
@@ -860,7 +860,7 @@ if (isset($_POST['panel_save_user'], $_POST['edit_user_id'])) {
   <script>
 (function () {
   var h = location.hash;
-  if (!h || !/^#user-edit-\d+$/.test(h)) return;
+  if (!h || !/^
   var el = document.querySelector(h);
   if (el && el.tagName === 'DETAILS') {
     el.open = true;

@@ -66,7 +66,7 @@ if (!defined('PANEL_ADMIN_NAV_STYLE_EMITTED')) {
       border-radius: 12px;
       border: 1px solid var(--nav-bd);
       background: var(--nav-bg);
-      color: #f1f5f9;
+      color:
       font: inherit;
       font-weight: 700;
       font-size: 1rem;
@@ -74,7 +74,7 @@ if (!defined('PANEL_ADMIN_NAV_STYLE_EMITTED')) {
       text-align: center;
     }
     .panel-nav-toggle:focus-visible {
-      outline: 2px solid #a5b4fc;
+      outline: 2px solid
       outline-offset: 2px;
     }
     .panel-nav-body {
@@ -120,7 +120,7 @@ if (!defined('PANEL_ADMIN_NAV_STYLE_EMITTED')) {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: #e2e8f0;
+      color:
       text-decoration: none;
       font-weight: 600;
       font-size: 0.8125rem;
@@ -150,7 +150,7 @@ if (!defined('PANEL_ADMIN_NAV_STYLE_EMITTED')) {
     button.panel-nav-link.active {
       background: linear-gradient(135deg, rgba(124, 108, 240, 0.45), rgba(196, 163, 90, 0.25));
       border-color: rgba(196, 163, 90, 0.45);
-      color: #fff;
+      color:
     }
     @media (max-width: 1099px) {
       .panel-nav-strip {

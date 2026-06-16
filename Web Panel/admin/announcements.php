@@ -312,12 +312,12 @@ $annDioceseLabels = [
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --text: #e2e8f0;
-      --muted: #94a3b8;
+      --text:
+      --muted:
       --line: rgba(148, 163, 184, 0.22);
-      --bg-deep: #0a0c14;
-      --bg-mid: #12182a;
-      --bg-glow: #1a2240;
+      --bg-deep:
+      --bg-mid:
+      --bg-glow:
       --radius: 14px;
       --radius-sm: 10px;
     }
@@ -346,7 +346,7 @@ $annDioceseLabels = [
       font-weight: 600;
       letter-spacing: 0.02em;
       line-height: 1.1;
-      background: linear-gradient(120deg, #f1f5f9 0%, #e2d5b8 45%, #c7d2fe 100%);
+      background: linear-gradient(120deg,
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -416,23 +416,23 @@ $annDioceseLabels = [
     a.btn-pill.active, button.btn-pill.active {
       background: linear-gradient(135deg, rgba(124, 108, 240, 0.35), rgba(196, 163, 90, 0.18));
       border-color: rgba(196, 163, 90, 0.35);
-      color: #fff;
+      color:
     }
     button.btn-pill { margin-top: 0; font-family: inherit; box-shadow: none; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; padding: 8px 12px; font-weight: 600; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 10px; border: 1px solid
     .grid { display: grid; grid-template-columns: 1fr; gap: 14px; width: 100%; }
-    .card { background: #111827; border: 1px solid #334155; border-radius: 14px; padding: 16px; overflow: hidden; }
-    .muted { color: #94a3b8; font-size: 13px; }
-    .warn { color: #fcd34d; font-size: 13px; margin: 8px 0 0; }
-    .hint { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+    .card { background:
+    .muted { color:
+    .warn { color:
+    .hint { font-size: 12px; color:
     .ann-diocese-block { margin: 16px 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: rgba(15, 23, 42, 0.35); }
     .ann-diocese-label { font-weight: 600; font-size: 0.95rem; display: block; color: var(--text); }
     .ann-diocese-checkboxes { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 10px; align-items: center; }
     label.ann-diocese-cb { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; }
     label.ann-diocese-cb input { width: auto; margin: 0; }
-    label { display: block; margin-top: 10px; margin-bottom: 4px; font-size: 13px; color: #cbd5e1; font-weight: 600; }
+    label { display: block; margin-top: 10px; margin-bottom: 4px; font-size: 13px; color:
     input[type="date"], input[type="text"], input[type="url"], select, textarea {
-      width: 100%; border: 1px solid #334155; background: #0f172a; color: #e2e8f0;
+      width: 100%; border: 1px solid
       border-radius: 10px; padding: 10px 11px; font: inherit;
     }
     textarea { min-height: 220px; resize: vertical; max-width: 100%; }
@@ -449,7 +449,7 @@ $annDioceseLabels = [
       margin: 0 0 8px;
       font-size: 1.05rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color:
       letter-spacing: 0.02em;
     }
     .ann-section-tools {
@@ -500,7 +500,7 @@ $annDioceseLabels = [
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.12);
       background: rgba(255, 255, 255, 0.05);
-      color: #cbd5e1;
+      color:
       cursor: pointer;
       font-size: 0.65rem;
       line-height: 1;
@@ -508,7 +508,7 @@ $annDioceseLabels = [
     }
     .week-day-expand-btn:hover {
       background: rgba(124, 108, 240, 0.2);
-      color: #fff;
+      color:
     }
     .week-day-block.week-day-block--collapsed .week-day-expand-btn .week-chevron {
       transform: rotate(-90deg);
@@ -522,7 +522,7 @@ $annDioceseLabels = [
       flex: 1 1 140px;
       font-size: 0.9375rem;
       font-weight: 700;
-      color: #e2e8f0;
+      color:
     }
     .week-day-checks {
       display: flex;
@@ -545,7 +545,7 @@ $annDioceseLabels = [
     }
     .week-day-badge.on {
       background: rgba(34, 197, 94, 0.18);
-      color: #86efac;
+      color:
     }
     .week-day-body {
       padding: 12px 14px 14px;
@@ -555,7 +555,7 @@ $annDioceseLabels = [
     .week-day-hint-collapsed {
       margin: 0 0 10px;
       font-size: 12px;
-      color: #64748b;
+      color:
       font-style: italic;
     }
     .week-day-block.week-day-block--collapsed .week-day-hint-collapsed { display: block; }
@@ -587,13 +587,13 @@ $annDioceseLabels = [
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.12);
       background: rgba(255, 255, 255, 0.05);
-      color: #cbd5e1;
+      color:
       cursor: pointer;
       font-size: 0.65rem;
     }
     .ann-cblock-toggle:hover {
       background: rgba(124, 108, 240, 0.2);
-      color: #fff;
+      color:
     }
     .ann-cblock--collapsed .ann-cblock-toggle .ann-chev { transform: rotate(-90deg); }
     .ann-chev {
@@ -605,7 +605,7 @@ $annDioceseLabels = [
       flex: 1 1 auto;
       font-size: 0.875rem;
       font-weight: 600;
-      color: #e2e8f0;
+      color:
     }
     .ann-cblock .field-toggle { margin: 0; flex: 0 0 auto; }
     .ann-cblock-body { padding: 12px 14px 14px; }
@@ -613,7 +613,7 @@ $annDioceseLabels = [
     .ann-cblock.ann-cblock--inactive { opacity: 0.9; background: rgba(0, 0, 0, 0.08); }
     .field-toggle { display: flex; align-items: center; gap: 8px; margin: 6px 0 4px; flex-wrap: wrap; }
     .field-toggle input[type="checkbox"] { width: auto; margin: 0; }
-    .field-toggle label { margin: 0; font-weight: 600; font-size: 12px; color: #94a3b8; }
+    .field-toggle label { margin: 0; font-weight: 600; font-size: 12px; color:
     .ann-toast-root {
       position: fixed;
       top: 18px;
@@ -644,12 +644,12 @@ $annDioceseLabels = [
     .ann-toast--ok {
       background: rgba(22, 101, 52, 0.95);
       border: 1px solid rgba(74, 222, 128, 0.45);
-      color: #ecfdf5;
+      color:
     }
     .ann-toast--err {
       background: rgba(127, 29, 29, 0.95);
       border: 1px solid rgba(252, 165, 165, 0.45);
-      color: #fef2f2;
+      color:
     }
     .ann-toast--out { animation: ann-toast-out 0.22s ease forwards; }
     @keyframes ann-toast-out {
@@ -667,7 +667,7 @@ $annDioceseLabels = [
       border: 0;
     }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-    button { border: 1px solid #334155; background: #7c6cf0; color: #fff; font-weight: 700; border-radius: 10px; padding: 10px 12px; cursor: pointer; }
+    button { border: 1px solid
     @media (max-width: 1180px) {
       .header { flex-direction: column; align-items: flex-start; }
       .header-brand { align-self: center; }
@@ -1139,7 +1139,7 @@ $annDioceseLabels = [
             if (title) title.textContent = byKey[k];
           });
         })
-        .catch(function () { /* ignore */ });
+        .catch(function () {});
     }
     var annDateIn = document.getElementById('bulletin_date');
     if (annDateIn) {

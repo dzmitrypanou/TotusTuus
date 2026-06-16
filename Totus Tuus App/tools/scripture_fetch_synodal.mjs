@@ -1,11 +1,4 @@
-/**
- * Будуе syn_full.json у фармаце дадатку (books → chapters → verses).
- * Без захавання знешніх URL у зыходніку: перадайце карэнь праз асяроддзе:
- *   SCRIPTURE_FETCH_ORIGIN — карэнь сайта (схема + хост, без слэша ў канцы)
- *   SCRIPTURE_FETCH_CODE — сегмент шляху да перакладу (па змаўчанні: syn)
- *
- * Прыклад (PowerShell): задаць зменныя асяроддзя, затым node tools/scripture_fetch_synodal.mjs
- */
+
 
 import fs from 'fs';
 import path from 'path';
@@ -21,7 +14,6 @@ if (!ORIGIN) {
   process.exit(1);
 }
 
-/** book_id, ru name, chapter count — як у ScriptureCatalog (пратэстанцкі канон 66 кніг) */
 const BOOKS = [
   [1, 'Бытие', 50],
   [2, 'Исход', 40],
@@ -109,9 +101,6 @@ function stripTags(html) {
   return decodeHtmlEntities(html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
 }
 
-/**
- * Першы блок .text з data-book і data-chapter у articleBody — асноўны тэкст главы.
- */
 function parseChapterVerses(html) {
   const marker = 'itemprop="articleBody"';
   const i = html.indexOf(marker);

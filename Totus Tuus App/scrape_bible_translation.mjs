@@ -7,7 +7,7 @@ if (!TRANSLATION) {
 }
 
 const root = (process.env.SCRIPTURE_SCRAPE_BASE || "").replace(/\/?$/, "/");
-if (!root || !/^https?:\/\//i.test(root)) {
+if (!root || !/^https?:\/\
   console.error("Set SCRIPTURE_SCRAPE_BASE to the URL prefix before the translation folder (e.g. https://example.com/).");
   process.exit(1);
 }

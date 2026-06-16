@@ -248,19 +248,19 @@ $rows = is_array($rows) ? $rows : [];
 ?>
 <!doctype html><html lang="be"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/favicon.png"><title>Кантарал — Totus Tuus</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet"><style>
     :root {
-      --bg-deep: #0a0c14;
-      --bg-mid: #12182a;
-      --bg-glow: #1a2240;
+      --bg-deep:
+      --bg-mid:
+      --bg-glow:
       --card: rgba(22, 28, 46, 0.72);
-      --card-solid: #161c2e;
-      --text: #e8ecf4;
-      --muted: #94a3b8;
+      --card-solid:
+      --text:
+      --muted:
       --line: rgba(148, 163, 184, 0.18);
-      --accent: #7c6cf0;
-      --accent-2: #c4a35a;
+      --accent:
+      --accent-2:
       --accent-glow: rgba(124, 108, 240, 0.35);
-      --danger: #f87171;
-      --success: #4ade80;
+      --danger:
+      --success:
       --radius: 14px;
       --radius-sm: 10px;
     }
@@ -289,7 +289,7 @@ $rows = is_array($rows) ? $rows : [];
       font-weight: 600;
       letter-spacing: 0.02em;
       line-height: 1.1;
-      background: linear-gradient(120deg, #f1f5f9 0%, #e2d5b8 45%, #c7d2fe 100%);
+      background: linear-gradient(120deg,
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -303,7 +303,7 @@ $rows = is_array($rows) ? $rows : [];
       border-radius: 6px;
       background: rgba(124, 108, 240, 0.15);
       border: 1px solid var(--line);
-      color: #ddd6fe;
+      color:
     }
     .header {
       position: relative;
@@ -384,7 +384,7 @@ $rows = is_array($rows) ? $rows : [];
     button.btn-pill.active {
       background: linear-gradient(135deg, rgba(124, 108, 240, 0.35), rgba(196, 163, 90, 0.18));
       border-color: rgba(196, 163, 90, 0.35);
-      color: #fff;
+      color:
     }
     .btn-pill--sm {
       padding: 6px 10px;
@@ -392,43 +392,43 @@ $rows = is_array($rows) ? $rows : [];
     }
     .btn-pill--purple {
       background: rgba(124, 108, 240, 0.22);
-      color: #e0e7ff;
+      color:
       border-color: rgba(124, 108, 240, 0.3);
     }
     .btn-pill--purple:hover {
       background: rgba(124, 108, 240, 0.32);
       border-color: rgba(124, 108, 240, 0.45);
-      color: #fff;
+      color:
     }
     .btn-pill--gold {
       background: rgba(196, 163, 90, 0.12);
-      color: #e8d5a3;
+      color:
       border-color: rgba(196, 163, 90, 0.28);
     }
     .btn-pill--gold:hover {
       background: rgba(196, 163, 90, 0.2);
       border-color: rgba(196, 163, 90, 0.4);
-      color: #f5ecd4;
+      color:
     }
     .btn-pill--muted {
       background: rgba(15, 23, 42, 0.55);
-      color: #94a3b8;
+      color:
       border-color: rgba(148, 163, 184, 0.2);
     }
     .btn-pill--muted:hover {
       background: rgba(30, 41, 59, 0.75);
       border-color: rgba(148, 163, 184, 0.35);
-      color: #cbd5e1;
+      color:
     }
     .btn-pill--danger {
       background: rgba(248, 113, 113, 0.12);
-      color: #fca5a5;
+      color:
       border-color: rgba(248, 113, 113, 0.28);
     }
     .btn-pill--danger:hover {
       background: rgba(248, 113, 113, 0.2);
       border-color: rgba(248, 113, 113, 0.45);
-      color: #fecaca;
+      color:
     }
     .form-actions-row {
       display: flex;
@@ -473,11 +473,11 @@ $rows = is_array($rows) ? $rows : [];
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #94a3b8;
+      color:
     }
     .songbook-panel-section__meta {
       font-size: 0.8rem;
-      color: #a5b4fc;
+      color:
       font-weight: 600;
     }
     .songbook-panel-section__hint {
@@ -487,7 +487,7 @@ $rows = is_array($rows) ? $rows : [];
       color: var(--muted);
       max-width: 58rem;
     }
-    .songbook-panel-section__hint strong { color: #c4b5fd; font-weight: 600; }
+    .songbook-panel-section__hint strong { color:
     .songbook-panel-section__empty {
       margin: 0 0 12px;
       font-size: 0.875rem;
@@ -515,7 +515,7 @@ $rows = is_array($rows) ? $rows : [];
       cursor: pointer;
       user-select: none;
       font-size: 0.875rem;
-      color: #e2e8f0;
+      color:
       transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
     }
     .songbook-filter-chip:hover {
@@ -532,7 +532,7 @@ $rows = is_array($rows) ? $rows : [];
       height: 1rem;
       margin: 0;
       flex-shrink: 0;
-      accent-color: #7c6cf0;
+      accent-color:
       cursor: pointer;
     }
     .songbook-filter-chip span { line-height: 1.25; }
@@ -570,7 +570,7 @@ $rows = is_array($rows) ? $rows : [];
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #94a3b8;
+      color:
     }
     .panel-filter-summary__hint {
       width: 100%;
@@ -585,7 +585,7 @@ $rows = is_array($rows) ? $rows : [];
     }
     .panel-filter-summary__meta {
       font-size: 0.8rem;
-      color: #a5b4fc;
+      color:
       font-weight: 600;
     }
     .panel-filter-details__body {
@@ -606,7 +606,7 @@ $rows = is_array($rows) ? $rows : [];
       margin: 0;
       font-weight: 600;
       font-size: 0.875rem;
-      color: #cbd5e1;
+      color:
       white-space: nowrap;
     }
     .songbook-bulk-form .bulk-songbook-input {
@@ -639,7 +639,7 @@ $rows = is_array($rows) ? $rows : [];
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
     }
     .card p { margin: 8px 0 0; }
-    label { display: block; margin: 14px 0 7px; font-weight: 600; font-size: 0.875rem; color: #cbd5e1; }
+    label { display: block; margin: 14px 0 7px; font-weight: 600; font-size: 0.875rem; color:
     input, textarea, select {
       width: 100%;
       padding: 11px 12px;
@@ -681,7 +681,7 @@ $rows = is_array($rows) ? $rows : [];
       margin: 0 0 6px;
       font-size: 0.8rem;
       letter-spacing: 0.02em;
-      color: #94a3b8;
+      color:
     }
     .scripture-nav-field--chapter { flex: 0 0 108px; max-width: 120px; }
     .scripture-nav-field--chapter select { min-width: 0; }
@@ -703,7 +703,7 @@ $rows = is_array($rows) ? $rows : [];
       font-weight: 600;
       font-size: 0.9rem;
       text-decoration: none;
-      color: #e2e8f0;
+      color:
       background: rgba(30, 41, 59, 0.75);
       border: 1px solid rgba(148, 163, 184, 0.28);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
@@ -712,7 +712,7 @@ $rows = is_array($rows) ? $rows : [];
     a.scripture-back-btn:hover {
       background: rgba(51, 65, 85, 0.9);
       border-color: rgba(124, 108, 240, 0.45);
-      color: #fff;
+      color:
     }
     a.scripture-back-btn:active { transform: translateY(1px); }
     a.scripture-back-btn .scripture-back-icon {
@@ -738,16 +738,16 @@ $rows = is_array($rows) ? $rows : [];
     }
     a.btn-scripture:active { transform: translateY(1px); }
     a.btn-scripture-primary {
-      color: #fff;
-      background: linear-gradient(135deg, #6d5dfc 0%, #8b7cf5 50%, #a78bfa 100%);
+      color:
+      background: linear-gradient(135deg,
       box-shadow: 0 8px 24px rgba(109, 93, 252, 0.35);
     }
     a.btn-scripture-primary:hover {
       filter: brightness(1.08);
-      color: #fff;
+      color:
     }
     a.btn-scripture-secondary {
-      color: #e2e8f0;
+      color:
       background: rgba(30, 41, 59, 0.75);
       border-color: rgba(148, 163, 184, 0.28);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
@@ -755,7 +755,7 @@ $rows = is_array($rows) ? $rows : [];
     a.btn-scripture-secondary:hover {
       background: rgba(51, 65, 85, 0.92);
       border-color: rgba(124, 108, 240, 0.45);
-      color: #fff;
+      color:
     }
     ul.scripture-translation-list {
       list-style: none;
@@ -847,13 +847,13 @@ $rows = is_array($rows) ? $rows : [];
       border-radius: 8px;
       font-size: 13px;
       background: rgba(124, 108, 240, 0.2);
-      color: #e0e7ff;
+      color:
       border: 1px solid rgba(124, 108, 240, 0.25);
     }
     .rich-btn:hover { background: rgba(124, 108, 240, 0.32); }
     .rich-btn.active {
-      background: linear-gradient(135deg, var(--accent), #5b4fc9);
-      color: #fff;
+      background: linear-gradient(135deg, var(--accent),
+      color:
       border-color: transparent;
     }
     .rich-btn-icon {
@@ -882,12 +882,12 @@ $rows = is_array($rows) ? $rows : [];
       margin-top: 0;
       border-radius: 8px;
       border: 2px solid rgba(148, 163, 184, 0.45);
-      background: #ffffff;
+      background:
       cursor: pointer;
       box-shadow: none;
     }
     .rich-color-picker-wrap.open .rich-color-toggle {
-      border-color: #ffffff;
+      border-color:
       box-shadow: 0 0 0 2px rgba(124, 108, 240, 0.55);
     }
     .rich-color-dropdown {
@@ -927,7 +927,7 @@ $rows = is_array($rows) ? $rows : [];
     }
     .rich-color-swatch.active,
     .rich-color-swatch:focus-visible {
-      border-color: #ffffff;
+      border-color:
       box-shadow: 0 0 0 1px rgba(124, 108, 240, 0.65);
       outline: none;
     }
@@ -973,8 +973,8 @@ $rows = is_array($rows) ? $rows : [];
       font-weight: 600;
       font-size: 0.9rem;
       cursor: pointer;
-      background: linear-gradient(135deg, #6d5dfc 0%, #8b7cf5 50%, #a78bfa 100%);
-      color: #fff;
+      background: linear-gradient(135deg,
+      color:
       box-shadow: 0 8px 24px rgba(109, 93, 252, 0.35);
       transition: filter 0.15s ease, transform 0.1s ease;
     }
@@ -1007,7 +1007,7 @@ $rows = is_array($rows) ? $rows : [];
     .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
     .actions form { display: inline; margin: 0; }
     .prayers-filter-form { margin: 0 0 8px; }
-    #dynamic-sections > .prayers-filter-form:first-child { margin-top: 16px; }
+
     .prayers-filter-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -1023,7 +1023,7 @@ $rows = is_array($rows) ? $rows : [];
       margin: 0 0 6px;
       font-size: 0.8rem;
       font-weight: 600;
-      color: #94a3b8;
+      color:
     }
     .prayers-filter-actions {
       display: flex;
@@ -1094,12 +1094,12 @@ $rows = is_array($rows) ? $rows : [];
     }
     .btn-mini.secondary {
       background: rgba(124, 108, 240, 0.22);
-      color: #e0e7ff;
+      color:
       border: 1px solid rgba(124, 108, 240, 0.3);
     }
     .btn-mini.danger {
       background: rgba(248, 113, 113, 0.12);
-      color: #fca5a5;
+      color:
       border: 1px solid rgba(248, 113, 113, 0.25);
     }
     .drag-handle {
@@ -1133,7 +1133,7 @@ $rows = is_array($rows) ? $rows : [];
       padding: 0 10px;
       border-radius: 999px;
       background: rgba(196, 163, 90, 0.15);
-      color: #e8d5a3;
+      color:
       font-size: 11px;
       font-weight: 600;
       margin-left: 0;
@@ -1150,7 +1150,7 @@ $rows = is_array($rows) ? $rows : [];
       font-size: 12px;
       line-height: 1;
       background: rgba(124, 108, 240, 0.2);
-      color: #e0e7ff;
+      color:
       border: 1px solid rgba(124, 108, 240, 0.28);
       box-shadow: none;
       display: inline-flex;
@@ -1181,7 +1181,7 @@ $rows = is_array($rows) ? $rows : [];
       padding: 3px 10px;
       border-radius: 999px;
       background: rgba(196, 163, 90, 0.15);
-      color: #e8d5a3;
+      color:
       font-size: 11px;
       font-weight: 600;
       margin-left: 6px;
@@ -1195,7 +1195,7 @@ $rows = is_array($rows) ? $rows : [];
       width: 14px;
       height: 14px;
       border: 2px solid rgba(255, 255, 255, 0.35);
-      border-top-color: #fff;
+      border-top-color:
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       vertical-align: text-bottom;
@@ -1207,13 +1207,13 @@ $rows = is_array($rows) ? $rows : [];
       max-width: 360px;
       padding: 12px 14px;
       border-radius: var(--radius-sm);
-      color: #fff;
+      color:
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
       border: 1px solid rgba(255, 255, 255, 0.1);
       animation: fadeIn 0.2s ease;
     }
-    .toast.ok { background: linear-gradient(135deg, #15803d, #22c55e); }
-    .toast.err { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+    .toast.ok { background: linear-gradient(135deg,
+    .toast.err { background: linear-gradient(135deg,
     .table-section-title { margin-top: 24px; margin-bottom: 0; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -1304,7 +1304,7 @@ body.body-auth {
       background: linear-gradient(145deg, rgba(124, 108, 240, 0.35), rgba(196, 163, 90, 0.12));
       border: 1px solid rgba(124, 108, 240, 0.35);
       box-shadow: 0 8px 24px rgba(109, 93, 252, 0.25);
-      color: #e9d5ff;
+      color:
     }
     .auth-icon svg {
       width: 26px;
@@ -1333,12 +1333,12 @@ body.body-auth {
       line-height: 1.45;
       border: 1px solid rgba(248, 113, 113, 0.35);
       background: rgba(127, 29, 29, 0.35);
-      color: #fecaca;
+      color:
     }
     .auth-alert--system {
       border-color: rgba(251, 191, 36, 0.4);
       background: rgba(120, 53, 15, 0.35);
-      color: #fde68a;
+      color:
     }
     .auth-form label {
       margin-top: 18px;
@@ -1346,7 +1346,7 @@ body.body-auth {
       font-size: 0.8125rem;
       letter-spacing: 0.03em;
       text-transform: uppercase;
-      color: #94a3b8;
+      color:
     }
     .auth-form label:first-of-type {
       margin-top: 0;
@@ -1382,7 +1382,7 @@ body.body-auth {
     .auth-hint code {
       font-size: 0.85em;
     }
-  </style><style>.songbook-admin-panel + table{margin-top:22px}.kantaral-page-title{margin-top:16px}.kantaral-form-card{margin-top:16px}.kantaral-table-wrap{width:100%;max-width:100%;overflow-x:auto;margin-top:22px;border-radius:var(--radius)}.kantaral-table-wrap table{margin-top:0;min-width:0;table-layout:fixed}.kantaral-table-wrap tr{border-bottom:1px solid var(--line)}.kantaral-table-wrap tr:last-child{border-bottom:none}.kantaral-table-wrap th,.kantaral-table-wrap td{border-bottom:none}.kantaral-table-wrap th:nth-child(1),.kantaral-table-wrap td:nth-child(1){width:38px}.kantaral-table-wrap th:nth-child(2),.kantaral-table-wrap td:nth-child(2){width:52px}.kantaral-table-wrap th:nth-child(3),.kantaral-table-wrap td:nth-child(3){width:100px}.kantaral-table-wrap th:nth-child(4),.kantaral-table-wrap td:nth-child(4){width:52px}.kantaral-table-wrap th:nth-child(5),.kantaral-table-wrap td:nth-child(5){width:135px}.kantaral-table-wrap th:nth-child(6),.kantaral-table-wrap td:nth-child(6){width:320px}.kantaral-table-wrap th:nth-child(7),.kantaral-table-wrap td:nth-child(7){width:70px}.kantaral-table-wrap th:nth-child(8),.kantaral-table-wrap td:nth-child(8){width:190px;overflow-wrap:anywhere}.kantaral-table-wrap th:nth-child(9),.kantaral-table-wrap td:nth-child(9){width:120px}.kantaral-lectionary-picker{position:relative}.kantaral-lectionary-picker__selected{display:flex;flex-wrap:wrap;gap:6px;margin:7px 0}.kantaral-lectionary-picker__chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;white-space:nowrap;border:1px solid rgba(148,163,184,.25);background:rgba(15,23,42,.58);color:var(--text);border-radius:999px;padding:5px 6px 5px 9px;font-size:.76rem;line-height:16px}.kantaral-lectionary-picker__chip span{overflow:hidden;text-overflow:ellipsis}.kantaral-lectionary-picker__chip button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:16px;height:16px;border:0;background:rgba(148,163,184,.12);border-radius:999px;color:var(--muted);padding:0;margin:0;cursor:pointer;font-weight:700;font-size:12px;line-height:16px;vertical-align:middle}.kantaral-lectionary-picker__chip button:hover{background:rgba(248,113,113,.18);color:#fecaca}.kantaral-lectionary-picker__results{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;padding:10px;border:1px solid rgba(148,163,184,.18);border-radius:12px;background:rgba(15,23,42,.45)}.kantaral-lectionary-picker__results[hidden]{display:none}.kantaral-lectionary-picker__option{border:1px solid rgba(148,163,184,.22);background:rgba(30,41,59,.72);color:var(--text);border-radius:10px;padding:8px 10px;box-shadow:none;cursor:pointer;font-size:.88rem}.kantaral-lectionary-picker__option:hover{background:rgba(51,65,85,.85);border-color:rgba(196,163,90,.42)}.kantaral-lectionary-picker__empty{color:var(--muted);font-size:.9rem;padding:4px}.kantaral-inline-lectionary{min-width:0}.kantaral-inline-lectionary .kantaral-lectionary-picker__results{max-height:170px;overflow:auto}.kantaral-inline-lectionary input[type=search]{min-width:0;width:100%}.kantaral-inline-actions{display:flex;gap:8px;align-items:center;margin-top:8px}.kantaral-ajax-status{font-size:.82rem;color:var(--muted);min-height:1em}.kantaral-ajax-status--ok{color:var(--success)}.kantaral-ajax-status--err{color:var(--danger)}</style></head><body>
+  </style><style>.songbook-admin-panel + table{margin-top:22px}.kantaral-page-title{margin-top:16px}.kantaral-form-card{margin-top:16px}.kantaral-table-wrap{width:100%;max-width:100%;overflow-x:auto;margin-top:22px;border-radius:var(--radius)}.kantaral-table-wrap table{margin-top:0;min-width:0;table-layout:fixed}.kantaral-table-wrap tr{border-bottom:1px solid var(--line)}.kantaral-table-wrap tr:last-child{border-bottom:none}.kantaral-table-wrap th,.kantaral-table-wrap td{border-bottom:none}.kantaral-table-wrap th:nth-child(1),.kantaral-table-wrap td:nth-child(1){width:38px}.kantaral-table-wrap th:nth-child(2),.kantaral-table-wrap td:nth-child(2){width:52px}.kantaral-table-wrap th:nth-child(3),.kantaral-table-wrap td:nth-child(3){width:100px}.kantaral-table-wrap th:nth-child(4),.kantaral-table-wrap td:nth-child(4){width:52px}.kantaral-table-wrap th:nth-child(5),.kantaral-table-wrap td:nth-child(5){width:135px}.kantaral-table-wrap th:nth-child(6),.kantaral-table-wrap td:nth-child(6){width:320px}.kantaral-table-wrap th:nth-child(7),.kantaral-table-wrap td:nth-child(7){width:70px}.kantaral-table-wrap th:nth-child(8),.kantaral-table-wrap td:nth-child(8){width:190px;overflow-wrap:anywhere}.kantaral-table-wrap th:nth-child(9),.kantaral-table-wrap td:nth-child(9){width:120px}.kantaral-lectionary-picker{position:relative}.kantaral-lectionary-picker__selected{display:flex;flex-wrap:wrap;gap:6px;margin:7px 0}.kantaral-lectionary-picker__chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;white-space:nowrap;border:1px solid rgba(148,163,184,.25);background:rgba(15,23,42,.58);color:var(--text);border-radius:999px;padding:5px 6px 5px 9px;font-size:.76rem;line-height:16px}.kantaral-lectionary-picker__chip span{overflow:hidden;text-overflow:ellipsis}.kantaral-lectionary-picker__chip button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:16px;height:16px;border:0;background:rgba(148,163,184,.12);border-radius:999px;color:var(--muted);padding:0;margin:0;cursor:pointer;font-weight:700;font-size:12px;line-height:16px;vertical-align:middle}.kantaral-lectionary-picker__chip button:hover{background:rgba(248,113,113,.18);color:
 <div class="header"><div class="header-brand"><h1>Totus Tuus</h1><p class="header-tagline">Панэль кіравання Святой Памяці<br>Біскупа Казіміра Велікасельца OP</p></div><?php $panelNavPage='kantaral'; $panelNavView='kantaral'; $panelNavCalYear=(int)date('Y'); require __DIR__ . '/../includes/panel_admin_nav.php'; ?></div>
 <h2 class="table-section-title kantaral-page-title">Кантарал</h2>
 <?php if ($message !== ''): ?><p class="ok"><?= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></p><?php endif; ?>

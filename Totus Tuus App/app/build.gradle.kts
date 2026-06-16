@@ -17,7 +17,7 @@ val totusAppVersion = Properties().apply {
     }
     f.reader().use { load(it) }
 }
-/** Спачатку local.properties (totus.publicApiKey), інакш — publicApiKey у ../totus-app-version.properties (адзін крыніца з вэб-панэллю). */
+
 val totusPublicApiKeyRaw: String = run {
     val fromLocal = localProperties.getProperty("totus.publicApiKey", "").trim()
     if (fromLocal.isNotEmpty()) return@run fromLocal

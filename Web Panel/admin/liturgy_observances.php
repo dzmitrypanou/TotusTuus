@@ -360,20 +360,20 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --text: #e2e8f0;
-      --muted: #94a3b8;
+      --text:
+      --muted:
       --line: rgba(148, 163, 184, 0.22);
-      --bg-deep: #0a0c14;
-      --bg-mid: #12182a;
-      --bg-glow: #1a2240;
+      --bg-deep:
+      --bg-mid:
+      --bg-glow:
       --radius: 14px;
       --radius-sm: 10px;
-      --accent-violet: #7c6cf0;
+      --accent-violet:
       --accent-violet-dim: rgba(124, 108, 240, 0.35);
-      --accent-gold: #c4a35a;
+      --accent-gold:
       --accent-gold-dim: rgba(196, 163, 90, 0.22);
-      --surface: #111827;
-      --surface-inset: #0b1224;
+      --surface:
+      --surface-inset:
     }
     * { box-sizing: border-box; }
     html {
@@ -400,26 +400,26 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       font-weight: 600;
       letter-spacing: 0.02em;
       line-height: 1.1;
-      background: linear-gradient(120deg, #f1f5f9 0%, #e2d5b8 45%, #c7d2fe 100%);
+      background: linear-gradient(120deg,
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
     }
-    h2 { margin: 0 0 8px; font-size: 1rem; color: #f1f5f9; }
+    h2 { margin: 0 0 8px; font-size: 1rem; color:
     .card__title {
       font-size: 1.15rem;
       font-weight: 600;
-      color: #f8fafc;
+      color:
       margin: 0 0 6px;
     }
     .card__lead { margin: 0 0 16px; line-height: 1.5; }
     .card__lead a {
-      color: #c4b5fd;
+      color:
       text-decoration: none;
       border-bottom: 1px solid rgba(196, 181, 253, 0.35);
       transition: color 0.15s, border-color 0.15s;
     }
-    .card__lead a:hover { color: #e9d5ff; border-bottom-color: rgba(233, 213, 255, 0.55); }
+    .card__lead a:hover { color:
     .header {
       position: relative;
       overflow: hidden;
@@ -485,7 +485,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
     a.btn-pill.active, button.btn-pill.active {
       background: linear-gradient(135deg, rgba(124, 108, 240, 0.35), rgba(196, 163, 90, 0.18));
       border-color: rgba(196, 163, 90, 0.35);
-      color: #fff;
+      color:
     }
     button.btn-pill {
       margin-top: 0;
@@ -504,10 +504,10 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       box-shadow: none;
     }
     button.btn-pill:active:not(:disabled) { transform: none; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; padding: 8px 12px; font-weight: 600; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 10px; border: 1px solid
     .msg { margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; }
-    .ok { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.45); color: #bbf7d0; }
-    .err { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.45); color: #fecaca; }
+    .ok { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.45); color:
+    .err { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.45); color:
     .grid { display: grid; grid-template-columns: 1fr; gap: 18px; width: 100%; }
     .card {
       position: relative;
@@ -533,12 +533,12 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
     }
     .table-wrap { overflow-x: auto; }
     .table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; min-width: 820px; }
-    .table th, .table td { border-bottom: 1px solid #273449; padding: 10px 8px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+    .table th, .table td { border-bottom: 1px solid
     .table thead th {
       font-size: 0.68rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #94a3b8;
+      color:
       font-weight: 700;
       background: rgba(15, 23, 42, 0.85);
       border-bottom: 1px solid rgba(124, 108, 240, 0.2);
@@ -546,7 +546,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
     .table tbody tr:hover td { background: rgba(124, 108, 240, 0.04); }
     .table tr:last-child td { border-bottom: none; }
     .table .btn { white-space: nowrap; padding: 6px 10px; }
-    .muted { color: #94a3b8; font-size: 13px; }
+    .muted { color:
     .status-row { margin: 6px 0 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .list-filter-bar {
       display: flex;
@@ -556,14 +556,14 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       margin: 4px 0 14px;
     }
     .list-count-line { margin: 0 0 12px; }
-    label { display: block; margin-top: 10px; margin-bottom: 4px; font-size: 13px; color: #cbd5e1; font-weight: 600; }
+    label { display: block; margin-top: 10px; margin-bottom: 4px; font-size: 13px; color:
     label.checkbox-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-weight: 600; }
     label.checkbox-row input { width: auto; }
     input[type="date"], input[type="text"], input[type="number"], select, textarea {
       width: 100%;
       border: 1px solid rgba(51, 65, 85, 0.9);
       background: var(--surface-inset);
-      color: #e2e8f0;
+      color:
       border-radius: 11px;
       padding: 11px 13px;
       font: inherit;
@@ -579,7 +579,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       -webkit-appearance: none;
       -moz-appearance: none;
       padding: 10px 40px 10px 11px;
-      background-color: #0f172a;
+      background-color:
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 12px center;
@@ -593,8 +593,8 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
     button {
       border: 1px solid transparent;
-      background: linear-gradient(135deg, #8b7cf8 0%, #6d5acd 100%);
-      color: #fff;
+      background: linear-gradient(135deg,
+      color:
       font-weight: 700;
       border-radius: 11px;
       padding: 11px 16px;
@@ -613,17 +613,17 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       box-shadow: none;
     }
     .danger {
-      background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+      background: linear-gradient(135deg,
       box-shadow: 0 4px 14px -4px rgba(220, 38, 38, 0.45);
     }
     .danger:hover:not(:disabled) { box-shadow: 0 6px 18px -4px rgba(220, 38, 38, 0.5); }
-    code { font-size: 12px; background: rgba(15, 23, 42, 0.8); padding: 2px 6px; border-radius: 6px; border: 1px solid #334155; }
+    code { font-size: 12px; background: rgba(15, 23, 42, 0.8); padding: 2px 6px; border-radius: 6px; border: 1px solid
     .day-actions-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
     .toolbar-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
     .btn-muted {
       background: rgba(51, 65, 85, 0.65);
       border: 1px solid rgba(71, 85, 105, 0.85);
-      color: #e2e8f0;
+      color:
       box-shadow: none;
     }
     .btn-muted:hover:not(:disabled) {
@@ -632,7 +632,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     }
     .diff-old {
-      color: #fca5a5;
+      color:
       text-decoration: line-through;
       white-space: pre-wrap;
       overflow-wrap: anywhere;
@@ -644,7 +644,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       border: 1px solid rgba(248, 113, 113, 0.12);
     }
     .diff-new {
-      color: #86efac;
+      color:
       white-space: pre-wrap;
       overflow-wrap: anywhere;
       font-size: 12px;
@@ -689,7 +689,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.12);
       background: rgba(255, 255, 255, 0.05);
-      color: #cbd5e1;
+      color:
       cursor: pointer;
       line-height: 0;
       font-weight: 600;
@@ -701,7 +701,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
     }
     button.bulk-fold-toggle:hover:not(:disabled) {
       background: rgba(124, 108, 240, 0.2);
-      color: #fff;
+      color:
       filter: none;
     }
     button.bulk-fold-toggle:active:not(:disabled) {
@@ -734,7 +734,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       flex: 1 1 140px;
       font-size: 0.9375rem;
       font-weight: 700;
-      color: #e2e8f0;
+      color:
     }
     .bulk-fold-body {
       padding: 12px 14px 14px;
@@ -752,7 +752,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       margin: 0 0 8px;
       font-size: 0.875rem;
       font-weight: 600;
-      color: #e2e8f0;
+      color:
     }
     .bulk-preview-row {
       display: flex;
@@ -786,7 +786,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       min-width: 0;
       background: linear-gradient(135deg, rgba(124, 108, 240, 0.92) 0%, rgba(88, 63, 168, 0.95) 100%);
       border: 1px solid rgba(196, 181, 253, 0.28);
-      color: #fff;
+      color:
       cursor: pointer;
       font-family: inherit;
       box-shadow: 0 2px 12px -4px rgba(124, 108, 240, 0.5);
@@ -805,13 +805,13 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       min-height: 1.4em;
       margin: 0;
     }
-    .bulk-status-line.is-error { color: #fecaca !important; }
+    .bulk-status-line.is-error { color:
     .bulk-spinner {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       font-size: 12px;
-      color: #a5b4fc;
+      color:
       font-weight: 600;
     }
     .bulk-spinner[hidden] { display: none !important; }
@@ -820,7 +820,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       width: 14px;
       height: 14px;
       border: 2px solid rgba(165, 180, 252, 0.25);
-      border-top-color: #a5b4fc;
+      border-top-color:
       border-radius: 50%;
       animation: bulk-spin 0.7s linear infinite;
     }
@@ -850,7 +850,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       font-size: 13px;
       text-transform: none;
       letter-spacing: normal;
-      color: #cbd5e1;
+      color:
       font-weight: 600;
       margin: 0 0 8px;
       padding: 0;
@@ -872,7 +872,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       cursor: pointer;
       font-weight: 600;
       font-size: 12px;
-      color: #e2e8f0;
+      color:
       transition: border-color 0.15s ease, background 0.15s ease;
     }
     label.bulk-chip:hover {
@@ -921,7 +921,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
     }
     .bulk-change-log .bulk-log-placeholder {
       margin: 0;
-      color: #64748b;
+      color:
       font-style: normal;
       padding: 6px 4px;
       text-align: left;
@@ -935,7 +935,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
     }
     .bulk-log-id {
       font-weight: 700;
-      color: #e2e8f0;
+      color:
       margin-bottom: 8px;
       font-size: 12px;
       letter-spacing: 0.02em;
@@ -951,7 +951,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: #94a3b8;
+      color:
       font-weight: 700;
     }
     .bulk-log-more {
@@ -960,7 +960,7 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       border-radius: 10px;
       background: rgba(124, 108, 240, 0.08);
       border: 1px dashed rgba(124, 108, 240, 0.28);
-      color: #c4b5fd;
+      color:
       font-size: 12px;
       line-height: 1.45;
     }
@@ -992,8 +992,8 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #b91c1c, #dc2626);
-      color: #fff;
+      background: linear-gradient(135deg,
+      color:
       font-size: 28px;
       font-weight: 900;
       display: flex;
@@ -1002,8 +1002,8 @@ if (isset($_GET['deleted']) && (string)$_GET['deleted'] === '1' && $message === 
       margin: 0 auto 14px;
       line-height: 1;
     }
-    .modal-dialog h3 { margin: 0 0 10px; font-size: 1.05rem; text-align: center; color: #fecaca; }
-    .modal-dialog p { margin: 0 0 16px; font-size: 0.9rem; color: #cbd5e1; line-height: 1.45; }
+    .modal-dialog h3 { margin: 0 0 10px; font-size: 1.05rem; text-align: center; color:
+    .modal-dialog p { margin: 0 0 16px; font-size: 0.9rem; color:
     .modal-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
     .modal-actions button { min-width: 100px; }
     @media (max-width: 1180px) {

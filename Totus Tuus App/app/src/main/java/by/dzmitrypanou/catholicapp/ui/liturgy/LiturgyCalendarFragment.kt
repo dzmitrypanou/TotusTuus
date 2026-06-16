@@ -495,7 +495,6 @@ class LiturgyCalendarFragment : Fragment() {
     }
 }
 
-
 private fun bestReadableTextColor(backgroundColor: Int): Int {
     val whiteContrast = ColorUtils.calculateContrast(Color.WHITE, backgroundColor)
     val blackContrast = ColorUtils.calculateContrast(Color.BLACK, backgroundColor)
