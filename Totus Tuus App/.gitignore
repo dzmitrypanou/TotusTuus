@@ -14,3 +14,5 @@ app/build/
 .externalNativeBuild
 .cxx
 local.properties
+/*_full.json
+tmp_*.zip

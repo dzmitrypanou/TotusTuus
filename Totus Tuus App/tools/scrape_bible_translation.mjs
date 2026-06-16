@@ -2,7 +2,7 @@ import { writeFileSync } from "node:fs";
 
 const TRANSLATION = process.argv[2];
 if (!TRANSLATION) {
-  console.error("Usage: SCRIPTURE_SCRAPE_BASE=https://host/path/ node scrape_bible_translation.mjs <translation-code>");
+  console.error("Usage: SCRIPTURE_SCRAPE_BASE=https://host/path/ node tools/scrape_bible_translation.mjs <translation-code>");
   process.exit(1);
 }
 
