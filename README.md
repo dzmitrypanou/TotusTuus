@@ -70,4 +70,4 @@ Bug reports and ideas: [dzmitrypanou@gmail.com](mailto:dzmitrypanou@gmail.com)
 
 ## License
 
-Source code in this repository is provided without an explicit license file. Contact the author if you intend to redistribute or reuse substantial parts of the project.
+Source code in this repository is released under [The Unlicense](LICENSE) (public domain). You may use, copy, modify, and distribute it for any purpose without attribution or permission. Bible translations and other liturgical content bundled with the app may remain under separate copyright from their publishers.
