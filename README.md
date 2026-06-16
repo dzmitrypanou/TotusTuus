@@ -64,10 +64,6 @@ The admin UI manages prayers, Scripture, liturgy, lectionary, songbook, announce
 
 The app does not collect names, email addresses, or phone numbers. Locally stored data includes cached content, user settings, and reading progress. See [Web App/privacy-policy.html](Web%20App/privacy-policy.html).
 
-## Contact
-
-Bug reports and ideas: [dzmitrypanou@gmail.com](mailto:dzmitrypanou@gmail.com)
-
 ## License
 
 Source code in this repository is released under [The Unlicense](LICENSE) (public domain). You may use, copy, modify, and distribute it for any purpose without attribution or permission. Bible translations and other liturgical content bundled with the app may remain under separate copyright from their publishers.
